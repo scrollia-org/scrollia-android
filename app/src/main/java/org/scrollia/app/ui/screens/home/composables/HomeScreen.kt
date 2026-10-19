@@ -96,8 +96,8 @@ import org.scrollia.app.ui.screens.home.viewmodels.HomeViewModel
 import org.scrollia.app.ui.screens.home.viewmodels.SearchBarState
 import org.scrollia.app.ui.screens.home.viewmodels.UserAction
 import org.scrollia.app.ui.screens.main.bottomNavPadding
-import org.scrollia.app.ui.theme.playfairFont
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.frauncesFont
+import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.delay
 
 
@@ -415,7 +415,7 @@ private fun HomeTopAppBar(
                 stringResource(id = R.string.home_header) else bookLanguage.name,
             fontSize = 28.sp,
             color = MaterialTheme.colorScheme.onBackground,
-            fontFamily = playfairFont
+            fontFamily = frauncesFont
         )
         Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = onLanguageIconClicked) {
@@ -460,7 +460,7 @@ private fun SearchAppBar(
             placeholder = {
                 Text(
                     text = "Search...",
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                 )
             },

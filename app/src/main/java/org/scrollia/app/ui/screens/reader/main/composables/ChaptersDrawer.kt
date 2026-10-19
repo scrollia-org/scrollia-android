@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.scrollia.app.R
 import org.scrollia.app.epub.models.EpubChapter
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.launch
 
 @Composable
@@ -52,7 +52,7 @@ fun ChaptersDrawer(
                     modifier = Modifier.padding(start = 16.dp, top = 12.dp),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 

@@ -190,9 +190,9 @@ fun ScrolliaTheme(
     val context = LocalContext.current
     val themeState = settingsViewModel.theme.observeAsState(initial = ThemeMode.Auto)
     val amoledThemeState = settingsViewModel.amoledTheme.observeAsState(initial = false)
-    val materialYouState = settingsViewModel.materialYou.observeAsState(
-        initial = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    )
+    // Material You is opt-in: the Scrollia brand palette (docs/DESIGN.md)
+    // must be the default look, not the user's wallpaper colors.
+    val materialYouState = settingsViewModel.materialYou.observeAsState(initial = false)
 
 
     val colorScheme = getColorScheme(

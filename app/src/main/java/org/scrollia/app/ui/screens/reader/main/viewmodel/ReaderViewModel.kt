@@ -59,8 +59,9 @@ data class ReaderScreenState(
     val lastChapterOffset: Int = 0,
     // Typography
     val fontSize: Int = 100,
-    val fontFamily: ReaderFont = ReaderFont.System,
-    val lineHeight: Float = 1.2f,
+    val fontFamily: ReaderFont = ReaderFont.Literata,
+    val lineHeight: Float = 1.7f,
+    val readerTheme: ReaderTheme = ReaderTheme.Paper,
 )
 
 @HiltViewModel
@@ -87,10 +88,16 @@ class ReaderViewModel @Inject constructor(
                     fontFamily = ReaderFont.getFontById(
                         preferenceUtil.getString(
                             PreferenceUtil.READER_FONT_STYLE_STR,
-                            ReaderFont.System.id
+                            ReaderFont.Literata.id
                         )!!
                     ),
-                    lineHeight = preferenceUtil.getFloat(PreferenceUtil.READER_LINE_HEIGHT_FLOAT, 1.2f)
+                    lineHeight = preferenceUtil.getFloat(PreferenceUtil.READER_LINE_HEIGHT_FLOAT, 1.7f),
+                    readerTheme = ReaderTheme.getById(
+                        preferenceUtil.getString(
+                            PreferenceUtil.READER_THEME_STR,
+                            ReaderTheme.Paper.id
+                        )
+                    )
                 )
             }
             // Collect the state to update the current chapter.
@@ -295,6 +302,11 @@ class ReaderViewModel @Inject constructor(
     fun setLineHeight(newValue: Float) {
         preferenceUtil.putFloat(PreferenceUtil.READER_LINE_HEIGHT_FLOAT, newValue)
         _state.update { it.copy(lineHeight = newValue) }
+    }
+
+    fun setReaderTheme(theme: ReaderTheme) {
+        preferenceUtil.putString(PreferenceUtil.READER_THEME_STR, theme.id)
+        _state.update { it.copy(readerTheme = theme) }
     }
 
 }

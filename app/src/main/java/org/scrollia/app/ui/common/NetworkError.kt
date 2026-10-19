@@ -47,7 +47,8 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import org.scrollia.app.R
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
+import org.scrollia.app.ui.theme.literataFont
 
 
 @Composable
@@ -88,7 +89,7 @@ fun NetworkError(errorMessage: String? = null, onRetryClicked: () -> Unit) {
                 .padding(top = 10.dp, bottom = 18.dp)
                 .fillMaxWidth(),
             color = MaterialTheme.colorScheme.onBackground,
-            fontFamily = poppinsFont,
+            fontFamily = literataFont,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center
         )
@@ -97,7 +98,7 @@ fun NetworkError(errorMessage: String? = null, onRetryClicked: () -> Unit) {
             Text(
                 text = stringResource(id = R.string.network_error_retry),
                 fontWeight = FontWeight.Medium,
-                fontFamily = poppinsFont
+                fontFamily = interFont
             )
         }
     }

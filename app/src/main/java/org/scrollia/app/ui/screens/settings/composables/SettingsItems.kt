@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import org.scrollia.app.helpers.weakHapticFeedback
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 
 
 @Composable
@@ -107,7 +107,7 @@ fun SettingItem(icon: ImageVector, mainText: String, subText: String, onClick: (
                 Column {
                     Text(
                         text = mainText,
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -117,7 +117,7 @@ fun SettingItem(icon: ImageVector, mainText: String, subText: String, onClick: (
 
                     Text(
                         text = subText,
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         color = Color.Gray,
                         fontSize = 13.sp,
                         lineHeight = 1.3.em,
@@ -183,7 +183,7 @@ fun SettingItemWIthSwitch(
                 Column {
                     Text(
                         text = mainText,
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -193,7 +193,7 @@ fun SettingItemWIthSwitch(
 
                     Text(
                         text = subText,
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         color = Color.Gray,
                         fontSize = 13.sp,
                         lineHeight = 1.3.em,

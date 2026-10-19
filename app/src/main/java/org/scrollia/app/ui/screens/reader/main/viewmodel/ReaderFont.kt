@@ -20,7 +20,8 @@ import androidx.annotation.Keep
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import org.scrollia.app.R
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
+import org.scrollia.app.ui.theme.literataFont
 
 @Keep
 sealed class ReaderFont(val id: String, val name: String, val fontFamily: FontFamily) {
@@ -33,24 +34,18 @@ sealed class ReaderFont(val id: String, val name: String, val fontFamily: FontFa
         }
 
         fun getAllFonts() = fontMap.values.toList()
-        fun getFontById(id: String) = fontMap[id]!!
-        fun getFontByName(name: String) = getAllFonts().find { it.name == name }!!
+
+        // Fallback to the default font instead of crashing when a stored
+        // preference id no longer exists (e.g. removed fonts after an update).
+        fun getFontById(id: String) = fontMap[id] ?: Literata
+        fun getFontByName(name: String) = getAllFonts().find { it.name == name } ?: Literata
     }
 
     @Keep
-    data object System : ReaderFont("system", "System Default", FontFamily.Default)
+    data object Literata : ReaderFont("literata", "Literata", literataFont)
 
     @Keep
-    data object Serif : ReaderFont("serif", "Serif", FontFamily.Serif)
-
-    @Keep
-    data object Cursive : ReaderFont("cursive", "Cursive", FontFamily.Cursive)
-
-    @Keep
-    data object SansSerif : ReaderFont("sans-serif", "SansSerif", FontFamily.SansSerif)
-
-    @Keep
-    data object Inter : ReaderFont("inter", "Inter", FontFamily(Font(R.font.reader_inter_font)))
+    data object Inter : ReaderFont("inter", "Inter", interFont)
 
     @Keep
     data object Dyslexic : ReaderFont(
@@ -60,5 +55,8 @@ sealed class ReaderFont(val id: String, val name: String, val fontFamily: FontFa
     )
 
     @Keep
-    data object Lora : ReaderFont("poppins", "Poppins", poppinsFont)
+    data object System : ReaderFont("system", "System Default", FontFamily.Default)
+
+    @Keep
+    data object Serif : ReaderFont("serif", "Serif", FontFamily.Serif)
 }

@@ -50,7 +50,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -63,7 +62,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderViewModel
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.launch
 
 
@@ -103,6 +102,7 @@ fun ReaderScreen(
         onScrollToChapter = { coroutineScope.launch { onScrollToChapter(it) } },
     ) {
         Scaffold(
+            containerColor = state.readerTheme.backgroundColor,
             snackbarHost = { SnackbarHost(snackBarHostState) },
             topBar = {
                 ReaderTopAppBar(
@@ -121,7 +121,8 @@ fun ReaderScreen(
                         showFontDialog = showFontDialog,
                         snackBarHostState = snackBarHostState,
                         onFontSizeChanged = { viewModel.setFontSize(it) },
-                        onLineHeightChanged = { viewModel.setLineHeight(it) }
+                        onLineHeightChanged = { viewModel.setLineHeight(it) },
+                        onReaderThemeChanged = { viewModel.setReaderTheme(it) }
                     )
                 }
             },
@@ -163,16 +164,12 @@ private fun ReaderTopAppBar(
         exit = shrinkVertically(targetHeight = { 0 }, shrinkTowards = Alignment.Top)
                 + fadeOut(),
     ) {
-        Surface(color = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)) {
+        Surface(color = state.readerTheme.backgroundColor) {
             Column(modifier = Modifier.displayCutoutPadding()) {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                            2.dp
-                        ),
-                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                            2.dp
-                        ),
+                        containerColor = state.readerTheme.backgroundColor,
+                        scrolledContainerColor = state.readerTheme.backgroundColor,
                     ),
                     title = {
                         Text(
@@ -180,8 +177,8 @@ private fun ReaderTopAppBar(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.animateContentSize(),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = poppinsFont
+                            color = state.readerTheme.textColor,
+                            fontFamily = interFont
                         )
 
                     },
@@ -189,7 +186,7 @@ private fun ReaderTopAppBar(
                         IconButton(onClick = onChapterListClicked) {
                             Icon(
                                 Icons.Filled.Menu, null,
-                                tint = MaterialTheme.colorScheme.onSurface
+                                tint = state.readerTheme.textColor
                             )
                         }
                     }
@@ -203,8 +200,8 @@ private fun ReaderTopAppBar(
                         text = state.currentChapter.title,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontFamily = poppinsFont,
+                        color = state.readerTheme.textColor,
+                        fontFamily = interFont,
                         fontWeight = FontWeight.Medium
                     )
                 }

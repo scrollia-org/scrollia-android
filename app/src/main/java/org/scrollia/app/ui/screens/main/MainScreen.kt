@@ -61,7 +61,7 @@ import org.scrollia.app.helpers.NetworkObserver
 import org.scrollia.app.ui.navigation.BottomBarScreen
 import org.scrollia.app.ui.navigation.NavGraph
 import org.scrollia.app.ui.navigation.Screens
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 
 /**
  * Padding for the bottom navigation bar.
@@ -173,7 +173,7 @@ private fun CustomBottomNavigationItem(
                 Text(
                     text = stringResource(id = screen.title),
                     color = contentColor,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontSize = 14.sp,
                     modifier = Modifier.padding(start = 4.dp)
                 )

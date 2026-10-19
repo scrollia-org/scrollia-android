@@ -1,5 +1,6 @@
 package org.scrollia.app.ui.screens.reader.main.composables
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,7 +25,6 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -44,8 +44,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.scrollia.app.R
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderFont
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderTheme
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.launch
 
 private enum class ControlButtonType { INCREASE, DECREASE }
@@ -56,38 +57,90 @@ fun ReaderBottomBar(
     showFontDialog: MutableState<Boolean>,
     snackBarHostState: SnackbarHostState,
     onFontSizeChanged: (newValue: Int) -> Unit,
-    onLineHeightChanged: (newValue: Float) -> Unit
+    onLineHeightChanged: (newValue: Float) -> Unit,
+    onReaderThemeChanged: (newValue: ReaderTheme) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
+            .background(state.readerTheme.backgroundColor)
             .padding(vertical = 24.dp, horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextScaleControls(
             fontSize = state.fontSize,
+            textColor = state.readerTheme.textColor,
             snackBarHostState = snackBarHostState,
             onFontSizeChanged = onFontSizeChanged
         )
         Spacer(modifier = Modifier.height(16.dp))
         LineHeightControls(
             lineHeight = state.lineHeight,
+            textColor = state.readerTheme.textColor,
             snackBarHostState = snackBarHostState,
             onLineHeightChanged = onLineHeightChanged
         )
         Spacer(modifier = Modifier.height(16.dp))
         FontSelectionButton(
             readerFontFamily = state.fontFamily,
-            showFontDialog = showFontDialog
+            showFontDialog = showFontDialog,
+            textColor = state.readerTheme.textColor
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        ReaderThemeControls(
+            readerTheme = state.readerTheme,
+            onReaderThemeChanged = onReaderThemeChanged
+        )
+    }
+}
+
+@Composable
+private fun ReaderThemeControls(
+    readerTheme: ReaderTheme,
+    onReaderThemeChanged: (ReaderTheme) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(0.9f),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        ReaderTheme.entries.forEach { theme ->
+            val label = when (theme) {
+                ReaderTheme.Paper -> stringResource(id = R.string.reader_theme_paper)
+                ReaderTheme.Sepia -> stringResource(id = R.string.reader_theme_sepia)
+                ReaderTheme.Night -> stringResource(id = R.string.reader_theme_night)
+            }
+            val selected = theme == readerTheme
+            FilledTonalButton(
+                onClick = { onReaderThemeChanged(theme) },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(45.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.filledTonalButtonColors(
+                    containerColor = theme.backgroundColor,
+                    contentColor = theme.textColor
+                ),
+                border = BorderStroke(
+                    width = if (selected) 2.dp else 1.dp,
+                    color = if (selected) MaterialTheme.colorScheme.primary
+                    else theme.textColor.copy(alpha = 0.3f)
+                )
+            ) {
+                Text(
+                    text = label,
+                    fontFamily = interFont,
+                    fontSize = 14.sp
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun TextScaleControls(
     fontSize: Int,
+    textColor: Color,
     snackBarHostState: SnackbarHostState,
     onFontSizeChanged: (newValue: Int) -> Unit
 ) {
@@ -113,9 +166,9 @@ private fun TextScaleControls(
         ) {
             Text(
                 text = fontSize.toString(),
-                fontFamily = poppinsFont,
+                fontFamily = interFont,
                 fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface
+                color = textColor
             )
         }
         ReaderFontSizeButton(
@@ -130,6 +183,7 @@ private fun TextScaleControls(
 @Composable
 private fun LineHeightControls(
     lineHeight: Float,
+    textColor: Color,
     snackBarHostState: SnackbarHostState,
     onLineHeightChanged: (newValue: Float) -> Unit
 ) {
@@ -155,9 +209,9 @@ private fun LineHeightControls(
         ) {
             Text(
                 text = String.format(LocalConfiguration.current.locales[0], "%.1f", lineHeight),
-                fontFamily = poppinsFont,
+                fontFamily = interFont,
                 fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface
+                color = textColor
             )
         }
         ReaderLineHeightButton(
@@ -172,7 +226,8 @@ private fun LineHeightControls(
 @Composable
 private fun FontSelectionButton(
     readerFontFamily: ReaderFont,
-    showFontDialog: MutableState<Boolean>
+    showFontDialog: MutableState<Boolean>,
+    textColor: Color
 ) {
     FilledTonalButton(
         onClick = { showFontDialog.value = true },
@@ -185,12 +240,12 @@ private fun FontSelectionButton(
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_reader_font),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = textColor
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = readerFontFamily.name,
-                color = MaterialTheme.colorScheme.onSurface
+                color = textColor
             )
         }
     }
@@ -365,7 +420,7 @@ fun ReaderFontChooserDialog(
                             text = text,
                             modifier = Modifier.padding(start = 16.dp),
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = poppinsFont
+                            fontFamily = interFont
                         )
                     }
                 }
