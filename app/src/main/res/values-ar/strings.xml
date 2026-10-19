@@ -20,7 +20,7 @@
     <!-- ToolTips -->
     <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">شكرًا لتثبيت Myne!</string>
+    <string name="welcome_screen_title">شكرًا لتثبيت Scrollia!</string>
     <string name="welcome_screen_desc">اختر قارئ الكتب الإلكترونية المفضل لديك للانطلاق في رحلتك في القراءة.</string>
     <string name="welcome_screen_button">البدء</string>
     <!-- Home screen. -->
@@ -55,7 +55,7 @@
     <string name="empty_library">لا يوجد شئ هنا</string>
     <string name="import_button_text">استيراد</string>
     <string name="import_button_onboarding">استيراد كتبك الخاصة!</string>
-    <string name="import_button_onboarding_desc">الآن يمكنك استيراد كتب EPUB الخاصة بك وقراءتها في Myne.</string>
+    <string name="import_button_onboarding_desc">الآن يمكنك استيراد كتب EPUB الخاصة بك وقراءتها في Scrollia.</string>
     <string name="import_button_desc">استيراد كتاب EPUB</string>
     <string name="external_book_info_unavailable">متاح فقط للكتب الداخلية.</string>
     <string name="epub_importing">جاري الاستيراد… يرجى الانتظار.</string>

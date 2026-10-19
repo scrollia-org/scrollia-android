@@ -20,7 +20,7 @@
     <!-- ToolTips -->
     <string name="library_tooltip">СОВЕТ! Проведите пальцем по элементам библиотеки влево или вправо, чтобы поделиться или просмотреть подробную информацию о книге.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Спасибо за установку Myne!</string>
+    <string name="welcome_screen_title">Спасибо за установку Scrollia!</string>
     <string name="welcome_screen_desc">Выберите предпочтительную читалку электронных книг.</string>
     <string name="welcome_screen_button">Приступим</string>
     <!-- Home screen. -->
@@ -55,7 +55,7 @@
     <string name="empty_library">Здесь пусто!</string>
     <string name="import_button_text">Импорт</string>
     <string name="import_button_onboarding">Импортируйте свои собственные книги!</string>
-    <string name="import_button_onboarding_desc">Теперь вы можете импортировать свои собственные книги в формате EPUB и читать их в Myne.</string>
+    <string name="import_button_onboarding_desc">Теперь вы можете импортировать свои собственные книги в формате EPUB и читать их в Scrollia.</string>
     <string name="import_button_desc">Импорт книги EPUB</string>
     <string name="external_book_info_unavailable">Доступно только для внутренних книг.</string>
     <string name="epub_importing">Импортирование…\nПожалуйста, подождите.</string>

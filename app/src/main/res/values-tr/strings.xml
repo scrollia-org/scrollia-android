@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Myne</string>
+    <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
     <string name="not_applicable">Geçersiz</string>
     <string name="woops">"Hay aksi!!"</string>
@@ -21,7 +21,7 @@
     <!-- ToolTips -->
     <string name="library_tooltip">İPUCU! Kitap detaylarını görüntülemek veya paylaşmak için kütüphane öğelerini sola veya sağa kaydırın.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Myne\'ı yüklediğiniz için teşekkürler!</string>
+    <string name="welcome_screen_title">Scrollia\'ı yüklediğiniz için teşekkürler!</string>
     <string name="welcome_screen_desc">Okuma yolculuğunuza başlamak için tercih ettiğiniz e-kitap okuyucuyu seçin.</string>
     <string name="welcome_screen_button">Başlayın</string>
     <!-- Home screen. -->
@@ -56,7 +56,7 @@
     <string name="empty_library">Burada bir şey yok!</string>
     <string name="import_button_text">İçe Aktar</string>
     <string name="import_button_onboarding">Kendi kitaplarınızı içe aktarın!</string>
-    <string name="import_button_onboarding_desc">Artık kendi EPUB kitaplarınızı içe aktarabilir ve Myne\'de okuyabilirsiniz.</string>
+    <string name="import_button_onboarding_desc">Artık kendi EPUB kitaplarınızı içe aktarabilir ve Scrollia\'de okuyabilirsiniz.</string>
     <string name="import_button_desc">Epub kitabını içe aktar</string>
     <string name="external_book_info_unavailable">Yalnızca dahili kitaplar için geçerlidir.</string>
     <string name="epub_importing">İçe aktarılıyor…\nLütfen bekleyin.</string>

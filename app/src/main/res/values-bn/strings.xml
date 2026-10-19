@@ -20,7 +20,7 @@
     <!-- ToolTips -->
     <string name="library_tooltip">টিপ! বইয়ের বিস্তারিত শেয়ার করতে বা দেখতে লাইব্রেরি আইটেমগুলিকে বাম বা ডানে সোয়াইপ করুন।</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Myne ইনস্টল করার জন্য ধন্যবাদ!</string>
+    <string name="welcome_screen_title">Scrollia ইনস্টল করার জন্য ধন্যবাদ!</string>
     <string name="welcome_screen_desc">আপনার পড়ার যাত্রা শুরু করতে আপনার পছন্দের ইবুক রিডার বেছে নিন।</string>
     <string name="welcome_screen_button">শুরু করুন</string>
     <!-- Home screen. -->
@@ -55,7 +55,7 @@
     <string name="empty_library">এখানে কিছুই নেই!</string>
     <string name="import_button_text">ইমপোর্ট</string>
     <string name="import_button_onboarding">আপনার নিজের বই ইমপোর্ট করুন!</string>
-    <string name="import_button_onboarding_desc">এখন আপনি আপনার নিজের EPUB বইগুলি ইমপোর্ট করে সেগুলি Myne-এ পড়তে পারবেন।</string>
+    <string name="import_button_onboarding_desc">এখন আপনি আপনার নিজের EPUB বইগুলি ইমপোর্ট করে সেগুলি Scrollia-এ পড়তে পারবেন।</string>
     <string name="import_button_desc">epub ইমপোর্ট</string>
     <string name="external_book_info_unavailable">শুধুমাত্র অভ্যন্তরীণ বইয়ের জন্য প্রযোজ্য।</string>
     <string name="epub_importing">ইমপোর্ট করা হচ্ছে... \nঅনুগ্রহ করে অপেক্ষা করুন।</string>
