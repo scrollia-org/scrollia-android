@@ -92,8 +92,9 @@ import org.scrollia.app.ui.common.BookDetailTopUI
 import org.scrollia.app.ui.common.NetworkError
 import org.scrollia.app.ui.common.ProgressDots
 import org.scrollia.app.ui.screens.detail.viewmodels.BookDetailViewModel
-import org.scrollia.app.ui.theme.playfairFont
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.frauncesFont
+import org.scrollia.app.ui.theme.interFont
+import org.scrollia.app.ui.theme.literataFont
 import kotlinx.coroutines.launch
 
 
@@ -314,8 +315,8 @@ private fun BookDetailContents(
             text = stringResource(id = R.string.book_synopsis),
             modifier = Modifier.padding(start = 13.dp, end = 8.dp),
             fontSize = 18.sp,
-            fontFamily = poppinsFont,
-            fontWeight = FontWeight.SemiBold,
+            fontFamily = frauncesFont,
+            fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onBackground,
         )
 
@@ -324,7 +325,7 @@ private fun BookDetailContents(
             Text(
                 text = synopsis,
                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                fontFamily = poppinsFont,
+                fontFamily = literataFont,
                 fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onBackground,
             )
@@ -406,7 +407,7 @@ private fun MiddleBar(
                         Text(
                             text = bookLang,
                             fontSize = 16.sp,
-                            fontFamily = poppinsFont,
+                            fontFamily = interFont,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onBackground,
                         )
@@ -436,7 +437,7 @@ private fun MiddleBar(
                         Text(
                             text = pageCount,
                             fontSize = 16.sp,
-                            fontFamily = poppinsFont,
+                            fontFamily = interFont,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onBackground,
                         )
@@ -466,7 +467,7 @@ private fun MiddleBar(
                         Text(
                             text = downloadCount,
                             fontSize = 16.sp,
-                            fontFamily = poppinsFont,
+                            fontFamily = interFont,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onBackground,
                         )
@@ -490,7 +491,7 @@ private fun MiddleBar(
                 Text(
                     text = buttonText,
                     fontSize = 17.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
@@ -530,7 +531,7 @@ private fun BookDetailTopBar(
             modifier = Modifier.padding(bottom = 2.dp),
             color = MaterialTheme.colorScheme.onBackground,
             fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
-            fontFamily = playfairFont,
+            fontFamily = frauncesFont,
             fontSize = 22.sp
         )
 
@@ -585,7 +586,7 @@ private fun NoSynopsisUI() {
         Text(
             text = stringResource(id = R.string.book_synopsis_not_found),
             modifier = Modifier.padding(14.dp),
-            fontFamily = poppinsFont,
+            fontFamily = literataFont,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onBackground,
         )

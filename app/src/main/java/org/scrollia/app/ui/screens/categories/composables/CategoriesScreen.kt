@@ -50,7 +50,7 @@ import org.scrollia.app.helpers.weakHapticFeedback
 import org.scrollia.app.ui.common.CustomTopAppBar
 import org.scrollia.app.ui.navigation.Screens
 import org.scrollia.app.ui.screens.main.bottomNavPadding
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 
 
 @Composable
@@ -119,7 +119,7 @@ private fun CategoriesItem(category: String, onClick: () -> Unit) {
                 text = category,
                 fontSize = 17.sp,
                 fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
-                fontFamily = poppinsFont,
+                fontFamily = interFont,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

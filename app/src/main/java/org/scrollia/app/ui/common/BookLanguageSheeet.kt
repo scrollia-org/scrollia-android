@@ -50,8 +50,8 @@ import androidx.compose.ui.unit.sp
 import org.scrollia.app.R
 import org.scrollia.app.helpers.book.BookLanguage
 import org.scrollia.app.helpers.weakHapticFeedback
-import org.scrollia.app.ui.theme.playfairFont
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.frauncesFont
+import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -89,7 +89,7 @@ fun BookLanguageSheet(
                         .padding(bottom = 4.dp),
                     text = stringResource(id = R.string.language_menu_title),
                     textAlign = TextAlign.Center,
-                    fontFamily = playfairFont,
+                    fontFamily = frauncesFont,
                     fontWeight = FontWeight.Medium,
                     fontSize = 20.sp
                 )
@@ -147,7 +147,7 @@ private fun BookLanguageButton(language: BookLanguage, isSelected: Boolean, onCl
                 modifier = Modifier.padding(2.dp),
                 text = language.name,
                 fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
-                fontFamily = poppinsFont,
+                fontFamily = interFont,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

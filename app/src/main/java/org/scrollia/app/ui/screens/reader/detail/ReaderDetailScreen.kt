@@ -75,7 +75,7 @@ import org.scrollia.app.ui.common.ProgressDots
 import org.scrollia.app.ui.common.simpleVerticalScrollbar
 import org.scrollia.app.ui.screens.reader.main.activities.ReaderActivity
 import org.scrollia.app.ui.screens.reader.main.activities.ReaderConstants
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 
 @Composable
 fun ReaderDetailScreen(
@@ -243,7 +243,7 @@ private fun ChapterItem(
             Text(
                 modifier = Modifier.weight(3f),
                 text = chapterTitle,
-                fontFamily = poppinsFont,
+                fontFamily = interFont,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,

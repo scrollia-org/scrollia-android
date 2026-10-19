@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.scrollia.app.R
 import org.scrollia.app.helpers.weakHapticFeedback
-import org.scrollia.app.ui.theme.playfairFont
+import org.scrollia.app.ui.theme.frauncesFont
 
 @Composable
 fun CustomTopAppBar(headerText: String, iconRes: Int) {
@@ -71,7 +71,7 @@ fun CustomTopAppBar(headerText: String, iconRes: Int) {
                 text = headerText,
                 fontSize = 28.sp,
                 color = MaterialTheme.colorScheme.onBackground,
-                fontFamily = playfairFont
+                fontFamily = frauncesFont
             )
             Icon(
                 imageVector = ImageVector.vectorResource(id = iconRes),
@@ -100,7 +100,7 @@ fun CustomTopAppBar(headerText: String, onBackButtonClicked: () -> Unit) {
                 modifier = Modifier.padding(bottom = 16.dp),
                 color = MaterialTheme.colorScheme.onBackground,
                 fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
-                fontFamily = playfairFont,
+                fontFamily = frauncesFont,
                 fontSize = 24.sp
             )
             Row(
@@ -137,7 +137,7 @@ fun CustomTopAppBar(
                 modifier = Modifier.padding(bottom = 16.dp),
                 color = MaterialTheme.colorScheme.onBackground,
                 fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
-                fontFamily = playfairFont,
+                fontFamily = frauncesFont,
                 fontSize = 24.sp
             )
             Row(

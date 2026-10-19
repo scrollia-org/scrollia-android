@@ -76,6 +76,9 @@
     <string name="reader_min_font_size_reached">Lo sentimos, no puede bajar más</string>
     <string name="reader_font_style_chooser">Change FontStyle</string>
     <string name="reader_chapter_list_title">Capítulos</string>
+    <string name="reader_theme_paper">Papel</string>
+    <string name="reader_theme_sepia">Sepia</string>
+    <string name="reader_theme_night">Nocturno</string>
     <!-- Text selection -->
     <string name="copy">Copiar</string>
     <string name="copied">¡Copiado!</string>

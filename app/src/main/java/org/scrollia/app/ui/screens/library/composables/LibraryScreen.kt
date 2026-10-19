@@ -111,7 +111,7 @@ import org.scrollia.app.ui.screens.library.viewmodels.LibraryViewModel
 import org.scrollia.app.ui.screens.main.bottomNavPadding
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
@@ -236,7 +236,7 @@ fun LibraryScreen(navController: NavController) {
                         Text(
                             text = stringResource(id = R.string.import_button_text),
                             fontWeight = FontWeight.Medium,
-                            fontFamily = poppinsFont,
+                            fontFamily = interFont,
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -274,7 +274,7 @@ fun LibraryScreen(navController: NavController) {
                             Spacer(modifier = Modifier.width(24.dp))
                             Text(
                                 text = stringResource(id = R.string.epub_importing),
-                                fontFamily = poppinsFont,
+                                fontFamily = interFont,
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 17.sp,
                             )
@@ -525,7 +525,7 @@ private fun LibraryCard(
                     text = title,
                     fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
                     fontSize = 18.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -537,7 +537,7 @@ private fun LibraryCard(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
                     maxLines = 1,
                     fontStyle = MaterialTheme.typography.bodySmall.fontStyle,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.Medium,
                     fontSize = 16.sp,
                     overflow = TextOverflow.Ellipsis,
@@ -547,7 +547,7 @@ private fun LibraryCard(
                 Row(modifier = Modifier.offset(y = (-8).dp)) {
                     Text(
                         text = fileSize,
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Light,
                         fontSize = 14.sp,
@@ -562,7 +562,7 @@ private fun LibraryCard(
                     )
                     Text(
                         text = date,
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Light,
                         fontSize = 14.sp,

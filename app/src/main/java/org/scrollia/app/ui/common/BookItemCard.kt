@@ -59,7 +59,8 @@ import coil.request.ImageRequest
 import org.scrollia.app.R
 import org.scrollia.app.helpers.weakHapticFeedback
 import org.scrollia.app.ui.common.placeholder.placeholder
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.frauncesFont
+import org.scrollia.app.ui.theme.interFont
 
 
 @Composable
@@ -135,8 +136,8 @@ fun BookItemCard(
                         .placeholder(isLoading = loadingEffect),
                     fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
                     fontSize = 16.sp,
-                    fontFamily = poppinsFont,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = frauncesFont,
+                    fontWeight = FontWeight.Medium,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -151,7 +152,7 @@ fun BookItemCard(
                     maxLines = 2,
                     lineHeight = 20.sp,
                     fontStyle = MaterialTheme.typography.bodySmall.fontStyle,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontSize = 14.sp,
                 )
 
@@ -166,7 +167,7 @@ fun BookItemCard(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontStyle = MaterialTheme.typography.bodyMedium.fontStyle,
-                    fontFamily = poppinsFont
+                    fontFamily = interFont
                 )
 
                 Text(
@@ -178,7 +179,7 @@ fun BookItemCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     fontStyle = MaterialTheme.typography.bodySmall.fontStyle,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontSize = 13.sp,
                     lineHeight = 18.sp
                 )

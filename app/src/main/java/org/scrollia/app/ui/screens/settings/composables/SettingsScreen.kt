@@ -90,7 +90,7 @@ import org.scrollia.app.ui.navigation.Screens
 import org.scrollia.app.ui.screens.main.bottomNavPadding
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -151,7 +151,7 @@ private fun SettingsCard() {
             ) {
                 Text(
                     text = "${stringResource(id = R.string.app_name)} ${stringResource(id = R.string.app_desc)}",
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -159,7 +159,7 @@ private fun SettingsCard() {
 
                 Text(
                     text = stringResource(id = R.string.made_by),
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -175,7 +175,7 @@ private fun SettingsCard() {
                 ) {
                     Text(
                         text = "version-${BuildConfig.VERSION_NAME}",
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -231,7 +231,7 @@ private fun GeneralOptionsUI(
     ) {
         Text(
             text = stringResource(id = R.string.general_settings_header),
-            fontFamily = poppinsFont,
+            fontFamily = interFont,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
@@ -326,7 +326,7 @@ private fun GeneralOptionsUI(
                             text = text,
                             modifier = Modifier.padding(start = 16.dp),
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = poppinsFont
+                            fontFamily = interFont
                         )
                     }
                 }
@@ -411,7 +411,7 @@ private fun DisplayOptionsUI(
     ) {
         Text(
             text = stringResource(id = R.string.display_setting_header),
-            fontFamily = poppinsFont,
+            fontFamily = interFont,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
@@ -486,7 +486,7 @@ private fun DisplayOptionsUI(
                             text = text,
                             modifier = Modifier.padding(start = 16.dp),
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = poppinsFont
+                            fontFamily = interFont
                         )
                     }
                 }
@@ -536,7 +536,7 @@ private fun InformationUI(navController: NavController) {
         ) {
             Text(
                 text = stringResource(id = R.string.miscellaneous_setting_header),
-                fontFamily = poppinsFont,
+                fontFamily = interFont,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,

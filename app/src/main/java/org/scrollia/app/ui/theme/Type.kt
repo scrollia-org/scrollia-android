@@ -27,109 +27,174 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 import org.scrollia.app.R
 
+// "Papel y Tinta" type system (docs/DESIGN.md §2-3):
+// Fraunces = display/headlines, Literata = long-form body, Inter = UI.
 
-val poppinsFont = FontFamily(
+val frauncesFont = FontFamily(
     fonts = listOf(
         Font(
-            resId = R.font.poppins_regular,
-            weight = FontWeight.Normal,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.poppins_medium,
+            resId = R.font.fraunces_medium,
             weight = FontWeight.Medium,
             style = FontStyle.Normal
         ),
         Font(
-            resId = R.font.poppins_semibold,
+            resId = R.font.fraunces_semibold,
             weight = FontWeight.SemiBold,
             style = FontStyle.Normal
         ),
         Font(
-            resId = R.font.poppins_bold,
-            weight = FontWeight.Bold,
+            resId = R.font.fraunces_medium_italic,
+            weight = FontWeight.Medium,
+            style = FontStyle.Italic
+        ),
+    )
+)
+
+val interFont = FontFamily(
+    fonts = listOf(
+        Font(
+            resId = R.font.inter_regular,
+            weight = FontWeight.Normal,
             style = FontStyle.Normal
         ),
         Font(
-            resId = R.font.poppins_regular,
-            weight = FontWeight.Thin,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.poppins_regular,
-            weight = FontWeight.ExtraLight,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.poppins_regular,
-            weight = FontWeight.Light,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.poppins_bold,
-            weight = FontWeight.ExtraBold,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.poppins_bold,
-            weight = FontWeight.Black,
+            resId = R.font.inter_medium,
+            weight = FontWeight.Medium,
             style = FontStyle.Normal
         ),
     )
 )
 
-val playfairFont = FontFamily(
+val literataFont = FontFamily(
     fonts = listOf(
         Font(
-            resId = R.font.playfair_regular,
+            resId = R.font.literata_regular,
             weight = FontWeight.Normal,
             style = FontStyle.Normal
         ),
         Font(
-            resId = R.font.playfair_bold,
-            weight = FontWeight.Bold,
+            resId = R.font.literata_medium,
+            weight = FontWeight.Medium,
             style = FontStyle.Normal
         ),
         Font(
-            resId = R.font.playfair_italic,
+            resId = R.font.literata_semibold,
+            weight = FontWeight.SemiBold,
+            style = FontStyle.Normal
+        ),
+        Font(
+            resId = R.font.literata_italic,
             weight = FontWeight.Normal,
             style = FontStyle.Italic
         ),
-        Font(
-            resId = R.font.playfair_regular,
-            weight = FontWeight.Medium,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.playfair_bold,
-            weight = FontWeight.SemiBold,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.playfair_bold,
-            weight = FontWeight.ExtraBold,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.playfair_bold,
-            weight = FontWeight.Black,
-            style = FontStyle.Normal
-        ),
     )
 )
 
-// Set of Material typography styles to start with
+// Material typography scale: display*/headline*/title* in Fraunces,
+// body* in Literata, label* in Inter.
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = poppinsFont,
-        fontWeight = FontWeight.Normal,
+    displayLarge = TextStyle(
+        fontFamily = frauncesFont,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 57.sp,
+        lineHeight = 64.sp,
+        letterSpacing = (-0.25).sp
+    ),
+    displayMedium = TextStyle(
+        fontFamily = frauncesFont,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 45.sp,
+        lineHeight = 52.sp
+    ),
+    displaySmall = TextStyle(
+        fontFamily = frauncesFont,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 36.sp,
+        lineHeight = 44.sp
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = frauncesFont,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 32.sp,
+        lineHeight = 40.sp
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = frauncesFont,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 36.sp
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = frauncesFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 24.sp,
+        lineHeight = 32.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = frauncesFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 22.sp,
+        lineHeight = 28.sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = frauncesFont,
+        fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
         lineHeight = 24.sp,
+        letterSpacing = 0.15.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = frauncesFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = literataFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 26.sp,
         letterSpacing = 0.5.sp,
         lineHeightStyle = LineHeightStyle(
             alignment = LineHeightStyle.Alignment.Proportional,
             trim = LineHeightStyle.Trim.Both
         ),
         platformStyle = PlatformTextStyle(includeFontPadding = true)
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = literataFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = literataFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.4.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = interFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = interFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = interFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
     )
 )

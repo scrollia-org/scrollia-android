@@ -71,7 +71,7 @@ import org.scrollia.app.R
 import org.scrollia.app.helpers.Constants
 import org.scrollia.app.helpers.Utils
 import org.scrollia.app.ui.common.CustomTopAppBar
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.interFont
 
 
 @Composable
@@ -107,7 +107,7 @@ fun AboutScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(start = 20.dp, bottom = 12.dp),
                     fontSize = 16.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -121,7 +121,7 @@ fun AboutScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(start = 20.dp, bottom = 12.dp, top = 12.dp),
                     fontSize = 16.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -177,7 +177,7 @@ private fun LinkButton(
         Text(
             text = text.uppercase(),
             fontWeight = FontWeight.SemiBold,
-            fontFamily = poppinsFont,
+            fontFamily = interFont,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 4.dp),
         )
@@ -242,7 +242,7 @@ private fun AppInfoCard() {
                 Text(
                     text = stringResource(id = R.string.app_name),
                     fontSize = 26.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
@@ -253,7 +253,7 @@ private fun AppInfoCard() {
                 Text(
                     text = "Version ${BuildConfig.VERSION_NAME}",
                     fontSize = 14.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.Normal,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
@@ -265,7 +265,7 @@ private fun AppInfoCard() {
                     text = stringResource(id = R.string.about_desc),
                     modifier = Modifier.padding(horizontal = 22.dp),
                     fontSize = 14.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
@@ -299,7 +299,7 @@ private fun DeveloperCard(context: Context) {
                 Text(
                     text = stringResource(id = R.string.dev_name),
                     fontSize = 18.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
@@ -309,7 +309,7 @@ private fun DeveloperCard(context: Context) {
                 Text(
                     text = Constants.DEV_EMAIL,
                     fontSize = 15.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.clickable {

@@ -66,7 +66,7 @@ import org.scrollia.app.epub.models.ReaderItem
 import org.scrollia.app.helpers.toToast
 import org.scrollia.app.ui.common.ScrolliaSelectionContainer
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
-import org.scrollia.app.ui.theme.playfairFont
+import org.scrollia.app.ui.theme.frauncesFont
 
 
 @Composable
@@ -233,9 +233,9 @@ private fun ChapterLazyItemItem(
                 text = chapter.title,
                 fontSize = titleFontSize.sp,
                 lineHeight = 1.3f.em,
-                fontFamily = playfairFont,
+                fontFamily = frauncesFont,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.88f)
+                color = state.readerTheme.textColor.copy(alpha = 0.88f)
             )
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -250,6 +250,7 @@ private fun ChapterLazyItemItem(
                             fontSize = fontSize.sp,
                             lineHeight = lineHeight.em,
                             fontFamily = state.fontFamily.fontFamily,
+                            color = state.readerTheme.textColor,
                             modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 8.dp),
                         )
                     }
@@ -290,7 +291,7 @@ private fun ChapterLazyItemItem(
                                 .fillMaxWidth()
                                 .padding(horizontal = 14.dp, vertical = 8.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(Color.LightGray.copy(alpha = 0.2f))
+                                .background(state.readerTheme.textColor.copy(alpha = 0.1f))
                                 .padding(12.dp)
                         ) {
                             val annotatedString = remember(item.code, state.fontFamily.fontFamily) {
@@ -300,7 +301,7 @@ private fun ChapterLazyItemItem(
                                 text = annotatedString,
                                 fontSize = (fontSize * 0.9f).sp,
                                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = state.readerTheme.textColor
                             )
                         }
                     }
@@ -311,7 +312,7 @@ private fun ChapterLazyItemItem(
                                 .fillMaxWidth()
                                 .padding(horizontal = 14.dp, vertical = 8.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                .background(state.readerTheme.textColor.copy(alpha = 0.07f))
                                 .padding(16.dp)
                         ) {
                             val annotatedString =
@@ -324,7 +325,7 @@ private fun ChapterLazyItemItem(
                                 fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                                 lineHeight = lineHeight.em,
                                 fontFamily = state.fontFamily.fontFamily,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                color = state.readerTheme.textColor.copy(alpha = 0.8f)
                             )
                         }
                     }
@@ -334,7 +335,7 @@ private fun ChapterLazyItemItem(
 
         HorizontalDivider(
             thickness = 2.dp,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
+            color = state.readerTheme.textColor.copy(alpha = 0.2f)
         )
     }
 }

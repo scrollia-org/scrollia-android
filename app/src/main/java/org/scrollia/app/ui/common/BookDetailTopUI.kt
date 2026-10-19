@@ -51,7 +51,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.scrollia.app.R
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.frauncesFont
+import org.scrollia.app.ui.theme.interFont
 
 @Composable
 fun BookDetailTopUI(
@@ -134,7 +135,7 @@ fun BookDetailTopUI(
                         .padding(horizontal = 12.dp)
                         .fillMaxWidth(),
                     fontSize = 22.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = frauncesFont,
                     maxLines = 3,
                     lineHeight = 28.sp,
                     overflow = TextOverflow.Ellipsis,
@@ -148,7 +149,7 @@ fun BookDetailTopUI(
                         start = 12.dp, end = 8.dp, top = 2.dp
                     ),
                     fontSize = 16.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.Medium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -160,7 +161,7 @@ fun BookDetailTopUI(
                         text = "$progressPercent% Completed",
                         modifier = Modifier.padding(start = 12.dp, end = 8.dp),
                         fontSize = 15.sp,
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         fontWeight = FontWeight.Medium,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,

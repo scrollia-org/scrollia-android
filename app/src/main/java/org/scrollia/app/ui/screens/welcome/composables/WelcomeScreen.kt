@@ -64,8 +64,8 @@ import androidx.navigation.NavController
 import org.scrollia.app.helpers.weakHapticFeedback
 import org.scrollia.app.ui.navigation.BottomBarScreen
 import org.scrollia.app.ui.screens.welcome.viewmodels.WelcomeViewModel
-import org.scrollia.app.ui.theme.playfairFont
-import org.scrollia.app.ui.theme.poppinsFont
+import org.scrollia.app.ui.theme.frauncesFont
+import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.delay
 
 // Colors
@@ -192,7 +192,7 @@ fun WelcomeScreen(navController: NavController) {
                         Text(
                             text = era.label,
                             fontSize = 14.sp,
-                            fontFamily = poppinsFont,
+                            fontFamily = interFont,
                             fontWeight = FontWeight.Light,
                             color = SubtleText,
                             textAlign = TextAlign.Center,
@@ -201,7 +201,7 @@ fun WelcomeScreen(navController: NavController) {
                         Text(
                             text = era.year,
                             fontSize = 12.sp,
-                            fontFamily = poppinsFont,
+                            fontFamily = interFont,
                             fontWeight = FontWeight.Normal,
                             color = SubtleText.copy(alpha = 0.6f),
                             textAlign = TextAlign.Center
@@ -222,7 +222,7 @@ fun WelcomeScreen(navController: NavController) {
                     Text(
                         text = "Scrollia",
                         fontSize = 52.sp,
-                        fontFamily = playfairFont,
+                        fontFamily = frauncesFont,
                         fontWeight = FontWeight.Bold,
                         color = CreamText,
                         textAlign = TextAlign.Center,
@@ -232,7 +232,7 @@ fun WelcomeScreen(navController: NavController) {
                     Text(
                         text = "Est. 1455",
                         fontSize = 13.sp,
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         fontWeight = FontWeight.Light,
                         fontStyle = FontStyle.Italic,
                         color = WarmGlow.copy(alpha = 0.7f),
@@ -252,7 +252,7 @@ fun WelcomeScreen(navController: NavController) {
                 Text(
                     text = "5,400 years of reading",
                     fontSize = 16.sp,
-                    fontFamily = poppinsFont,
+                    fontFamily = interFont,
                     fontWeight = FontWeight.Normal,
                     color = SubtleText,
                     textAlign = TextAlign.Center,
@@ -287,7 +287,7 @@ fun WelcomeScreen(navController: NavController) {
                     Text(
                         text = "Start Reading",
                         fontWeight = FontWeight.Medium,
-                        fontFamily = poppinsFont,
+                        fontFamily = interFont,
                         fontSize = 16.sp,
                         letterSpacing = 1.sp
                     )
