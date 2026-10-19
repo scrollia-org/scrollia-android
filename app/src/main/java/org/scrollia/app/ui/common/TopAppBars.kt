@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -189,7 +189,7 @@ private fun TopAppBarsPV() {
         CustomTopAppBar(headerText = "Something", onBackButtonClicked = {})
         CustomTopAppBar(
             headerText = "Something",
-            actionIcon = Icons.Default.Translate,
+            actionIcon = Icons.Default.Create,
             onBackButtonClicked = { /*TODO*/ },
             onActionClicked = {})
     }

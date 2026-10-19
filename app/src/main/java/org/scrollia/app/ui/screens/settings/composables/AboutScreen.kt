@@ -35,10 +35,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.PrivacyTip
-import androidx.compose.material.icons.filled.Web
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -136,13 +135,13 @@ fun AboutScreen(navController: NavController) {
                     //  Telegram and sponsorship entries once those resources exist
                     //  publicly (see Constants.kt).
                     SettingItem(
-                        icon = Icons.Filled.Web,
+                        icon = Icons.AutoMirrored.Filled.ExitToApp,
                         mainText = stringResource(id = R.string.link_website),
                         subText = stringResource(id = R.string.link_website_desc),
                         onClick = { Utils.openWebLink(context, Constants.WEBSITE) }
                     )
                     SettingItem(
-                        icon = Icons.Filled.PrivacyTip,
+                        icon = Icons.Filled.Lock,
                         mainText = stringResource(id = R.string.link_privacy_policy),
                         subText = stringResource(id = R.string.link_privacy_policy_desc),
                         onClick = { Utils.openWebLink(context, Constants.PRIVACY_POLICY) }

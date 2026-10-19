@@ -31,28 +31,8 @@ import org.scrollia.app.R
 val poppinsFont = FontFamily(
     fonts = listOf(
         Font(
-            resId = R.font.poppins_black,
-            weight = FontWeight.Black,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.poppins_bold,
-            weight = FontWeight.Bold,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.poppins_extrabold,
-            weight = FontWeight.ExtraBold,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.poppins_extralight,
-            weight = FontWeight.ExtraLight,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.poppins_light,
-            weight = FontWeight.Light,
+            resId = R.font.poppins_regular,
+            weight = FontWeight.Normal,
             style = FontStyle.Normal
         ),
         Font(
@@ -61,18 +41,38 @@ val poppinsFont = FontFamily(
             style = FontStyle.Normal
         ),
         Font(
-            resId = R.font.poppins_regular,
-            weight = FontWeight.Normal,
-            style = FontStyle.Normal
-        ),
-        Font(
             resId = R.font.poppins_semibold,
             weight = FontWeight.SemiBold,
             style = FontStyle.Normal
         ),
         Font(
-            resId = R.font.poppins_thin,
+            resId = R.font.poppins_bold,
+            weight = FontWeight.Bold,
+            style = FontStyle.Normal
+        ),
+        Font(
+            resId = R.font.poppins_regular,
             weight = FontWeight.Thin,
+            style = FontStyle.Normal
+        ),
+        Font(
+            resId = R.font.poppins_regular,
+            weight = FontWeight.ExtraLight,
+            style = FontStyle.Normal
+        ),
+        Font(
+            resId = R.font.poppins_regular,
+            weight = FontWeight.Light,
+            style = FontStyle.Normal
+        ),
+        Font(
+            resId = R.font.poppins_bold,
+            weight = FontWeight.ExtraBold,
+            style = FontStyle.Normal
+        ),
+        Font(
+            resId = R.font.poppins_bold,
+            weight = FontWeight.Black,
             style = FontStyle.Normal
         ),
     )
@@ -86,34 +86,34 @@ val playfairFont = FontFamily(
             style = FontStyle.Normal
         ),
         Font(
-            resId = R.font.playfair_medium,
-            weight = FontWeight.Medium,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.playfair_semibold,
-            weight = FontWeight.SemiBold,
-            style = FontStyle.Normal
-        ),
-        Font(
             resId = R.font.playfair_bold,
             weight = FontWeight.Bold,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.playfair_extrabold,
-            weight = FontWeight.ExtraBold,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.playfair_black,
-            weight = FontWeight.Black,
             style = FontStyle.Normal
         ),
         Font(
             resId = R.font.playfair_italic,
             weight = FontWeight.Normal,
             style = FontStyle.Italic
+        ),
+        Font(
+            resId = R.font.playfair_regular,
+            weight = FontWeight.Medium,
+            style = FontStyle.Normal
+        ),
+        Font(
+            resId = R.font.playfair_bold,
+            weight = FontWeight.SemiBold,
+            style = FontStyle.Normal
+        ),
+        Font(
+            resId = R.font.playfair_bold,
+            weight = FontWeight.ExtraBold,
+            style = FontStyle.Normal
+        ),
+        Font(
+            resId = R.font.playfair_bold,
+            weight = FontWeight.Black,
+            style = FontStyle.Normal
         ),
     )
 )

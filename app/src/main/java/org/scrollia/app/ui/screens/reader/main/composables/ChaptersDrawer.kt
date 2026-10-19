@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -76,7 +76,7 @@ fun ChaptersDrawer(
                             icon = {
                                 if (idx < currentChapterIndex) {
                                     Icon(
-                                        imageVector = Icons.Filled.CheckCircleOutline,
+                                        imageVector = Icons.Outlined.CheckCircle,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.primary
                                     )

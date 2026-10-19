@@ -31,10 +31,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -127,7 +127,7 @@ fun SettingItem(icon: ImageVector, mainText: String, subText: String, onClick: (
             }
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "",
                 modifier = Modifier.size(15.dp),
                 tint = MaterialTheme.colorScheme.onSurface
@@ -236,7 +236,7 @@ private fun Preview() {
             onClick = {}
         )
         SettingItemWIthSwitch(
-            icon = Icons.Filled.NotificationsOff,
+            icon = Icons.Filled.Notifications,
             mainText = "Main Text",
             subText = "Sub Text",
             switchState = remember { mutableStateOf(false) },

@@ -31,7 +31,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -256,7 +256,7 @@ private fun ChapterItem(
                 if (isRead) {
                     Icon(
                         modifier = Modifier.size(15.dp),
-                        imageVector = Icons.Default.CheckCircleOutline,
+                        imageVector = Icons.Outlined.CheckCircle,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )

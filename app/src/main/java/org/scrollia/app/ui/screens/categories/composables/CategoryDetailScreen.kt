@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -77,7 +77,7 @@ fun CategoryDetailScreen(
         topBar = {
             CustomTopAppBar(
                 headerText = stringResource(id = BookCategories.getNameRes(category)),
-                actionIcon = Icons.Filled.Translate,
+                actionIcon = Icons.Filled.Create,
                 onBackButtonClicked = { navController.navigateUp() },
                 onActionClicked = { showLanguageSheet.value = true }
             )

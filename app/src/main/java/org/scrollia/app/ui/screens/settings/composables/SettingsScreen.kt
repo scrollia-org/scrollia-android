@@ -40,12 +40,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrightnessMedium
-import androidx.compose.material.icons.filled.Contrast
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.LocalPolice
-import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -245,7 +244,7 @@ private fun GeneralOptionsUI(
             onClick = { showReaderDialog.value = true }
         )
         SettingItem(
-            icon = Icons.Filled.Language,
+            icon = Icons.Filled.Place,
             mainText = stringResource(id = R.string.default_locale_setting),
             subText = stringResource(id = R.string.default_locale_setting_desc),
             onClick = {
@@ -419,13 +418,13 @@ private fun DisplayOptionsUI(
             modifier = Modifier.padding(vertical = 8.dp)
         )
         SettingItem(
-            icon = Icons.Filled.BrightnessMedium,
+            icon = Icons.Filled.Build,
             mainText = stringResource(id = R.string.theme_setting),
             subText = selectedAppTheme,
             onClick = { appThemeDialog.value = true }
         )
         SettingItemWIthSwitch(
-            icon = Icons.Filled.Contrast,
+            icon = Icons.Filled.Settings,
             mainText = stringResource(id = R.string.amoled_theme_setting),
             subText = amoledDesc,
             switchState = amoledState,
@@ -433,7 +432,7 @@ private fun DisplayOptionsUI(
                 viewModel.setAmoledTheme(it)
             })
         SettingItemWIthSwitch(
-            icon = Icons.Filled.Palette,
+            icon = Icons.Filled.Edit,
             mainText = stringResource(id = R.string.material_you_setting),
             subText = materialYouDesc,
             switchState = materialYouState,
@@ -544,7 +543,7 @@ private fun InformationUI(navController: NavController) {
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             SettingItem(
-                icon = Icons.Filled.LocalPolice,
+                icon = Icons.Filled.Info,
                 mainText = stringResource(id = R.string.license_setting),
                 subText = stringResource(id = R.string.license_setting_desc),
                 onClick = { navController.navigate(Screens.OSLScreen.route) }

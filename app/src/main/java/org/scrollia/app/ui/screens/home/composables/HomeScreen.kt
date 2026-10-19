@@ -46,7 +46,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -420,7 +420,7 @@ private fun HomeTopAppBar(
         Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = onLanguageIconClicked) {
             Icon(
-                imageVector = Icons.Filled.Translate,
+                imageVector = Icons.Filled.Create,
                 contentDescription = stringResource(id = R.string.home_language_icon_desc),
                 tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.size(30.dp)
