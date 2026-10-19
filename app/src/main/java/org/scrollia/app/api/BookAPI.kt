@@ -50,11 +50,9 @@ import kotlin.coroutines.suspendCoroutine
  */
 class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
 
-    // TODO: This is upstream Myne's private proxy backend (run by Starry Shivam).
-    //  All search queries and book metadata go through it. Replace with the
-    //  Scrollia backend ("https://api.scrollia.org/books") before any public
-    //  release. See docs/BACKEND.md for the planned architecture.
-    private val baseApiUrl = "https://myne.abyx.in/books"
+    // Scrollia backend (Phase 0 test API with fictional es/en books).
+    //  See docs/BACKEND.md for the planned architecture.
+    private val baseApiUrl = "https://api.scrollia.org/books"
     private val googleBooksUrl = "https://www.googleapis.com/books/v1/volumes"
 
     private val googleApiKey = BuildConfig.GOOGLE_API_KEY ?: "null"
