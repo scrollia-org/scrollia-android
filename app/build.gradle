@@ -167,6 +167,10 @@ dependencies {
     implementation "me.saket.swipe:swipe:1.3.0"
     // Crash Handler.
     implementation 'cat.ereza:customactivityoncrash:2.4.0'
+    // Kotlin reflect API — required at runtime by kotlinx.serialization under R8
+    // (removing it crashes the release build: "Kotlin reflection implementation
+    // is not found at runtime"). Do not remove.
+    implementation "org.jetbrains.kotlin:kotlin-reflect:2.2.10"
     // Testing components.
     testImplementation 'junit:junit:4.13.2'
     testImplementation "com.google.truth:truth:1.4.5"
