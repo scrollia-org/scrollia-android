@@ -1,4 +1,4 @@
-Myne je bezplatná open-source aplikace pro Android ke stahování elektronických knih z Projektu GutenBerg, která v backendu využívá GutenDex API k načítání metadat elektronických knih.
+Scrollia je bezplatná open-source aplikace pro Android ke stahování elektronických knih z Projektu GutenBerg, která v backendu využívá GutenDex API k načítání metadat elektronických knih.
 
 Funkce:
 

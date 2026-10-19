@@ -1,0 +1,168 @@
+/**
+ * Copyright (c) [2022 - Present] Stɑrry Shivɑm
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.scrollia.app.ui.screens.categories.composables
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavController
+import org.scrollia.app.R
+import org.scrollia.app.helpers.NetworkObserver
+import org.scrollia.app.helpers.book.BookUtils
+import org.scrollia.app.ui.common.BookItemCard
+import org.scrollia.app.ui.common.BookItemShimmerLoader
+import org.scrollia.app.ui.common.BookLanguageSheet
+import org.scrollia.app.ui.common.CustomTopAppBar
+import org.scrollia.app.ui.common.NetworkError
+import org.scrollia.app.ui.common.NoBooksAvailable
+import org.scrollia.app.ui.common.ProgressDots
+import org.scrollia.app.ui.navigation.Screens
+import org.scrollia.app.ui.screens.categories.viewmodels.CategoryViewModel
+
+
+@Composable
+fun CategoryDetailScreen(
+    category: String, navController: NavController, networkStatus: NetworkObserver.Status
+) {
+    val viewModel: CategoryViewModel = hiltViewModel()
+    val showLanguageSheet = remember { mutableStateOf(false) }
+
+    BookLanguageSheet(
+        showBookLanguage = showLanguageSheet,
+        selectedLanguage = viewModel.language.value,
+        onLanguageChange = { viewModel.changeLanguage(it) }
+    )
+
+    val state = viewModel.state
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            CustomTopAppBar(
+                headerText = stringResource(id = BookCategories.getNameRes(category)),
+                actionIcon = Icons.Filled.Translate,
+                onBackButtonClicked = { navController.navigateUp() },
+                onActionClicked = { showLanguageSheet.value = true }
+            )
+        }, content = {
+            LaunchedEffect(key1 = true, block = { viewModel.loadBookByCategory(category) })
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(it)
+            ) {
+                AnimatedVisibility(
+                    visible = state.page == 1L && state.isLoading,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    BookItemShimmerLoader()
+                }
+                AnimatedVisibility(
+                    visible = !state.isLoading && state.error != null,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    NetworkError(onRetryClicked = { viewModel.reloadItems() })
+                }
+                AnimatedVisibility(
+                    visible = !state.isLoading && state.items.isEmpty() && state.error == null,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    NoBooksAvailable(
+                        text = stringResource(id = R.string.no_books_found_for_lang_and_cat)
+                            .format(viewModel.language.value.name.lowercase(LocalConfiguration.current.locales[0]))
+                    )
+                }
+                AnimatedVisibility(
+                    visible = !state.isLoading || (state.items.isNotEmpty() && state.error == null),
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    LazyVerticalGrid(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(start = 8.dp, end = 8.dp),
+                        columns = GridCells.Adaptive(295.dp)
+                    ) {
+                        items(state.items.size) { i ->
+                            val item = state.items[i]
+                            if (networkStatus == NetworkObserver.Status.Available && i >= state.items.size - 1 && !state.endReached && !state.isLoading) {
+                                viewModel.loadNextItems()
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                BookItemCard(
+                                    title = item.title,
+                                    author = BookUtils.getAuthorsAsString(item.authors),
+                                    language = BookUtils.getLanguagesAsString(item.languages),
+                                    subjects = BookUtils.getSubjectsAsString(item.subjects, 3),
+                                    coverImageUrl = item.formats.imagejpeg
+                                ) {
+                                    navController.navigate(Screens.BookDetailScreen.withBookId(item.id.toString()))
+                                }
+                            }
+                        }
+                        item {
+                            if (state.isLoading) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    ProgressDots()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        })
+}

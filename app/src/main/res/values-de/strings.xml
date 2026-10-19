@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Myne</string>
+    <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
     <string name="not_applicable">n. a.</string>
     <string name="woops">"Hoppla!"</string>
@@ -21,7 +21,7 @@
     <!-- ToolTips -->
     <string name="library_tooltip">TIPP! Wische Bibliothekselemente nach links oder rechts, um sie zu teilen oder Buchdetails anzusehen.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Danke für die Installation von Myne!</string>
+    <string name="welcome_screen_title">Danke für die Installation von Scrollia!</string>
     <string name="welcome_screen_desc">Wählen Sie Ihren bevorzugten E-Book-Reader, um Ihre Lese-Reise zu beginnen.</string>
     <string name="welcome_screen_button">Loslegen</string>
     <!-- Home screen. -->
@@ -56,7 +56,7 @@
     <string name="empty_library">Nichts vorhanden!</string>
     <string name="import_button_text">Importieren</string>
     <string name="import_button_onboarding">Importiere deine eigenen Bücher!</string>
-    <string name="import_button_onboarding_desc">Jetzt kannst du deine eigenen EPUB-Bücher importieren und sie in Myne lesen.</string>
+    <string name="import_button_onboarding_desc">Jetzt kannst du deine eigenen EPUB-Bücher importieren und sie in Scrollia lesen.</string>
     <string name="import_button_desc">EPUB-Buch importieren</string>
     <string name="external_book_info_unavailable">Nur für interne Bücher verfügbar.</string>
     <string name="epub_importing">Importiere… Bitte warten.</string>

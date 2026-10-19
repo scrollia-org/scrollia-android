@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Myne</string>
+    <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
     <string name="not_applicable">N/A</string>
     <string name="woops">"Ups!"</string>
@@ -21,7 +21,7 @@
     <!-- ToolTips -->
     <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Mulțumim pentru instalarea Myne!</string>
+    <string name="welcome_screen_title">Mulțumim pentru instalarea Scrollia!</string>
     <string name="welcome_screen_desc">Alegeți cititorul preferat de cărți electronice pentru a vă începe călătoria de citire.</string>
     <string name="welcome_screen_button">Începeți</string>
     <!-- Home screen. -->
@@ -56,7 +56,7 @@
     <string name="empty_library">Nimic aici!</string>
     <string name="import_button_text">Importă</string>
     <string name="import_button_onboarding">Importați propriile cărți!</string>
-    <string name="import_button_onboarding_desc">Acum puteți importa propriile cărți în format EPUB și să le citiți în Myne.</string>
+    <string name="import_button_onboarding_desc">Acum puteți importa propriile cărți în format EPUB și să le citiți în Scrollia.</string>
     <string name="import_button_desc">Importează carte EPUB</string>
     <string name="external_book_info_unavailable">Disponibil doar pentru cărți interne.</string>
     <string name="epub_importing">Se importă… Vă rugăm să așteptați.</string>

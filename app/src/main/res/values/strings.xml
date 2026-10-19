@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Myne</string>
+    <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
     <string name="not_applicable">N/A</string>
     <string name="woops">"Whoops!!"</string>
@@ -23,9 +23,9 @@
     <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
 
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Thanks for installing Myne!</string>
-    <string name="welcome_screen_desc">Choose your preferred ebook reader to embark on your reading journey.</string>
-    <string name="welcome_screen_button">Get Started</string>
+    <string name="welcome_screen_title">Scrollia</string>
+    <string name="welcome_screen_desc">5,400 years of reading</string>
+    <string name="welcome_screen_button">Start Reading</string>
 
     <!-- Home screen. -->
     <string name="home_header">All Books</string>
@@ -61,7 +61,7 @@
     <string name="empty_library">Nothing Here!</string>
     <string name="import_button_text">Import</string>
     <string name="import_button_onboarding">Import your own books!</string>
-    <string name="import_button_onboarding_desc">Now you can import your own EPUB books and read them in Myne.</string>
+    <string name="import_button_onboarding_desc">Now you can import your own EPUB books and read them in Scrollia.</string>
     <string name="import_button_desc">Import epub book</string>
     <string name="external_book_info_unavailable">Only available for internal books.</string>
     <string name="epub_importing">Importing… \nPlease wait.</string>
@@ -97,8 +97,8 @@
 
     <!-- Settings screen. -->
     <string name="settings_header">Settings</string>
-    <string name="app_desc">Ebook Downloader</string>
-    <string name="made_by">Made with ❤ by Shivam</string>
+    <string name="app_desc">Read. Discover. Explore the world\'s library.</string>
+    <string name="made_by">Named for the scroll — reading\'s oldest form</string>
     <string name="general_settings_header">General</string>
     <string name="default_reader_setting">Default Reader</string>
     <string name="default_reader_dialog_title">Open ebooks with…</string>
@@ -147,9 +147,9 @@
 
     <!-- About Screen -->
     <string name="about_header">About</string>
-    <string name="about_desc">A Free &amp; Open Source Android application to download ebooks from the Project Gutenberg.</string>
+    <string name="about_desc">A free ebook reader powered by Project Gutenberg. Named for the scroll — the form that carried the written word for millennia before the printed book.</string>
     <string name="developed_by">Developed By</string>
-    <string name="dev_name" translatable="false">Starry Shivam</string>
+    <string name="dev_name" translatable="false">Scrollia</string>
     <string name="project_contributors">Project Contributors</string>
     <string name="project_contributors_desc">Meet our wonderful contributors.</string>
     <string name="useful_links">Useful Links</string>

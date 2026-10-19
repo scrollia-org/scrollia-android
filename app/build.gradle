@@ -22,15 +22,15 @@ String getGoogleApiKey() {
 }
 
 android {
-    namespace 'com.starry.myne'
+    namespace 'org.scrollia.app'
     compileSdk = 36
 
     defaultConfig {
-        applicationId "com.starry.myne"
+        applicationId "org.scrollia.app"
         minSdk 26
         targetSdk 36
-        versionCode 480
-        versionName "4.8.0"
+        versionCode 1
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -52,7 +52,7 @@ android {
             // Rename the output apk file automatically.
             applicationVariants.all { variant ->
                 variant.outputs.each { output ->
-                    def name = "Myne-v${variant.versionName}.apk"
+                    def name = "Scrollia-v${variant.versionName}.apk"
                     output.outputFileName = name
                 }
             }

@@ -20,7 +20,7 @@
     <!-- ToolTips -->
     <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">¡Gracias por instalar Myne!</string>
+    <string name="welcome_screen_title">¡Gracias por instalar Scrollia!</string>
     <string name="welcome_screen_desc">Elige tu lector de libros electrónicos preferido para embarcarte en tu viaje de lectura.</string>
     <string name="welcome_screen_button">Get Started</string>
     <!-- Home screen. -->
@@ -55,7 +55,7 @@
     <string name="empty_library">¡Nada por aquí!</string>
     <string name="import_button_text">Importar</string>
     <string name="import_button_onboarding">¡Importa tus propios libros!</string>
-    <string name="import_button_onboarding_desc">Ahora puedes importar tus propios libros en formato EPUB y leerlos en Myne.</string>
+    <string name="import_button_onboarding_desc">Ahora puedes importar tus propios libros en formato EPUB y leerlos en Scrollia.</string>
     <string name="import_button_desc">Importar libro EPUB</string>
     <string name="external_book_info_unavailable">Solo disponible para libros internos.</string>
     <string name="epub_importing">Importando… Por favor, espere.</string>

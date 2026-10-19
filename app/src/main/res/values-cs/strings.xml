@@ -20,7 +20,7 @@
     <!-- ToolTips -->
     <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Děkujeme za instalaci Myne!</string>
+    <string name="welcome_screen_title">Děkujeme za instalaci Scrollia!</string>
     <string name="welcome_screen_desc">Vyberte si svůj preferovaný čtečku elektronických knih a vydejte se na cestu čtení.</string>
     <string name="welcome_screen_button">Get Started</string>
     <!-- Home screen. -->
@@ -55,7 +55,7 @@
     <string name="empty_library">Nic tu není!</string>
     <string name="import_button_text">Importovat</string>
     <string name="import_button_onboarding">Importujte své vlastní knihy!</string>
-    <string name="import_button_onboarding_desc">Nyní můžete importovat své vlastní knihy ve formátu EPUB a číst je v aplikaci Myne.</string>
+    <string name="import_button_onboarding_desc">Nyní můžete importovat své vlastní knihy ve formátu EPUB a číst je v aplikaci Scrollia.</string>
     <string name="import_button_desc">Importovat knihu EPUB</string>
     <string name="external_book_info_unavailable">Dostupné pouze pro interní knihy.</string>
     <string name="epub_importing">Probíhá importování… Prosím čekejte.</string>
