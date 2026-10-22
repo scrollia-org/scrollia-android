@@ -32,7 +32,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
-import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
@@ -43,7 +42,7 @@ import kotlin.coroutines.suspendCoroutine
 
 /**
  * This class is responsible for handling all the API requests related to books.
- * It uses OkHttp for making network requests and Gson for parsing JSON responses.
+ * It uses OkHttp for making network requests and kotlinx.serialization for parsing JSON responses.
  * @param context The context of the application.
  *
  * Do not use this class directly. Use the [BookAPI] instance from dependency injection.
@@ -53,9 +52,7 @@ class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
     // Scrollia backend (Phase 0 test API with fictional es/en books).
     //  See docs/BACKEND.md for the planned architecture.
     private val baseApiUrl = "https://api.scrollia.org/books"
-    private val googleBooksUrl = "https://www.googleapis.com/books/v1/volumes"
-
-    private val googleApiKey = BuildConfig.GOOGLE_API_KEY ?: "null"
+    private val extraInfoUrl = "https://api.scrollia.org/extra-info"
 
     private val okHttpClient by lazy {
         // Create an OkHttpClient with a cache and a network interceptor.
@@ -163,19 +160,19 @@ class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
             })
         }
 
-    // Function to fetch extra info such as cover image, page count, and description of a book.
-    // From Google Books API.
+    // Fetches extra info (cover image, page count, description) for a book
+    // from the Scrollia backend, which proxies/enriches metadata server-side
+    // so no third-party API key ships inside the APK.
     suspend fun getExtraInfo(bookName: String): ExtraInfo? = suspendCoroutine { continuation ->
-        // Return null without making any network call to Google Books API
-        // if the use of Google API is disabled by the user.
+        // Return null without any network call if the user disabled
+        // extra metadata in settings.
         if (!preferenceUtil.getBoolean(PreferenceUtil.USE_GOOGLE_API_BOOL, true)) {
             continuation.resume(null)
             return@suspendCoroutine
         }
 
         val encodedName = URLEncoder.encode(bookName, "UTF-8")
-        val url = "${googleBooksUrl}?q=$encodedName&startIndex=0&maxResults=1&key=$googleApiKey"
-        val request = Request.Builder().get().url(url).build()
+        val request = Request.Builder().get().url("$extraInfoUrl?title=$encodedName").build()
         okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 continuation.resume(null)
@@ -184,44 +181,20 @@ class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
 
             override fun onResponse(call: Call, response: Response) {
                 response.use {
+                    val extraInfo = runCatching {
+                        json.decodeFromString(
+                            ExtraInfo.serializer(),
+                            response.body!!.string()
+                        ).copy(isCached = response.cacheResponse != null)
+                    }.getOrNull()
+                    // Treat an all-empty payload as "no data".
                     continuation.resume(
-                        parseExtraInfoJson(
-                            response.body!!.string(),
-                            response.cacheResponse != null
-                        )
+                        extraInfo?.takeUnless {
+                            it.coverImage.isEmpty() && it.pageCount == 0 && it.description.isEmpty()
+                        }
                     )
                 }
             }
         })
-    }
-
-    // Helper function to parse extra info JSON.
-    private fun parseExtraInfoJson(jsonString: String, isCached: Boolean): ExtraInfo? {
-        return runCatching {
-            val jsonObj = JSONObject(jsonString)
-            val totalItems = jsonObj.optInt("totalItems", 0)
-            if (totalItems != 0) {
-                jsonObj.optJSONArray("items")
-                    ?.optJSONObject(0)
-                    ?.optJSONObject("volumeInfo")
-                    ?.let { volumeInfo ->
-                        val coverImage = volumeInfo
-                            .optJSONObject("imageLinks")
-                            ?.optString("thumbnail", "")
-                            ?.replace("http://", "https://") ?: ""
-                        val pageCount = volumeInfo.optInt("pageCount", 0)
-                        val description = volumeInfo.optString("description", "")
-
-                        ExtraInfo(
-                            coverImage = coverImage,
-                            pageCount = pageCount,
-                            description = description,
-                            isCached = isCached
-                        )
-                    }
-            } else {
-                null
-            }
-        }.getOrNull()
     }
 }

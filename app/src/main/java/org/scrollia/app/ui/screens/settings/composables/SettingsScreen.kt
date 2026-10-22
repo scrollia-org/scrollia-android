@@ -21,7 +21,6 @@ import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -426,8 +425,8 @@ private fun GeneralOptionsUI(
         )
         SettingItemWIthSwitch(
             icon = ImageVector.vectorResource(id = R.drawable.ic_settings_google_api),
-            mainText = stringResource(id = R.string.google_books_api_setting),
-            subText = stringResource(id = R.string.google_books_api_setting_desc),
+            mainText = stringResource(id = R.string.extra_info_setting),
+            subText = stringResource(id = R.string.extra_info_setting_desc),
             switchState = googleBooksApiSwitchState,
             onCheckChange = {
                 viewModel.setUseGoogleApiValue(it)

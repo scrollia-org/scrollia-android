@@ -17,9 +17,11 @@
 package org.scrollia.app.api.models
 
 import androidx.annotation.Keep
+import kotlinx.serialization.Serializable
 
-/** Extra info from google books API */
+/** Extra info for a book, served by the Scrollia backend. */
 @Keep
+@Serializable
 data class ExtraInfo(
     val coverImage: String = "",
     val pageCount: Int = 0,

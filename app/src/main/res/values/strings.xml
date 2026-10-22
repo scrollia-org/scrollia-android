@@ -113,11 +113,10 @@
     <string name="default_locale_setting">Default Locale</string>
     <string name="default_locale_setting_desc">Select your preferred locale.</string>
     <string name="locale_setting_not_found">Sorry! this feature is not yet supported by your OS.</string>
-    <string name="google_books_api_setting">Google Books API</string>
-    <string name="google_books_api_setting_desc">Use Google Books API to fetch additional book information.</string>
+    <string name="extra_info_setting">Extra book metadata</string>
+    <string name="extra_info_setting_desc">Fetch covers and descriptions from the Scrollia server.</string>
     <string name="open_library_at_start_setting">Open Library at Start</string>
     <string name="open_library_at_start_setting_desc">Launch Library screen when app starts.</string>
-    <string name="display_setting_header">Display</string>
     <string name="theme_setting">Theme</string>
     <string name="theme_dialog_title">Change Theme</string>
     <string name="theme_option_light">Light</string>
