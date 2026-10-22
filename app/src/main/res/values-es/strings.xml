@@ -133,4 +133,23 @@
     <string name="link_privacy_policy_desc">Lesen Sie unsere neueste Datenschutzrichtlinie.</string>
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Licencias</string>
+
+    <!-- Welcome screen -->
+    <string name="welcome_start_button">Empezar a leer</string>
+    <string name="welcome_tagline">5.400 años de lectura</string>
+    <string name="welcome_est">Desde 1455</string>
+    <string name="welcome_era_cuneiform">Cuneiforme</string>
+    <string name="welcome_era_cuneiform_year">3.400 a. C.</string>
+    <string name="welcome_era_hieroglyphics">Jeroglíficos</string>
+    <string name="welcome_era_hieroglyphics_year">3.200 a. C.</string>
+    <string name="welcome_era_phoenician">Fenicio</string>
+    <string name="welcome_era_phoenician_year">1.050 a. C.</string>
+    <string name="welcome_era_greek">Griego</string>
+    <string name="welcome_era_greek_year">750 a. C.</string>
+    <string name="welcome_era_latin">Latín</string>
+    <string name="welcome_era_latin_year">600 a. C.</string>
+    <string name="welcome_era_movable_type">Tipos móviles</string>
+    <string name="welcome_era_movable_type_year">1.040 d. C.</string>
+    <string name="welcome_era_printing_press">Imprenta</string>
+    <string name="welcome_era_printing_press_year">1.455 d. C.</string>
 </resources>
