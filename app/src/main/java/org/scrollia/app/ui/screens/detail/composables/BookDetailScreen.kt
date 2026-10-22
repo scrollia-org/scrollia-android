@@ -200,7 +200,7 @@ private fun BookDetailContents(
             if (state.extraInfo.pageCount > 0) {
                 state.extraInfo.pageCount.toString()
             } else {
-                context.getString(R.string.not_applicable)
+                ""
             }
         }
         var buttonText by remember { mutableStateOf("") }
@@ -391,85 +391,40 @@ private fun MiddleBar(
                     .heightIn(min = 75.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_book_language),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.padding(end = 4.dp)
-                        )
-                        Text(
-                            text = bookLang,
-                            fontSize = 16.sp,
-                            fontFamily = interFont,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
-                    }
+                val chips = buildList {
+                    if (bookLang.isNotEmpty()) add(R.drawable.ic_book_language to bookLang)
+                    if (pageCount.isNotEmpty()) add(R.drawable.ic_book_pages to pageCount)
+                    if (downloadCount.isNotEmpty()) add(R.drawable.ic_book_downloads to downloadCount)
                 }
-
-                VerticalDivider(
-                    modifier = Modifier
-                        .fillMaxHeight(0.6f)
-                        .width(1.dp),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_book_pages),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.padding(end = 4.dp)
-                        )
-                        Text(
-                            text = pageCount,
-                            fontSize = 16.sp,
-                            fontFamily = interFont,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
+                chips.forEachIndexed { index, (iconRes, text) ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = iconRes),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(end = 4.dp)
+                            )
+                            Text(
+                                text = text,
+                                fontSize = 16.sp,
+                                fontFamily = interFont,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
                     }
-                }
-
-                VerticalDivider(
-                    modifier = Modifier
-                        .fillMaxHeight(0.6f)
-                        .width(1.dp),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_book_downloads),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.padding(end = 4.dp)
-                        )
-                        Text(
-                            text = downloadCount,
-                            fontSize = 16.sp,
-                            fontFamily = interFont,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onBackground,
+                    if (index < chips.lastIndex) {
+                        VerticalDivider(
+                            modifier = Modifier
+                                .fillMaxHeight(0.6f)
+                                .width(1.dp),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                         )
                     }
                 }

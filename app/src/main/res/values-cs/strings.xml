@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Others Strings -->
-    <string name="not_applicable">N/A</string>
     <string name="confirm">Potvrdit</string>
     <string name="cancel">Zrušit</string>
     <string name="ok">OK</string>

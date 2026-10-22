@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Others Strings -->
-    <string name="not_applicable">غير معروف</string>
     <string name="confirm">تأكيد</string>
     <string name="cancel">الغاء</string>
     <string name="ok">OK</string>
