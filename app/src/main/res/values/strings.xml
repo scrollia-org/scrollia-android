@@ -118,8 +118,7 @@
     <string name="amoled_theme_setting">AMOLED black theme</string>
     <string name="amoled_theme_setting_desc">Pure black background in dark theme</string>
     <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_setting_desc">Colors from your wallpaper (Android 12+)</string>
-    <string name="material_you_error">This feature is only for devices running Android 12 or above.</string>
+    <string name="material_you_setting_desc">Colors from your wallpaper</string>
     <string name="license_setting">License &amp; Acknowledgements</string>
     <string name="license_setting_desc">Open source licenses.</string>
     <string name="about_setting">App Information</string>

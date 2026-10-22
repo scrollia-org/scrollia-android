@@ -105,8 +105,7 @@
     <string name="theme_dialog_apply_button">Aplicar</string>
     <string name="amoled_theme_setting">Tema negro AMOLED</string>
     <string name="amoled_theme_setting_desc">Fondo negro puro en el tema oscuro</string>
-    <string name="material_you_setting_desc">Colores de tu fondo de pantalla (Android 12+)</string>
-    <string name="material_you_error">Esta función es sólo para dispositivos con Android 12 o superior.</string>
+    <string name="material_you_setting_desc">Colores de tu fondo de pantalla</string>
     <string name="license_setting">Licencia y agradecimientos</string>
     <string name="license_setting_desc">Licencias de código abierto.</string>
     <string name="about_setting">Información de la aplicación</string>

@@ -96,7 +96,6 @@
     <string name="theme_option_system">Systémová výchozí</string>
     <string name="theme_dialog_apply_button">Použít</string>
     <string name="amoled_theme_setting">Černé téma</string>
-    <string name="material_you_error">Tato funkce je určena pouze pro zařízení se systémem Android 12 nebo novějším.</string>
     <string name="license_setting">Licence a poděkování</string>
     <string name="license_setting_desc">Licence open source.</string>
     <string name="about_setting">Informace o aplikaci</string>

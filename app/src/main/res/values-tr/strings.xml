@@ -98,7 +98,6 @@
     <string name="theme_dialog_apply_button">Uygula</string>
     <string name="amoled_theme_setting">Siyah Tema</string>
     <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_error">Bu özellik sadece Android 12 veya üzeri cihazlar için geçerlidir.</string>
     <string name="license_setting">Lisanslar &amp; Teşekkürler</string>
     <string name="license_setting_desc">Açık kaynak lisansları.</string>
     <string name="about_setting">Uygulama Bilgisi</string>
