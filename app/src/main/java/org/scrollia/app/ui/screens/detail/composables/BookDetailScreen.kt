@@ -68,18 +68,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionResult
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
 import org.scrollia.app.MainActivity
 import org.scrollia.app.R
 import org.scrollia.app.helpers.Utils
@@ -513,40 +508,14 @@ private fun BookDetailTopBar(
 
 @Composable
 private fun NoSynopsisUI() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        val compositionResult: LottieCompositionResult =
-            rememberLottieComposition(
-                spec = LottieCompositionSpec.RawRes(R.raw.synopis_not_found_lottie)
-            )
-        val progressAnimation by animateLottieCompositionAsState(
-            compositionResult.value,
-            isPlaying = true,
-            iterations = LottieConstants.IterateForever,
-            speed = 1f
-        )
-
-        Spacer(modifier = Modifier.weight(2f))
-        LottieAnimation(
-            composition = compositionResult.value,
-            progress = { progressAnimation },
-            modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .height(200.dp),
-            enableMergePaths = true
-        )
-
-        Text(
-            text = stringResource(id = R.string.book_synopsis_not_found),
-            modifier = Modifier.padding(14.dp),
-            fontFamily = literataFont,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-        Spacer(modifier = Modifier.weight(1f))
-    }
+    Text(
+        text = stringResource(id = R.string.book_synopsis_not_found),
+        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+        fontFamily = literataFont,
+        fontStyle = FontStyle.Italic,
+        fontWeight = FontWeight.Normal,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 
