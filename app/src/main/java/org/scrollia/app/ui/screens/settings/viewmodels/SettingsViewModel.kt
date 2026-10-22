@@ -16,7 +16,6 @@
 
 package org.scrollia.app.ui.screens.settings.viewmodels
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.LiveData
@@ -37,7 +36,7 @@ class SettingsViewModel @Inject constructor(
 
     private val _theme = MutableLiveData(ThemeMode.Auto)
     private val _amoledTheme = MutableLiveData(false)
-    private val _materialYou = MutableLiveData(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+    private val _materialYou = MutableLiveData(false)
     private val _internalReader = MutableLiveData(true)
     private val _useGoogleApi = MutableLiveData(true)
     private val _openLibraryAtStart = MutableLiveData(false)
@@ -100,8 +99,10 @@ class SettingsViewModel @Inject constructor(
         PreferenceUtil.AMOLED_THEME_BOOL, false
     )
 
+    // Material You is opt-in (default false): the brand palette is the
+    // default look, not the user's wallpaper colors (see Theme.kt).
     private fun getMaterialYouValue() = preferenceUtil.getBoolean(
-        PreferenceUtil.MATERIAL_YOU_BOOL, Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        PreferenceUtil.MATERIAL_YOU_BOOL, false
     )
 
     private fun getInternalReaderValue() = preferenceUtil.getBoolean(

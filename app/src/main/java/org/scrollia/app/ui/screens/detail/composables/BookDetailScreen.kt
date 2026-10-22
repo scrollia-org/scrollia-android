@@ -483,7 +483,7 @@ private fun MiddleBar(
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = MaterialTheme.colorScheme.primary
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
@@ -493,7 +493,7 @@ private fun MiddleBar(
                     fontSize = 17.sp,
                     fontFamily = interFont,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         }
