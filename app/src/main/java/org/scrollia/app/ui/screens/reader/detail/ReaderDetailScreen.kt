@@ -178,7 +178,6 @@ private fun ReaderDetailScaffold(
                 authors = state.authors,
                 imageData = state.coverImage,
                 currentThemeMode = settingsVM.getCurrentTheme(),
-                showReaderBackground = true,
                 progressPercent = progressData?.getProgressPercent(state.chapters.size) ?: ""
             )
 

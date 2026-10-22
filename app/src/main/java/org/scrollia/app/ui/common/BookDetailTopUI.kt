@@ -38,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -50,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.scrollia.app.R
+import org.scrollia.app.helpers.BlurTransformation
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
 import org.scrollia.app.ui.theme.frauncesFont
 import org.scrollia.app.ui.theme.interFont
@@ -60,7 +60,6 @@ fun BookDetailTopUI(
     authors: String,
     imageData: Any?,
     currentThemeMode: ThemeMode,
-    showReaderBackground: Boolean = false,
     progressPercent: String? = null
 ) {
     val context = LocalContext.current
@@ -69,10 +68,17 @@ fun BookDetailTopUI(
             .fillMaxWidth()
             .height(235.dp)
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
+        )
         AsyncImage(
-            model = if (showReaderBackground) R.drawable.book_reader_bg else R.drawable.book_details_bg,
+            model = ImageRequest.Builder(context)
+                .data(imageData)
+                .transformations(BlurTransformation())
+                .crossfade(true).build(),
             contentDescription = null,
-            alpha = 0.35f,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
@@ -82,9 +88,9 @@ fun BookDetailTopUI(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.background,
-                            Color.Transparent,
-                            MaterialTheme.colorScheme.background
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.75f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.60f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.90f)
                         ), startY = 8f
                     )
                 )
