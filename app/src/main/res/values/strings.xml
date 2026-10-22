@@ -53,7 +53,7 @@
 
     <!-- Library screen. -->
     <string name="library_header">Library</string>
-    <string name="empty_library">Nothing Here!</string>
+    <string name="empty_library">Your library is empty</string>
     <string name="import_button_text">Import</string>
     <string name="import_button_onboarding">Import your own books!</string>
     <string name="import_button_onboarding_desc">Now you can import your own EPUB books and read them in Scrollia.</string>
