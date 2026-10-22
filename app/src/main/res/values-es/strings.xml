@@ -119,7 +119,7 @@
     <string name="download_book_button">Descargar</string>
     <string name="download_started">¡Descarga iniciada!</string>
     <string name="book_synopsis">Sinopsis</string>
-    <string name="book_synopsis_not_found">No disponible</string>
+    <string name="book_synopsis_not_found">Sin sinopsis disponible</string>
     <!-- About Screen -->
     <string name="about_header">A cerca de</string>
     <string name="about_desc">Una aplicación Android gratuita y de código abierto para descargar libros electrónicos del Proyecto GutenBerg.</string>

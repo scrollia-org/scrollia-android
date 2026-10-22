@@ -134,7 +134,7 @@
     <string name="download_book_button">Download</string>
     <string name="download_started">Download Started!</string>
     <string name="book_synopsis">Synopsis</string>
-    <string name="book_synopsis_not_found">Not available</string>
+    <string name="book_synopsis_not_found">No synopsis available</string>
 
     <!-- About Screen -->
     <string name="about_header">About</string>
