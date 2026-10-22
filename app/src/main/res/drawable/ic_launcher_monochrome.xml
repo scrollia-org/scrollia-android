@@ -1,31 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <path
-        android:fillColor="#000000"
-        android:pathData="M28,22 h52 a4,4 0 0,1 4,4 v56 a4,4 0 0,1 -4,4 h-52 a4,4 0 0,1 -4,-4 v-56 a4,4 0 0,1 4,-4 z" />
+    <!-- Pure silhouette of the S scroll artwork for themed icons:
+         solid S body + roll discs, no thin spiral strokes. -->
+    <group
+        android:scaleX="0.72"
+        android:scaleY="0.72"
+        android:pivotX="54"
+        android:pivotY="54">
 
-    <path android:fillColor="#FFFFFF" android:pathData="M36,34 l8,-4 l0,8 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M48,30 l0,8 l8,0 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M60,34 l8,-4 l0,8 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M38,32 h18 v1.5 h-18 z" />
-
-    <path android:fillColor="#FFFFFF" android:pathData="M34,46 l8,-4 l0,8 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M46,42 l0,8 l8,0 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M58,46 l8,-4 l0,8 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M68,42 l0,8 l6,0 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M36,44 h12 v1.5 h-12 z" />
-
-    <path android:fillColor="#FFFFFF" android:pathData="M38,58 l8,-4 l0,8 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M50,54 l0,8 l8,0 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M62,58 l6,-3 l0,6 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M40,56 h20 v1.5 h-20 z" />
-
-    <path android:fillColor="#FFFFFF" android:pathData="M36,70 l6,-3 l0,6 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M46,67 l0,6 l6,0 z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M38,68 h8 v1.5 h-8 z" />
-
+        <path
+            android:pathData="M 67 29 C 61 20, 42 20, 37 31 C 32 43, 48 49, 54 54 C 60 59, 76 65, 71 77 C 66 88, 47 88, 41 79"
+            android:strokeColor="#000000"
+            android:strokeWidth="12"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M60,25 a10,10 0 1,1 20,0 a10,10 0 1,1 -20,0 z"
+            android:fillColor="#000000" />
+        <path
+            android:pathData="M28,83 a10,10 0 1,1 20,0 a10,10 0 1,1 -20,0 z"
+            android:fillColor="#000000" />
+    </group>
 </vector>
