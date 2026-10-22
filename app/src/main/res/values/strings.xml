@@ -103,6 +103,9 @@
     <string name="app_desc">Read. Discover. Explore the world\'s library.</string>
     <string name="made_by">Named for the scroll — reading\'s oldest form</string>
     <string name="general_settings_header">General</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_reader">Reader</string>
+    <string name="settings_section_about">About</string>
     <string name="default_reader_setting">Default Reader</string>
     <string name="default_reader_dialog_title">Open ebooks with…</string>
     <string name="reader_option_inbuilt">Inbuilt Reader</string>
@@ -115,18 +118,16 @@
     <string name="open_library_at_start_setting">Open Library at Start</string>
     <string name="open_library_at_start_setting_desc">Launch Library screen when app starts.</string>
     <string name="display_setting_header">Display</string>
-    <string name="theme_setting">Default Theme</string>
+    <string name="theme_setting">Theme</string>
     <string name="theme_dialog_title">Change Theme</string>
     <string name="theme_option_light">Light</string>
     <string name="theme_option_dark">Dark</string>
     <string name="theme_option_system">System Default</string>
     <string name="theme_dialog_apply_button">Apply</string>
-    <string name="amoled_theme_setting">Black Theme</string>
-    <string name="amoled_theme_setting_disabled_desc">Enable Amoled Black Theme</string>
-    <string name="amoled_theme_setting_enabled_desc">Disable Amoled Black Theme</string>
+    <string name="amoled_theme_setting">AMOLED black theme</string>
+    <string name="amoled_theme_setting_desc">Pure black background in dark theme</string>
     <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_setting_disabled_desc">Enable Material You</string>
-    <string name="material_you_setting_enabled_desc">Disable Material You</string>
+    <string name="material_you_setting_desc">Colors from your wallpaper (Android 12+)</string>
     <string name="material_you_error">This feature is only for devices running Android 12 or above.</string>
     <string name="miscellaneous_setting_header">Miscellaneous</string>
     <string name="license_setting">License &amp; Acknowledgements</string>
