@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,13 +39,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -92,6 +91,7 @@ import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
 import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,13 +118,32 @@ fun SettingsScreen(navController: NavController) {
                 .padding(paddingValues)
         ) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                SettingsCard()
+                // Ordered by frequency of use: appearance first, legal/about last.
+                AppearanceOptionsUI(viewModel = viewModel, snackBarHostState = snackBarHostState)
+                ReaderOptionsUI(viewModel = viewModel)
                 GeneralOptionsUI(viewModel = viewModel, snackBarHostState = snackBarHostState)
-                DisplayOptionsUI(viewModel = viewModel, snackBarHostState = snackBarHostState)
-                InformationUI(navController = navController)
+                AboutUI(navController = navController)
             }
         }
     }
+}
+
+/**
+ * Section header following the editorial "caption" style from
+ * docs/DESIGN.md: Inter medium, small, uppercase, wide tracking.
+ * Never gold (tertiary) text — it fails contrast on paper.
+ */
+@Composable
+private fun SettingsSectionHeader(titleRes: Int) {
+    Text(
+        text = stringResource(id = titleRes).uppercase(Locale.getDefault()),
+        fontFamily = interFont,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 1.2.sp,
+        modifier = Modifier.padding(start = 18.dp, top = 18.dp, bottom = 6.dp)
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -165,20 +184,20 @@ private fun SettingsCard() {
                     fontWeight = FontWeight.SemiBold,
                 )
 
-                Button(
-                    modifier = Modifier.padding(top = 10.dp),
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    contentPadding = PaddingValues(horizontal = 30.dp),
+                // Version is information, not an action: a chip, not a button.
+                Box(
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
-                        text = "version-${BuildConfig.VERSION_NAME}",
+                        text = "v${BuildConfig.VERSION_NAME}",
                         fontFamily = interFont,
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
             }
@@ -202,169 +221,7 @@ private fun SettingsCard() {
 
 
 @Composable
-private fun GeneralOptionsUI(
-    viewModel: SettingsViewModel,
-    snackBarHostState: SnackbarHostState
-) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-
-    val googleBooksApiSwitchState = viewModel.useGoogleApi.observeAsState(initial = true)
-    val internalReaderState = viewModel.internalReader.observeAsState(initial = true)
-    val openLibraryAtStartState = viewModel.openLibraryAtStart.observeAsState(initial = false)
-
-    val internalReaderValue = when (internalReaderState.value) {
-        true -> stringResource(id = R.string.reader_option_inbuilt)
-        false -> stringResource(id = R.string.reader_option_external)
-    }
-    val showReaderDialog = remember { mutableStateOf(false) }
-    val radioOptions = listOf(
-        stringResource(id = R.string.reader_option_inbuilt),
-        stringResource(id = R.string.reader_option_external)
-    )
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(internalReaderValue) }
-
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 14.dp)
-            .padding(top = 8.dp)
-    ) {
-        Text(
-            text = stringResource(id = R.string.general_settings_header),
-            fontFamily = interFont,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-        SettingItem(
-            icon = ImageVector.vectorResource(id = R.drawable.ic_settings_reader),
-            mainText = stringResource(id = R.string.default_reader_setting),
-            subText = internalReaderValue,
-            onClick = { showReaderDialog.value = true }
-        )
-        SettingItem(
-            icon = Icons.Filled.Place,
-            mainText = stringResource(id = R.string.default_locale_setting),
-            subText = stringResource(id = R.string.default_locale_setting_desc),
-            onClick = {
-                // App locale setting is only available on Android 13 and above.
-                // Also, it's not functional on devices running MIUI even on Android 13,
-                // Thanks to Xiaomi's broken implementation of standard Android APIs.
-                // See: https://github.com/Pool-Of-Tears/GreenStash/issues/130 for more.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !Utils.isMiui()) {
-                    val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
-                        data = "package:${context.packageName}".toUri()
-                    }
-                    context.startActivity(intent)
-                } else {
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar(
-                            context.getString(R.string.locale_setting_not_found)
-                        )
-                    }
-                }
-            }
-        )
-        SettingItemWIthSwitch(
-            icon = ImageVector.vectorResource(id = R.drawable.ic_settings_google_api),
-            mainText = stringResource(id = R.string.google_books_api_setting),
-            subText = stringResource(id = R.string.google_books_api_setting_desc),
-            switchState = googleBooksApiSwitchState,
-            onCheckChange = {
-                viewModel.setUseGoogleApiValue(it)
-            }
-        )
-
-        SettingItemWIthSwitch(
-            icon = ImageVector.vectorResource(id = R.drawable.ic_settings_library_start),
-            mainText = stringResource(id = R.string.open_library_at_start_setting),
-            subText = stringResource(id = R.string.open_library_at_start_setting_desc),
-            switchState = openLibraryAtStartState,
-            onCheckChange = {
-                viewModel.setOpenLibraryAtStartValue(it)
-            }
-        )
-    }
-
-    if (showReaderDialog.value) {
-        AlertDialog(onDismissRequest = {
-            showReaderDialog.value = false
-        }, title = {
-            Text(
-                text = stringResource(id = R.string.default_reader_dialog_title),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }, text = {
-            Column(
-                modifier = Modifier.selectableGroup(),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                radioOptions.forEach { text ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(46.dp)
-                            .selectable(
-                                selected = (text == selectedOption),
-                                onClick = { onOptionSelected(text) },
-                                role = Role.RadioButton,
-                            ),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(
-                            selected = (text == selectedOption),
-                            onClick = null,
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = MaterialTheme.colorScheme.primary,
-                                unselectedColor = MaterialTheme.colorScheme.inversePrimary,
-                                disabledSelectedColor = Color.Black,
-                                disabledUnselectedColor = Color.Black
-                            ),
-                        )
-                        Text(
-                            text = text,
-                            modifier = Modifier.padding(start = 16.dp),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = interFont
-                        )
-                    }
-                }
-            }
-        }, confirmButton = {
-            FilledTonalButton(
-                onClick = {
-                    showReaderDialog.value = false
-
-                    when (selectedOption) {
-                        context.getString(R.string.reader_option_inbuilt) -> {
-                            viewModel.setInternalReaderValue(true)
-                        }
-
-                        context.getString(R.string.reader_option_external) -> {
-                            viewModel.setInternalReaderValue(false)
-                        }
-                    }
-                }, colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Text(stringResource(id = R.string.confirm))
-            }
-        }, dismissButton = {
-            TextButton(onClick = {
-                showReaderDialog.value = false
-            }) {
-                Text(stringResource(id = R.string.cancel))
-            }
-        })
-    }
-}
-
-
-@Composable
-private fun DisplayOptionsUI(
+private fun AppearanceOptionsUI(
     viewModel: SettingsViewModel,
     snackBarHostState: SnackbarHostState,
 ) {
@@ -388,35 +245,12 @@ private fun DisplayOptionsUI(
 
     // Display settings for the amoled theme
     val amoledState = viewModel.amoledTheme.observeAsState(initial = false)
-    val amoledDesc = if (amoledState.value) {
-        stringResource(id = R.string.amoled_theme_setting_enabled_desc)
-    } else {
-        stringResource(id = R.string.amoled_theme_setting_disabled_desc)
-    }
 
     // Display settings for the Material You theme
-    val materialYouState = viewModel.materialYou.observeAsState(
-        initial = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    )
-    val materialYouDesc = if (materialYouState.value) {
-        stringResource(id = R.string.material_you_setting_enabled_desc)
-    } else {
-        stringResource(id = R.string.material_you_setting_disabled_desc)
-    }
+    val materialYouState = viewModel.materialYou.observeAsState(initial = false)
 
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 14.dp)
-            .padding(top = 2.dp)
-    ) {
-        Text(
-            text = stringResource(id = R.string.display_setting_header),
-            fontFamily = interFont,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
+    Column(modifier = Modifier.padding(horizontal = 14.dp)) {
+        SettingsSectionHeader(titleRes = R.string.settings_section_appearance)
         SettingItem(
             icon = Icons.Filled.Build,
             mainText = stringResource(id = R.string.theme_setting),
@@ -426,7 +260,7 @@ private fun DisplayOptionsUI(
         SettingItemWIthSwitch(
             icon = Icons.Filled.Settings,
             mainText = stringResource(id = R.string.amoled_theme_setting),
-            subText = amoledDesc,
+            subText = stringResource(id = R.string.amoled_theme_setting_desc),
             switchState = amoledState,
             onCheckChange = {
                 viewModel.setAmoledTheme(it)
@@ -434,7 +268,7 @@ private fun DisplayOptionsUI(
         SettingItemWIthSwitch(
             icon = Icons.Filled.Edit,
             mainText = stringResource(id = R.string.material_you_setting),
-            subText = materialYouDesc,
+            subText = stringResource(id = R.string.material_you_setting_desc),
             switchState = materialYouState,
             onCheckChange = { materialYouValue ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -526,38 +360,187 @@ private fun DisplayOptionsUI(
     }
 }
 
-@Composable
-private fun InformationUI(navController: NavController) {
-    Box {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 14.dp)
-                .padding(top = 2.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.miscellaneous_setting_header),
-                fontFamily = interFont,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-            SettingItem(
-                icon = Icons.Filled.Info,
-                mainText = stringResource(id = R.string.license_setting),
-                subText = stringResource(id = R.string.license_setting_desc),
-                onClick = { navController.navigate(Screens.OSLScreen.route) }
-            )
-            SettingItem(
-                icon = Icons.Filled.Info,
-                mainText = stringResource(id = R.string.about_setting),
-                subText = stringResource(id = R.string.about_setting_desc),
-                onClick = { navController.navigate(Screens.AboutScreen.route) }
-            )
 
-        }
+@Composable
+private fun ReaderOptionsUI(viewModel: SettingsViewModel) {
+    val context = LocalContext.current
+
+    val internalReaderState = viewModel.internalReader.observeAsState(initial = true)
+
+    val internalReaderValue = when (internalReaderState.value) {
+        true -> stringResource(id = R.string.reader_option_inbuilt)
+        false -> stringResource(id = R.string.reader_option_external)
+    }
+    val showReaderDialog = remember { mutableStateOf(false) }
+    val radioOptions = listOf(
+        stringResource(id = R.string.reader_option_inbuilt),
+        stringResource(id = R.string.reader_option_external)
+    )
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(internalReaderValue) }
+
+    Column(modifier = Modifier.padding(horizontal = 14.dp)) {
+        SettingsSectionHeader(titleRes = R.string.settings_section_reader)
+        SettingItem(
+            icon = ImageVector.vectorResource(id = R.drawable.ic_settings_reader),
+            mainText = stringResource(id = R.string.default_reader_setting),
+            subText = internalReaderValue,
+            onClick = { showReaderDialog.value = true }
+        )
     }
 
+    if (showReaderDialog.value) {
+        AlertDialog(onDismissRequest = {
+            showReaderDialog.value = false
+        }, title = {
+            Text(
+                text = stringResource(id = R.string.default_reader_dialog_title),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }, text = {
+            Column(
+                modifier = Modifier.selectableGroup(),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                radioOptions.forEach { text ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(46.dp)
+                            .selectable(
+                                selected = (text == selectedOption),
+                                onClick = { onOptionSelected(text) },
+                                role = Role.RadioButton,
+                            ),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(
+                            selected = (text == selectedOption),
+                            onClick = null,
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colorScheme.primary,
+                                unselectedColor = MaterialTheme.colorScheme.inversePrimary,
+                                disabledSelectedColor = Color.Black,
+                                disabledUnselectedColor = Color.Black
+                            ),
+                        )
+                        Text(
+                            text = text,
+                            modifier = Modifier.padding(start = 16.dp),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontFamily = interFont
+                        )
+                    }
+                }
+            }
+        }, confirmButton = {
+            FilledTonalButton(
+                onClick = {
+                    showReaderDialog.value = false
+
+                    when (selectedOption) {
+                        context.getString(R.string.reader_option_inbuilt) -> {
+                            viewModel.setInternalReaderValue(true)
+                        }
+
+                        context.getString(R.string.reader_option_external) -> {
+                            viewModel.setInternalReaderValue(false)
+                        }
+                    }
+                }, colors = ButtonDefaults.filledTonalButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
+                Text(stringResource(id = R.string.confirm))
+            }
+        }, dismissButton = {
+            TextButton(onClick = {
+                showReaderDialog.value = false
+            }) {
+                Text(stringResource(id = R.string.cancel))
+            }
+        })
+    }
+}
+
+
+@Composable
+private fun GeneralOptionsUI(
+    viewModel: SettingsViewModel,
+    snackBarHostState: SnackbarHostState
+) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    val googleBooksApiSwitchState = viewModel.useGoogleApi.observeAsState(initial = true)
+    val openLibraryAtStartState = viewModel.openLibraryAtStart.observeAsState(initial = false)
+
+    Column(modifier = Modifier.padding(horizontal = 14.dp)) {
+        SettingsSectionHeader(titleRes = R.string.general_settings_header)
+        SettingItem(
+            icon = Icons.Filled.Place,
+            mainText = stringResource(id = R.string.default_locale_setting),
+            subText = stringResource(id = R.string.default_locale_setting_desc),
+            onClick = {
+                // App locale setting is only available on Android 13 and above.
+                // Also, it's not functional on devices running MIUI even on Android 13,
+                // Thanks to Xiaomi's broken implementation of standard Android APIs.
+                // See: https://github.com/Pool-Of-Tears/GreenStash/issues/130 for more.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !Utils.isMiui()) {
+                    val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+                        data = "package:${context.packageName}".toUri()
+                    }
+                    context.startActivity(intent)
+                } else {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(
+                            context.getString(R.string.locale_setting_not_found)
+                        )
+                    }
+                }
+            }
+        )
+        SettingItemWIthSwitch(
+            icon = ImageVector.vectorResource(id = R.drawable.ic_settings_library_start),
+            mainText = stringResource(id = R.string.open_library_at_start_setting),
+            subText = stringResource(id = R.string.open_library_at_start_setting_desc),
+            switchState = openLibraryAtStartState,
+            onCheckChange = {
+                viewModel.setOpenLibraryAtStartValue(it)
+            }
+        )
+        SettingItemWIthSwitch(
+            icon = ImageVector.vectorResource(id = R.drawable.ic_settings_google_api),
+            mainText = stringResource(id = R.string.google_books_api_setting),
+            subText = stringResource(id = R.string.google_books_api_setting_desc),
+            switchState = googleBooksApiSwitchState,
+            onCheckChange = {
+                viewModel.setUseGoogleApiValue(it)
+            }
+        )
+    }
+}
+
+
+@Composable
+private fun AboutUI(navController: NavController) {
+    Column(modifier = Modifier.padding(horizontal = 14.dp)) {
+        SettingsSectionHeader(titleRes = R.string.settings_section_about)
+        SettingItem(
+            icon = Icons.Filled.Info,
+            mainText = stringResource(id = R.string.about_setting),
+            subText = stringResource(id = R.string.about_setting_desc),
+            onClick = { navController.navigate(Screens.AboutScreen.route) }
+        )
+        SettingItem(
+            icon = Icons.AutoMirrored.Filled.List,
+            mainText = stringResource(id = R.string.license_setting),
+            subText = stringResource(id = R.string.license_setting_desc),
+            onClick = { navController.navigate(Screens.OSLScreen.route) }
+        )
+    }
+    // App identity + version lives at the bottom, with the legal items.
+    SettingsCard()
 }
 
 
