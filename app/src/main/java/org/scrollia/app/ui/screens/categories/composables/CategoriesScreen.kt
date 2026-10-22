@@ -43,18 +43,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import org.scrollia.app.R
 import org.scrollia.app.helpers.weakHapticFeedback
 import org.scrollia.app.ui.common.CustomTopAppBar
+import org.scrollia.app.ui.common.ProgressDots
 import org.scrollia.app.ui.navigation.Screens
+import org.scrollia.app.ui.screens.categories.viewmodels.CategoriesViewModel
 import org.scrollia.app.ui.screens.main.bottomNavPadding
 import org.scrollia.app.ui.theme.interFont
 
 
 @Composable
 fun CategoriesScreen(navController: NavController) {
+    val viewModel: CategoriesViewModel = hiltViewModel()
+    val state = viewModel.state
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -71,25 +77,40 @@ fun CategoriesScreen(navController: NavController) {
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues)
             ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(168.dp),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(start = 8.dp, end = 8.dp, bottom = bottomNavPadding),
-                    content = {
-                        items(BookCategories.ALL.size) { idx ->
-                            val category = BookCategories.ALL[idx]
-                            CategoriesItem(
-                                category = stringResource(id = category.nameRes),
-                                onClick = {
-                                    navController.navigate(
-                                        Screens.CategoryDetailScreen.withCategory(category.category)
-                                    )
-                                }
-                            )
-                        }
-                    },
-                )
+                // Only show categories that have books when the backend
+                // reports counts; fall back to the full static list when the
+                // endpoint is unavailable.
+                val categories = state.categories?.let { infos ->
+                    BookCategories.ALL.filter { cat ->
+                        infos.any { it.category == cat.category && it.count > 0 }
+                    }
+                }
+                if (categories == null && state.isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        ProgressDots()
+                    }
+                } else {
+                    val items = categories ?: BookCategories.ALL.asList()
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(168.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 8.dp, end = 8.dp, bottom = bottomNavPadding),
+                        content = {
+                            items(items.size) { idx ->
+                                val category = items[idx]
+                                CategoriesItem(
+                                    category = stringResource(id = category.nameRes),
+                                    onClick = {
+                                        navController.navigate(
+                                            Screens.CategoryDetailScreen.withCategory(category.category)
+                                        )
+                                    }
+                                )
+                            }
+                        },
+                    )
+                }
             }
         })
 

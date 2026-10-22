@@ -19,11 +19,13 @@ package org.scrollia.app.api
 import android.content.Context
 import org.scrollia.app.BuildConfig
 import org.scrollia.app.api.models.BookSet
+import org.scrollia.app.api.models.CategoryInfo
 import org.scrollia.app.api.models.ExtraInfo
 import org.scrollia.app.helpers.PreferenceUtil
 import org.scrollia.app.helpers.book.BookLanguage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.Call
@@ -53,6 +55,7 @@ class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
     //  See docs/BACKEND.md for the planned architecture.
     private val baseApiUrl = "https://api.scrollia.org/books"
     private val extraInfoUrl = "https://api.scrollia.org/extra-info"
+    private val categoriesApiUrl = "https://api.scrollia.org/categories"
 
     private val okHttpClient by lazy {
         // Create an OkHttpClient with a cache and a network interceptor.
@@ -135,6 +138,34 @@ class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
         }
         val request = Request.Builder().get().url(url).build()
         return makeApiRequest(request)
+    }
+
+    /**
+     * Fetches the list of book categories with their book counts from the
+     * Scrollia backend. Returns null if the endpoint is missing or fails
+     * (e.g. older backends), so callers can fall back to the built-in
+     * static category list.
+     */
+    suspend fun getCategories(): List<CategoryInfo>? = suspendCoroutine { continuation ->
+        val request = Request.Builder().get().url(categoriesApiUrl).build()
+        okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                continuation.resume(null)
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    val categories = runCatching {
+                        if (!it.isSuccessful) throw IOException("HTTP ${it.code}")
+                        json.decodeFromString(
+                            ListSerializer(CategoryInfo.serializer()),
+                            it.body!!.string()
+                        )
+                    }.getOrNull()
+                    continuation.resume(categories)
+                }
+            }
+        })
     }
 
     // Helper function to make API requests.
