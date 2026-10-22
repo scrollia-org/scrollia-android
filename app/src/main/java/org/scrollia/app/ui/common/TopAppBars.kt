@@ -190,7 +190,7 @@ private fun TopAppBarsPV() {
         CustomTopAppBar(
             headerText = "Something",
             actionIcon = Icons.Default.Create,
-            onBackButtonClicked = { /*TODO*/ },
+            onBackButtonClicked = {},
             onActionClicked = {})
     }
 }

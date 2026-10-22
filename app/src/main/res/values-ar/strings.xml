@@ -2,7 +2,6 @@
 <resources>
     <!-- Others Strings -->
     <string name="not_applicable">غير معروف</string>
-    <string name="woops">اووبس!!</string>
     <string name="confirm">تأكيد</string>
     <string name="cancel">الغاء</string>
     <string name="ok">OK</string>
@@ -20,9 +19,6 @@
     <!-- ToolTips -->
     <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">شكرًا لتثبيت Scrollia!</string>
-    <string name="welcome_screen_desc">اختر قارئ الكتب الإلكترونية المفضل لديك للانطلاق في رحلتك في القراءة.</string>
-    <string name="welcome_screen_button">البدء</string>
     <!-- Home screen. -->
     <string name="home_header">كل الكتب</string>
     <string name="home_language_icon_desc">الترتيب حسب اللغة</string>
@@ -60,7 +56,6 @@
     <string name="external_book_info_unavailable">متاح فقط للكتب الداخلية.</string>
     <string name="epub_importing">جاري الاستيراد… يرجى الانتظار.</string>
     <string name="epub_imported">تم الاستيراد بنجاح!</string>
-    <string name="epub_import_error">فشل الاستيراد!</string>
     <string name="open_app_chooser">افتح بواسطة</string>
     <string name="share_app_chooser">مشاركة من خلال</string>
     <string name="library_read_button">اقرأ</string>
@@ -70,7 +65,6 @@
     <string name="reader_detail_header">قارئ الكتاب الاليكتروني</string>
     <string name="start_reading_button">يبدأ</string>
     <string name="continue_reading_button">استمرار</string>
-    <string name="reader_chapters_list">فصول</string>
     <!--Reader Screen -->
     <string name="reader_max_font_size_reached">آسف، لا يمكن أن تذهب إلى أعلى من ذلك!</string>
     <string name="reader_min_font_size_reached">آسف، لا يمكن أن تذهب إلى أقل من ذلك!</string>
@@ -85,8 +79,6 @@
     <string name="dictionary">معنى</string>
     <!-- Settings screen. -->
     <string name="settings_header">الاعدادات</string>
-    <string name="app_desc">محمل الكتب الالكترونية</string>
-    <string name="made_by">"صنع ب  ❤ بواسطة Shivam"</string>
     <string name="general_settings_header">عام</string>
     <string name="default_reader_setting">القارئ الافتراضي</string>
     <string name="default_reader_dialog_title">فتح الكتب الإلكترونية مع …</string>
@@ -95,11 +87,8 @@
     <string name="default_locale_setting">اللغة الافتراضية</string>
     <string name="default_locale_setting_desc">حدد لغتك المفضلة.</string>
     <string name="locale_setting_not_found">عذرا! هذه الميزة ليست مدعومة حاليا من قبل نظام التشغيل الخاص بك.</string>
-    <string name="google_books_api_setting">واجهة برمجة تطبيقات كتب Google</string>
-    <string name="google_books_api_setting_desc">استخدم واجهة برمجة تطبيقات كتب Google لجلب معلومات إضافية عن الكتب.</string>
     <string name="open_library_at_start_setting">افتح المكتبة عند البدء</string>
     <string name="open_library_at_start_setting_desc">افتح شاشة المكتبة عند بدء التطبيق.</string>
-    <string name="display_setting_header">العرض</string>
     <string name="theme_setting">المظهر الافتراضى</string>
     <string name="theme_dialog_title">تغيير المظهر</string>
     <string name="theme_option_light">فاتح</string>
@@ -107,12 +96,7 @@
     <string name="theme_option_system">الافتراضي للنظام</string>
     <string name="theme_dialog_apply_button">تطبيق</string>
     <string name="amoled_theme_setting">سمة اللون الأسود</string>
-    <string name="amoled_theme_setting_disabled_desc">تمكين سمة اللون الأسود AMOLED</string>
-    <string name="amoled_theme_setting_enabled_desc">تعطيل سمة اللون الأسود AMOLED</string>
-    <string name="material_you_setting_disabled_desc">تفعيل</string>
-    <string name="material_you_setting_enabled_desc">تعطيل</string>
     <string name="material_you_error">هذه الميزة  للاجهزه التى تدعم اندرويد 12 وما فوق</string>
-    <string name="miscellaneous_setting_header">متفرقات</string>
     <string name="license_setting">التراخيص</string>
     <string name="license_setting_desc">التراخيص مفتوحة المصدر</string>
     <string name="about_setting">معلومات التطبيق</string>
@@ -122,7 +106,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">تفاصيل الكتاب</string>
     <string name="back_button_desc">ارجع للخلف</string>
-    <string name="share_button_desc">مشاركة الكتاب</string>
     <string name="share_intent_header">مشاركة من خلال</string>
     <string name="read_book_button">ابدأ القراءه</string>
     <string name="download_book_button">تحميل</string>
@@ -133,21 +116,11 @@
     <string name="about_header">لمحة</string>
     <string name="about_desc">تطبيق اندرويد لتحميل الكتب المجانية من GutenBerg</string>
     <string name="developed_by">تم التطوير بواسطة</string>
-    <string name="project_contributors">مساهمو المشروع</string>
-    <string name="project_contributors_desc">تعرف على مساهمينا الرائعين.</string>
     <string name="useful_links">روابط مفيدة</string>
-    <string name="link_readme">README</string>
-    <string name="link_readme_desc">تفقد README للتطبيق على Github.</string>
     <string name="link_website">الموقع الإلكتروني</string>
     <string name="link_website_desc">قم بزيارة موقعنا الإلكتروني لمزيد من المعلومات.</string>
     <string name="link_privacy_policy">سياسة الخصوصية</string>
     <string name="link_privacy_policy_desc">اقرأ سياسة الخصوصية الأخيرة لدينا.</string>
-    <string name="link_gh_issue">مشاكل Github</string>
-    <string name="link_gh_issue_desc">إنشاء مشكلة على Github.</string>
-    <string name="link_telegram">مجموعة تيليجرام</string>
-    <string name="link_telegram_desc">استمتع بوقتك معنا على Telegram!</string>
-    <string name="link_support">دعم التطوير</string>
-    <string name="link_support_desc">تعتقد أنني أستحق الكوكيز؟ انقر هنا!</string>
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">التراخيص</string>
 </resources>
