@@ -20,7 +20,6 @@
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">সব বই</string>
-    <string name="home_language_icon_desc">ভাষা অনুযায়ী সাজান</string>
     <string name="home_search_icon_desc">বই খুজুন</string>
     <string name="language_menu_title">ভাষা দ্বারা ব্রাউজ</string>
     <!-- Categories screen. -->

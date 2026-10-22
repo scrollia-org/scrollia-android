@@ -20,7 +20,6 @@
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">Все книги</string>
-    <string name="home_language_icon_desc">Сортировать по языку</string>
     <string name="home_search_icon_desc">Поиск книг</string>
     <string name="language_menu_title">Отобразить по языку</string>
     <!-- Categories screen. -->

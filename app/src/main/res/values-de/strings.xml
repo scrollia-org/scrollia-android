@@ -21,7 +21,6 @@
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">Alle Bücher</string>
-    <string name="home_language_icon_desc">Nach Sprache sortieren</string>
     <string name="home_search_icon_desc">Bücher suchen</string>
     <string name="language_menu_title">Nach Sprache durchsuchen</string>
     <!-- Categories screen. -->

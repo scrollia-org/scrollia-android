@@ -87,11 +87,15 @@ class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
      */
     suspend fun getAllBooks(
         page: Long,
-        bookLanguage: BookLanguage = BookLanguage.AllBooks
+        bookLanguage: BookLanguage = BookLanguage.AllBooks,
+        topic: String? = null
     ): Result<BookSet> {
         var url = "${baseApiUrl}?page=$page"
         if (bookLanguage != BookLanguage.AllBooks) {
             url += "&languages=${bookLanguage.isoCode}"
+        }
+        if (!topic.isNullOrEmpty()) {
+            url += "&topic=$topic"
         }
         val request = Request.Builder().get().url(url).build()
         return makeApiRequest(request)

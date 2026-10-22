@@ -40,13 +40,13 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,6 +63,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -85,7 +86,6 @@ import org.scrollia.app.helpers.book.BookLanguage
 import org.scrollia.app.helpers.book.BookUtils
 import org.scrollia.app.ui.common.BookItemCard
 import org.scrollia.app.ui.common.BookItemShimmerLoader
-import org.scrollia.app.ui.common.BookLanguageSheet
 import org.scrollia.app.ui.common.NetworkError
 import org.scrollia.app.ui.common.ProgressDots
 import org.scrollia.app.ui.navigation.BottomBarScreen
@@ -138,11 +138,16 @@ fun HomeScreen(navController: NavController, networkStatus: NetworkObserver.Stat
         }
     }
 
-    val showLanguageSheet = remember { mutableStateOf(false) }
-    BookLanguageSheet(
-        showBookLanguage = showLanguageSheet,
-        selectedLanguage = viewModel.language.value,
-        onLanguageChange = { viewModel.onAction(UserAction.LanguageItemClicked(it)) }
+    val showFilterSheet = remember { mutableStateOf(false) }
+    HomeFilterSheet(
+        showSheet = showFilterSheet,
+        currentLanguage = viewModel.language.value,
+        currentGenre = viewModel.genre,
+        currentSort = viewModel.sortOption,
+        genreOptions = viewModel.genreOptions,
+        onApply = { language, genre, sort ->
+            viewModel.onAction(UserAction.ApplyFilters(language, genre, sort))
+        }
     )
 
     HomeScreenScaffold(
@@ -150,7 +155,7 @@ fun HomeScreen(navController: NavController, networkStatus: NetworkObserver.Stat
         networkStatus = networkStatus,
         navController = navController,
         sysBackButtonState = sysBackButtonState,
-        showLanguageSheet = showLanguageSheet
+        showFilterSheet = showFilterSheet
     )
 
 
@@ -163,7 +168,7 @@ private fun HomeScreenScaffold(
     networkStatus: NetworkObserver.Status,
     navController: NavController,
     sysBackButtonState: MutableState<Boolean>,
-    showLanguageSheet: MutableState<Boolean>
+    showFilterSheet: MutableState<Boolean>
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -201,10 +206,11 @@ private fun HomeScreenScaffold(
                     } else {
                         HomeTopAppBar(
                             bookLanguage = viewModel.language.value,
+                            filtersActive = viewModel.filtersActive,
                             onSearchIconClicked = {
                                 viewModel.onAction(UserAction.SearchIconClicked)
-                            }, onLanguageIconClicked = {
-                                showLanguageSheet.value = true
+                            }, onFilterIconClicked = {
+                                showFilterSheet.value = true
                             })
                         sysBackButtonState.value = false
                     }
@@ -400,8 +406,9 @@ private fun SearchBookList(searchBarState: SearchBarState, navController: NavCon
 @Composable
 private fun HomeTopAppBar(
     bookLanguage: BookLanguage,
+    filtersActive: Boolean,
     onSearchIconClicked: () -> Unit,
-    onLanguageIconClicked: () -> Unit,
+    onFilterIconClicked: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -418,13 +425,24 @@ private fun HomeTopAppBar(
             fontFamily = frauncesFont
         )
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = onLanguageIconClicked) {
-            Icon(
-                imageVector = Icons.Filled.Create,
-                contentDescription = stringResource(id = R.string.home_language_icon_desc),
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.size(30.dp)
-            )
+        IconButton(onClick = onFilterIconClicked) {
+            Box {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_filter),
+                    contentDescription = stringResource(id = R.string.filter_icon_desc),
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(30.dp)
+                )
+                if (filtersActive) {
+                    Box(
+                        modifier = Modifier
+                            .size(9.dp)
+                            .align(Alignment.TopEnd)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.tertiary)
+                    )
+                }
+            }
         }
         IconButton(onClick = onSearchIconClicked) {
             Icon(

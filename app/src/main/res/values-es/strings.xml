@@ -20,9 +20,19 @@
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">Todos los libros</string>
-    <string name="home_language_icon_desc">Sort by language</string>
     <string name="home_search_icon_desc">Buscar libros</string>
-    <string name="language_menu_title">Browse by language</string>
+    <string name="language_menu_title">Buscar por idioma</string>
+    <string name="filter_icon_desc">Filtrar libros</string>
+    <string name="filter_sheet_title">Filtros</string>
+    <string name="filter_section_language">Idioma</string>
+    <string name="filter_section_genre">Género</string>
+    <string name="filter_section_sort">Ordenar por</string>
+    <string name="filter_option_all">Todos</string>
+    <string name="filter_sort_popularity">Popularidad</string>
+    <string name="filter_sort_title">Título A–Z</string>
+    <string name="filter_sort_author">Autor A–Z</string>
+    <string name="filter_apply">Aplicar</string>
+    <string name="filter_clear">Limpiar filtros</string>
     <!-- Categories screen. -->
     <string name="categories_header">Categorías</string>
     <string name="no_books_found_for_lang_and_cat">No books available in %s language for this category.</string>

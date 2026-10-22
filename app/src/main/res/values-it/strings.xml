@@ -20,7 +20,6 @@
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">Tutti i libri</string>
-    <string name="home_language_icon_desc">Ordina per lingua</string>
     <string name="home_search_icon_desc">Cerca libri</string>
     <string name="language_menu_title">Sfoglia per lingua</string>
     <!-- Categories screen. -->

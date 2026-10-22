@@ -20,7 +20,6 @@
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">كل الكتب</string>
-    <string name="home_language_icon_desc">الترتيب حسب اللغة</string>
     <string name="home_search_icon_desc">البحث عن كتاب</string>
     <string name="language_menu_title">تصفح حسب اللغة</string>
     <!-- Categories screen. -->

@@ -21,7 +21,6 @@
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">Tüm Kitaplar</string>
-    <string name="home_language_icon_desc">Dile göre sırala</string>
     <string name="home_search_icon_desc">Kitapları ara</string>
     <string name="language_menu_title">Dile göre gözat</string>
     <!-- Home screen. -->

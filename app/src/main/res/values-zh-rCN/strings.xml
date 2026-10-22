@@ -20,7 +20,6 @@
     <!-- Welcome Screen 欢迎屏幕-->
     <!-- Home screen. 主页-->
     <string name="home_header">全部书籍</string>
-    <string name="home_language_icon_desc">按语言排序</string>
     <string name="home_search_icon_desc">搜索</string>
     <string name="language_menu_title">按语言浏览</string>
     <!-- Categories screen. 分类页面-->

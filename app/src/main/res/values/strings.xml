@@ -24,9 +24,19 @@
 
     <!-- Home screen. -->
     <string name="home_header">All Books</string>
-    <string name="home_language_icon_desc">Sort by language</string>
     <string name="home_search_icon_desc">Search books</string>
     <string name="language_menu_title">Browse by language</string>
+    <string name="filter_icon_desc">Filter books</string>
+    <string name="filter_sheet_title">Filters</string>
+    <string name="filter_section_language">Language</string>
+    <string name="filter_section_genre">Genre</string>
+    <string name="filter_section_sort">Sort by</string>
+    <string name="filter_option_all">All</string>
+    <string name="filter_sort_popularity">Popularity</string>
+    <string name="filter_sort_title">Title A–Z</string>
+    <string name="filter_sort_author">Author A–Z</string>
+    <string name="filter_apply">Apply</string>
+    <string name="filter_clear">Clear filters</string>
 
     <!-- Categories screen. -->
     <string name="categories_header">Categories</string>
