@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Others Strings 其它字符-->
-    <string name="not_applicable">不可用</string>
     <string name="confirm">确认</string>
     <string name="cancel">取消</string>
     <string name="ok">OK</string>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Others Strings -->
-    <string name="not_applicable">N/A</string>
     <string name="confirm">কনফার্ম</string>
     <string name="cancel">বাদ দিন</string>
     <string name="ok">ঠিক আছে</string>
