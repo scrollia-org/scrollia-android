@@ -6,8 +6,8 @@
     <string name="ok">OK</string>
     <string name="got_it">Got it</string>
     <string name="no_app_to_handle_epub">No se ha podido encontrar ninguna aplicación para abrir el fichero epub.</string>
-    <string name="network_error">Oops! Failed to connect with the server.</string>
-    <string name="network_error_retry">Try Again</string>
+    <string name="network_error">No se pudo conectar con el servidor.</string>
+    <string name="network_error_retry">Reintentar</string>
     <string name="error">¡Ups! Algo ha ido mal.</string>
     <string name="no_app_to_handle_content">No se puede encontrar ninguna aplicación para abrir este contenido.</string>
     <!-- Navigation titles -->
@@ -47,7 +47,7 @@
     <string name="category_science">Ciencia</string>
     <!-- Library screen. -->
     <string name="library_header">Biblioteca</string>
-    <string name="empty_library">¡Nada por aquí!</string>
+    <string name="empty_library">Tu biblioteca está vacía</string>
     <string name="import_button_text">Importar</string>
     <string name="import_button_onboarding">¡Importa tus propios libros!</string>
     <string name="import_button_onboarding_desc">Ahora puedes importar tus propios libros en formato EPUB y leerlos en Scrollia.</string>
