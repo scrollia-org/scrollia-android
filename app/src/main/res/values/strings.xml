@@ -2,7 +2,6 @@
     <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
     <string name="not_applicable">N/A</string>
-    <string name="woops">"Whoops!!"</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
@@ -23,9 +22,6 @@
     <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
 
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Scrollia</string>
-    <string name="welcome_screen_desc">5,400 years of reading</string>
-    <string name="welcome_screen_button">Start Reading</string>
 
     <!-- Home screen. -->
     <string name="home_header">All Books</string>
@@ -66,7 +62,6 @@
     <string name="external_book_info_unavailable">Only available for internal books.</string>
     <string name="epub_importing">Importing… \nPlease wait.</string>
     <string name="epub_imported">Imported successfully!</string>
-    <string name="epub_import_error">Failed to import!</string>
     <string name="open_app_chooser">Open with…</string>
     <string name="share_app_chooser">Share with…</string>
     <string name="library_read_button">Read</string>
@@ -77,7 +72,6 @@
     <string name="reader_detail_header">Ebook Reader</string>
     <string name="start_reading_button">Start</string>
     <string name="continue_reading_button">Resume</string>
-    <string name="reader_chapters_list">Chapters</string>
 
     <!--Reader Screen -->
     <string name="reader_max_font_size_reached">Max font size reached</string>
@@ -100,8 +94,6 @@
 
     <!-- Settings screen. -->
     <string name="settings_header">Settings</string>
-    <string name="app_desc">Read. Discover. Explore the world\'s library.</string>
-    <string name="made_by">Named for the scroll — reading\'s oldest form</string>
     <string name="general_settings_header">General</string>
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_section_reader">Reader</string>
@@ -128,7 +120,6 @@
     <string name="material_you_setting" translatable="false">Material You</string>
     <string name="material_you_setting_desc">Colors from your wallpaper (Android 12+)</string>
     <string name="material_you_error">This feature is only for devices running Android 12 or above.</string>
-    <string name="miscellaneous_setting_header">Miscellaneous</string>
     <string name="license_setting">License &amp; Acknowledgements</string>
     <string name="license_setting_desc">Open source licenses.</string>
     <string name="about_setting">App Information</string>
@@ -140,7 +131,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Book Details</string>
     <string name="back_button_desc">Go back.</string>
-    <string name="share_button_desc">Share this book.</string>
     <string name="share_intent_header">Share this using…</string>
     <string name="read_book_button">Start Reading</string>
     <string name="download_book_button">Download</string>
@@ -153,21 +143,11 @@
     <string name="about_desc">A free ebook reader powered by Project Gutenberg. Named for the scroll — the form that carried the written word for millennia before the printed book.</string>
     <string name="developed_by">Developed By</string>
     <string name="dev_name" translatable="false">Scrollia</string>
-    <string name="project_contributors">Project Contributors</string>
-    <string name="project_contributors_desc">Meet our wonderful contributors.</string>
     <string name="useful_links">Useful Links</string>
-    <string name="link_readme">README</string>
-    <string name="link_readme_desc">Checkout app\'s README on Github.</string>
     <string name="link_website">Website</string>
     <string name="link_website_desc">Visit our website for more information.</string>
     <string name="link_privacy_policy">Privacy Policy</string>
     <string name="link_privacy_policy_desc">Read our latest privacy policy.</string>
-    <string name="link_gh_issue">Github Issues</string>
-    <string name="link_gh_issue_desc">Create an issue on Github.</string>
-    <string name="link_telegram">Telegram Group</string>
-    <string name="link_telegram_desc">Hang out with us on Telegram!</string>
-    <string name="link_support">Support Development</string>
-    <string name="link_support_desc">Think I deserve cookies? Click here!</string>
 
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Licenses</string>

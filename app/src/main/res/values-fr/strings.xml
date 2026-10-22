@@ -3,7 +3,6 @@
     <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
     <string name="not_applicable">Non applicable</string>
-    <string name="woops">Choubidouah !!</string>
     <string name="confirm">Confirmer</string>
     <string name="cancel">Annuler</string>
     <string name="ok">OK</string>
@@ -21,9 +20,6 @@
     <!-- ToolTips -->
     <string name="library_tooltip">Astuce ! Faites glisser les éléments de la bibliothèque vers la gauche ou la droite pour partager ou voir les détails du livre.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Merci d’avoir installé Scrollia !</string>
-    <string name="welcome_screen_desc">Choisissez votre lecteur d’ebook préféré pour commencer votre aventure de lecture.</string>
-    <string name="welcome_screen_button">Commencer</string>
     <!-- Home screen. -->
     <string name="home_header">Tous les livres</string>
     <string name="home_language_icon_desc">Trier par langue</string>
@@ -61,7 +57,6 @@
     <string name="external_book_info_unavailable">Disponible uniquement pour les livres internes.</string>
     <string name="epub_importing">Importation en cours…\nVeuillez patienter.</string>
     <string name="epub_imported">Importé avec succès !</string>
-    <string name="epub_import_error">Échec de l’importation !</string>
     <string name="open_app_chooser">Ouvrir avec…</string>
     <string name="share_app_chooser">Partager avec…</string>
     <string name="library_read_button">Lire</string>
@@ -71,7 +66,6 @@
     <string name="reader_detail_header">Lecteur d\'ebook</string>
     <string name="start_reading_button">Commencer</string>
     <string name="continue_reading_button">Reprendre</string>
-    <string name="reader_chapters_list">Chapitres</string>
     <!-- Reader Screen -->
     <string name="reader_max_font_size_reached">Désolé, taille maximale atteinte !</string>
     <string name="reader_min_font_size_reached">Désolé, taille minimale atteinte !</string>
@@ -86,8 +80,6 @@
     <string name="dictionary">Signification</string>
     <!-- Settings screen -->
     <string name="settings_header">Paramètres</string>
-    <string name="app_desc">Téléchargeur d\'ebooks</string>
-    <string name="made_by">Fait avec ❤ par Shivam</string>
     <string name="general_settings_header">Paramètres généraux</string>
     <string name="default_reader_setting">Lecteur par défaut</string>
     <string name="default_reader_dialog_title">Ouvrir les ebooks avec…</string>
@@ -96,11 +88,8 @@
     <string name="default_locale_setting">Langue par défaut</string>
     <string name="default_locale_setting_desc">Sélectionnez votre langue préférée.</string>
     <string name="locale_setting_not_found">Désolé ! Cette fonctionnalité n’est pas encore prise en charge par votre OS.</string>
-    <string name="google_books_api_setting">API Google Books</string>
-    <string name="google_books_api_setting_desc">Utiliser l\'API Google Books pour récupérer des informations supplémentaires sur les livres.</string>
     <string name="open_library_at_start_setting">Ouvrir la bibliothèque au démarrage</string>
     <string name="open_library_at_start_setting_desc">Ouvrir l\'écran de la bibliothèque au démarrage de l\'application.</string>
-    <string name="display_setting_header">Affichage</string>
     <string name="theme_setting">Thème par défaut</string>
     <string name="theme_dialog_title">Changer le thème</string>
     <string name="theme_option_light">Clair</string>
@@ -108,13 +97,8 @@
     <string name="theme_option_system">Thème du système</string>
     <string name="theme_dialog_apply_button">Appliquer</string>
     <string name="amoled_theme_setting">Thème noir</string>
-    <string name="amoled_theme_setting_disabled_desc">Activer le thème noir Amoled</string>
-    <string name="amoled_theme_setting_enabled_desc">Désactiver le thème noir Amoled</string>
     <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_setting_disabled_desc">Activer Material You</string>
-    <string name="material_you_setting_enabled_desc">Désactiver Material You</string>
     <string name="material_you_error">Cette fonctionnalité est uniquement disponible sur Android 12 ou supérieur.</string>
-    <string name="miscellaneous_setting_header">Divers</string>
     <string name="license_setting">Licence &amp; Remerciements</string>
     <string name="license_setting_desc">Licences open source.</string>
     <string name="about_setting">Informations sur l’application</string>
@@ -124,7 +108,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Détails du livre</string>
     <string name="back_button_desc">Retour.</string>
-    <string name="share_button_desc">Partager ce livre.</string>
     <string name="share_intent_header">Partager avec…</string>
     <string name="read_book_button">Commencer la lecture</string>
     <string name="download_book_button">Télécharger</string>
@@ -136,21 +119,11 @@
     <string name="about_desc">Une application Android gratuite et open source pour télécharger des ebooks du Projet Gutenberg.</string>
     <string name="developed_by">Développée par</string>
     <string name="dev_name" translatable="false">Starry Shivam</string>
-    <string name="project_contributors">Contributeurs au projet</string>
-    <string name="project_contributors_desc">Découvrez nos formidables contributeurs.</string>
     <string name="useful_links">Liens utiles</string>
-    <string name="link_readme">Lisez moi</string>
-    <string name="link_readme_desc">Consultez le README de l\’app sur Github.</string>
     <string name="link_website">Site ouéb</string>
     <string name="link_website_desc">Visitez notre site pour plus d’informations.</string>
     <string name="link_privacy_policy">Politique de confidentialité</string>
     <string name="link_privacy_policy_desc">Lisez notre dernière politique de confidentialité.</string>
-    <string name="link_gh_issue">Un problème ?</string>
-    <string name="link_gh_issue_desc">Créer un ticket sur Github.</string>
-    <string name="link_telegram">Groupe Telegram</string>
-    <string name="link_telegram_desc">Rejoignez-nous sur Telegram !</string>
-    <string name="link_support">Soutenir le développement</string>
-    <string name="link_support_desc">Je mérite un cookie ? Cliquez ici !</string>
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Licences</string>
 </resources>

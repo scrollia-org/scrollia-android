@@ -59,7 +59,6 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -99,6 +98,7 @@ import org.scrollia.app.ui.screens.main.bottomNavPadding
 import org.scrollia.app.ui.theme.frauncesFont
 import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.delay
+import androidx.compose.runtime.getValue
 
 
 @Composable
