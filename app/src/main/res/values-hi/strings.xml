@@ -20,7 +20,6 @@
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">सभी पुस्तकें</string>
-    <string name="home_language_icon_desc">भाषा के अनुसार क्रमबद्ध करें</string>
     <string name="home_search_icon_desc">पुस्तकें खोजें</string>
     <string name="language_menu_title">भाषा द्वारा ब्राउज़ करें</string>
     <!-- Categories screen. -->

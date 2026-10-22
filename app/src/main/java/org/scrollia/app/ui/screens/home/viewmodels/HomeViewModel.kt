@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import org.scrollia.app.api.BookAPI
 import org.scrollia.app.api.models.Book
+import org.scrollia.app.api.models.CategoryInfo
 import org.scrollia.app.helpers.Constants
 import org.scrollia.app.helpers.NetworkObserver
 import org.scrollia.app.helpers.Paginator
@@ -60,7 +61,15 @@ sealed class UserAction {
         val networkStatus: NetworkObserver.Status
     ) : UserAction()
 
-    data class LanguageItemClicked(val language: BookLanguage) : UserAction()
+    data class ApplyFilters(
+        val language: BookLanguage,
+        val genre: String?,
+        val sortOption: SortOption
+    ) : UserAction()
+}
+
+enum class SortOption {
+    POPULARITY, TITLE, AUTHOR
 }
 
 @HiltViewModel
@@ -74,7 +83,27 @@ class HomeViewModel @Inject constructor(
     private val _language: MutableState<BookLanguage> = mutableStateOf(getPreferredLanguage())
     val language: State<BookLanguage> = _language
 
+    var genre by mutableStateOf<String?>(null)
+        private set
+    var sortOption by mutableStateOf(SortOption.POPULARITY)
+        private set
+
+    // Non-empty categories from the backend; null when the endpoint is
+    // unavailable, in which case the genre filter section is hidden.
+    var genreOptions by mutableStateOf<List<CategoryInfo>?>(null)
+        private set
+
+    val filtersActive: Boolean
+        get() = language.value != BookLanguage.AllBooks ||
+                genre != null || sortOption != SortOption.POPULARITY
+
     private var searchJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            genreOptions = bookAPI.getCategories()?.filter { it.count > 0 }
+        }
+    }
 
     private val pagination = Paginator(initialPage = allBooksState.page, onLoadUpdated = {
         allBooksState = allBooksState.copy(isLoading = it)
@@ -84,7 +113,7 @@ class HomeViewModel @Inject constructor(
             // and avoid flickering when navigating to home from welcome screen
             // and immediately loading the first page.
             if (nextPage == 1L) delay(400L)
-            bookAPI.getAllBooks(nextPage, language.value)
+            bookAPI.getAllBooks(nextPage, language.value, genre)
         } catch (exc: Exception) {
             Result.failure(exc)
         }
@@ -105,8 +134,19 @@ class HomeViewModel @Inject constructor(
             books // return the list of books
         }
 
+        // Sort client-side over all loaded items (the backend has no sort
+        // params); with the current 40-book catalog every page merges into
+        // its sorted position as the user scrolls.
+        val merged = when (sortOption) {
+            SortOption.TITLE -> (allBooksState.items + books).sortedBy { it.title.lowercase() }
+            SortOption.AUTHOR -> (allBooksState.items + books)
+                .sortedBy { it.authors.firstOrNull()?.name?.lowercase() ?: "" }
+
+            SortOption.POPULARITY -> allBooksState.items + books
+        }
+
         allBooksState = allBooksState.copy(
-            items = (allBooksState.items + books),
+            items = merged,
             page = newPage,
             endReached = books.isEmpty()
         )
@@ -148,8 +188,14 @@ class HomeViewModel @Inject constructor(
                 }
             }
 
-            is UserAction.LanguageItemClicked -> {
-                changeLanguage(userAction.language)
+            is UserAction.ApplyFilters -> {
+                _language.value = userAction.language
+                preferenceUtil.putString(
+                    PreferenceUtil.PREFERRED_BOOK_LANG_STR, userAction.language.isoCode
+                )
+                genre = userAction.genre
+                sortOption = userAction.sortOption
+                reloadItems()
             }
         }
     }
@@ -162,12 +208,6 @@ class HomeViewModel @Inject constructor(
             searchResults = books ?: emptyList(),
             isSearching = false
         )
-    }
-
-    private fun changeLanguage(language: BookLanguage) {
-        _language.value = language
-        preferenceUtil.putString(PreferenceUtil.PREFERRED_BOOK_LANG_STR, language.isoCode)
-        reloadItems()
     }
 
     private fun getPreferredLanguage(): BookLanguage {

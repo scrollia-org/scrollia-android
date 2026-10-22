@@ -21,7 +21,6 @@
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">Toate Cărțile</string>
-    <string name="home_language_icon_desc">Sortează după limbă</string>
     <string name="home_search_icon_desc">Caută cărți</string>
     <string name="language_menu_title">Răsfoiește după limbă</string>
     <!-- Categories screen. -->
