@@ -17,13 +17,18 @@
 
 package org.scrollia.app.ui.screens.welcome.composables
 
+import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,15 +38,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -50,7 +58,11 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -58,35 +70,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
+import org.scrollia.app.R
 import org.scrollia.app.helpers.weakHapticFeedback
 import org.scrollia.app.ui.navigation.BottomBarScreen
 import org.scrollia.app.ui.screens.welcome.viewmodels.WelcomeViewModel
 import org.scrollia.app.ui.theme.frauncesFont
 import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.delay
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
-// Colors
-private val DarkBackground = Color(0xFF0A0A14)
-private val WarmGlow = Color(0xFFD4A574)
-private val CreamText = Color(0xFFF5E6C8)
-private val SubtleText = Color(0xFF8A8A9A)
+// "Papel y Tinta" dark tokens (docs/DESIGN.md). This screen is intentionally
+// always dark — the cinematic metaphor is darkness (before writing) to light
+// (the printed book) — regardless of the app theme.
+private val DarkBackground = Color(0xFF161815) // dark-bg
+private val GoldAccent = Color(0xFFB08D3E)     // gold
+private val ParchmentText = Color(0xFFEAD9B8)  // parchment
+private val DarkInk = Color(0xFFEDEAE0)        // dark-ink (used at reduced alpha)
 
-// Timeline symbols representing the evolution of writing
+// Timeline of the evolution of writing. The glyphs are decorative; if a
+// device lacks the font for one, the label and year still carry the meaning.
 private data class WritingEra(
     val symbol: String,
-    val label: String,
-    val year: String
+    @StringRes val labelRes: Int,
+    @StringRes val yearRes: Int
 )
 
 private val writingTimeline = listOf(
-    WritingEra("𒀭", "Cuneiform", "3,400 BC"),
-    WritingEra("𓂀", "Hieroglyphics", "3,200 BC"),
-    WritingEra("𐤀", "Phoenician", "1,050 BC"),
-    WritingEra("Α", "Greek", "750 BC"),
-    WritingEra("A", "Latin", "600 BC"),
-    WritingEra("活", "Movable Type", "1,040 AD"),
+    WritingEra("𒀭", R.string.welcome_era_cuneiform, R.string.welcome_era_cuneiform_year),
+    WritingEra("𓂀", R.string.welcome_era_hieroglyphics, R.string.welcome_era_hieroglyphics_year),
+    WritingEra("𐤀", R.string.welcome_era_phoenician, R.string.welcome_era_phoenician_year),
+    WritingEra("Α", R.string.welcome_era_greek, R.string.welcome_era_greek_year),
+    WritingEra("A", R.string.welcome_era_latin, R.string.welcome_era_latin_year),
+    WritingEra("活", R.string.welcome_era_movable_type, R.string.welcome_era_movable_type_year),
+    WritingEra("G", R.string.welcome_era_printing_press, R.string.welcome_era_printing_press_year),
 )
 
 @Composable
@@ -96,46 +111,67 @@ fun WelcomeScreen(navController: NavController) {
 
     // Animation state
     var currentPhase by remember { mutableIntStateOf(0) }
-    var currentSymbolIndex by remember { mutableIntStateOf(0) }
+    var currentEraIndex by remember { mutableIntStateOf(0) }
     var showTitle by remember { mutableStateOf(false) }
     var showTagline by remember { mutableStateOf(false) }
     var showButton by remember { mutableStateOf(false) }
+    var skipToEnd by remember { mutableStateOf(false) }
 
     // Glow animation
     val glowAlpha = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
         // Phase 0: darkness
-        delay(500)
+        delay(400)
 
         // Phase 1: glow appears
-        currentPhase = 1
-        glowAlpha.animateTo(0.6f, tween(1500, easing = FastOutSlowInEasing))
+        if (!skipToEnd) {
+            currentPhase = 1
+            glowAlpha.animateTo(0.6f, tween(900, easing = FastOutSlowInEasing))
+        }
 
-        // Phase 2: cycle through writing symbols
-        currentPhase = 2
-        for (i in writingTimeline.indices) {
-            currentSymbolIndex = i
-            delay(900)
+        // Phase 2: cycle through the writing eras (~550ms each)
+        if (!skipToEnd) {
+            currentPhase = 2
+            for (i in writingTimeline.indices) {
+                currentEraIndex = i
+                delay(550)
+                if (skipToEnd) break
+            }
+            delay(300)
         }
 
         // Phase 3: title appears
-        delay(300)
         showTitle = true
-        delay(1200)
+        if (!skipToEnd) delay(900)
 
         // Phase 4: tagline
         showTagline = true
-        delay(800)
+        if (!skipToEnd) delay(400)
 
         // Phase 5: button
         showButton = true
     }
 
+    // Tapping anywhere once the intro started skips straight to the final
+    // state; the "Start Reading" button remains the only way out.
+    LaunchedEffect(skipToEnd) {
+        if (skipToEnd) {
+            currentPhase = 2
+            glowAlpha.snapTo(0.6f)
+            showTitle = true
+            showTagline = true
+            showButton = true
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBackground),
+            .background(DarkBackground)
+            .pointerInput(Unit) {
+                detectTapGestures { skipToEnd = true }
+            },
         contentAlignment = Alignment.Center
     ) {
         // Warm glow behind the center
@@ -149,8 +185,8 @@ fun WelcomeScreen(navController: NavController) {
                         drawCircle(
                             brush = Brush.radialGradient(
                                 colors = listOf(
-                                    WarmGlow.copy(alpha = 0.4f),
-                                    WarmGlow.copy(alpha = 0.1f),
+                                    GoldAccent.copy(alpha = 0.4f),
+                                    GoldAccent.copy(alpha = 0.1f),
                                     Color.Transparent
                                 ),
                                 center = Offset(size.width / 2, size.height / 2),
@@ -172,37 +208,45 @@ fun WelcomeScreen(navController: NavController) {
 
             // Symbol display area
             if (currentPhase >= 2 && !showTitle) {
-                val era = writingTimeline[currentSymbolIndex]
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(tween(400)) + scaleIn(
-                        tween(400),
-                        initialScale = 0.8f
-                    ),
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                AnimatedContent(
+                    targetState = currentEraIndex,
+                    transitionSpec = {
+                        (fadeIn(tween(300)) + scaleIn(tween(300), initialScale = 0.92f))
+                            .togetherWith(fadeOut(tween(300)))
+                    },
+                    label = "writingEra"
+                ) { eraIndex ->
+                    val era = writingTimeline[eraIndex]
+                    val eraLabel = stringResource(era.labelRes)
+                    val eraYear = stringResource(era.yearRes)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.semantics {
+                            contentDescription = "$eraLabel, $eraYear"
+                        }
+                    ) {
                         Text(
                             text = era.symbol,
                             fontSize = 72.sp,
-                            color = CreamText,
+                            color = ParchmentText,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = era.label,
+                            text = eraLabel,
                             fontSize = 14.sp,
                             fontFamily = interFont,
                             fontWeight = FontWeight.Light,
-                            color = SubtleText,
+                            color = DarkInk.copy(alpha = 0.65f),
                             textAlign = TextAlign.Center,
                             letterSpacing = 3.sp
                         )
                         Text(
-                            text = era.year,
+                            text = eraYear,
                             fontSize = 12.sp,
                             fontFamily = interFont,
                             fontWeight = FontWeight.Normal,
-                            color = SubtleText.copy(alpha = 0.6f),
+                            color = DarkInk.copy(alpha = 0.4f),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -212,29 +256,29 @@ fun WelcomeScreen(navController: NavController) {
             // Title: Scrollia
             AnimatedVisibility(
                 visible = showTitle,
-                enter = fadeIn(tween(1000)) + scaleIn(
-                    tween(1000),
+                enter = fadeIn(tween(900)) + scaleIn(
+                    tween(900),
                     initialScale = 0.9f
                 ),
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Scrollia",
+                        text = stringResource(R.string.app_name),
                         fontSize = 52.sp,
                         fontFamily = frauncesFont,
                         fontWeight = FontWeight.Bold,
-                        color = CreamText,
+                        color = ParchmentText,
                         textAlign = TextAlign.Center,
                         letterSpacing = 2.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Est. 1455",
+                        text = stringResource(R.string.welcome_est),
                         fontSize = 13.sp,
                         fontFamily = interFont,
                         fontWeight = FontWeight.Light,
                         fontStyle = FontStyle.Italic,
-                        color = WarmGlow.copy(alpha = 0.7f),
+                        color = GoldAccent.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center,
                         letterSpacing = 4.sp
                     )
@@ -246,14 +290,14 @@ fun WelcomeScreen(navController: NavController) {
             // Tagline
             AnimatedVisibility(
                 visible = showTagline,
-                enter = fadeIn(tween(800)),
+                enter = fadeIn(tween(400)),
             ) {
                 Text(
-                    text = "5,400 years of reading",
+                    text = stringResource(R.string.welcome_tagline),
                     fontSize = 16.sp,
                     fontFamily = interFont,
                     fontWeight = FontWeight.Normal,
-                    color = SubtleText,
+                    color = DarkInk.copy(alpha = 0.65f),
                     textAlign = TextAlign.Center,
                     letterSpacing = 1.sp
                 )
@@ -264,7 +308,7 @@ fun WelcomeScreen(navController: NavController) {
             // Button
             AnimatedVisibility(
                 visible = showButton,
-                enter = fadeIn(tween(600)),
+                enter = fadeIn(tween(400)),
             ) {
                 Button(
                     onClick = {
@@ -275,16 +319,17 @@ fun WelcomeScreen(navController: NavController) {
                         navController.navigate(BottomBarScreen.Home.route)
                     },
                     modifier = Modifier
+                        .widthIn(max = 480.dp)
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = WarmGlow.copy(alpha = 0.15f),
-                        contentColor = CreamText
+                        containerColor = GoldAccent.copy(alpha = 0.15f),
+                        contentColor = ParchmentText
                     )
                 ) {
                     Text(
-                        text = "Start Reading",
+                        text = stringResource(R.string.welcome_start_button),
                         fontWeight = FontWeight.Medium,
                         fontFamily = interFont,
                         fontSize = 16.sp,

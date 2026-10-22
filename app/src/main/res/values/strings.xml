@@ -151,4 +151,23 @@
 
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Licenses</string>
+
+    <!-- Welcome screen -->
+    <string name="welcome_start_button">Start Reading</string>
+    <string name="welcome_tagline">5,400 years of reading</string>
+    <string name="welcome_est">Est. 1455</string>
+    <string name="welcome_era_cuneiform">Cuneiform</string>
+    <string name="welcome_era_cuneiform_year">3,400 BC</string>
+    <string name="welcome_era_hieroglyphics">Hieroglyphics</string>
+    <string name="welcome_era_hieroglyphics_year">3,200 BC</string>
+    <string name="welcome_era_phoenician">Phoenician</string>
+    <string name="welcome_era_phoenician_year">1,050 BC</string>
+    <string name="welcome_era_greek">Greek</string>
+    <string name="welcome_era_greek_year">750 BC</string>
+    <string name="welcome_era_latin">Latin</string>
+    <string name="welcome_era_latin_year">600 BC</string>
+    <string name="welcome_era_movable_type">Movable Type</string>
+    <string name="welcome_era_movable_type_year">1,040 AD</string>
+    <string name="welcome_era_printing_press">Printing Press</string>
+    <string name="welcome_era_printing_press_year">1,455 AD</string>
 </resources>
