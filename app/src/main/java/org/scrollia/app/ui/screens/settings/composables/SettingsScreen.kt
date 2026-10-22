@@ -19,24 +19,18 @@ package org.scrollia.app.ui.screens.settings.composables
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -47,7 +41,6 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -65,21 +58,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.navigation.NavController
-import org.scrollia.app.BuildConfig
 import org.scrollia.app.MainActivity
 import org.scrollia.app.R
 import org.scrollia.app.helpers.Utils
@@ -145,80 +134,6 @@ private fun SettingsSectionHeader(titleRes: Int) {
         modifier = Modifier.padding(start = 18.dp, top = 18.dp, bottom = 6.dp)
     )
 }
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun SettingsCard() {
-    Card(
-        modifier = Modifier
-            .padding(10.dp)
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(6.dp)
-    ) {
-        FlowRow(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalArrangement = Arrangement.Center,
-            maxItemsInEachRow = Int.MAX_VALUE
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f, fill = false)
-                    .padding(bottom = 2.dp)
-            ) {
-                Text(
-                    text = "${stringResource(id = R.string.app_name)} ${stringResource(id = R.string.app_desc)}",
-                    fontFamily = interFont,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Text(
-                    text = stringResource(id = R.string.made_by),
-                    fontFamily = interFont,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-
-                // Version is information, not an action: a chip, not a button.
-                Box(
-                    modifier = Modifier
-                        .padding(top = 10.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                ) {
-                    Text(
-                        text = "v${BuildConfig.VERSION_NAME}",
-                        fontFamily = interFont,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .size(90.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_splash_screen),
-                    contentDescription = null,
-                    modifier = Modifier.size(110.dp)
-                )
-            }
-        }
-    }
-}
-
 
 @Composable
 private fun AppearanceOptionsUI(
@@ -539,13 +454,4 @@ private fun AboutUI(navController: NavController) {
             onClick = { navController.navigate(Screens.OSLScreen.route) }
         )
     }
-    // App identity + version lives at the bottom, with the legal items.
-    SettingsCard()
-}
-
-
-@Composable
-@Preview
-fun SettingsScreenPreview() {
-    SettingsCard()
 }
