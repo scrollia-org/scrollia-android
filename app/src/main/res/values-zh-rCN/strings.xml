@@ -96,7 +96,6 @@
     <string name="theme_option_system">跟随系统</string>
     <string name="theme_dialog_apply_button">应用</string>
     <string name="amoled_theme_setting">黑色主题</string>
-    <string name="material_you_error">这个功能仅限安卓12及以上系统使用</string>
     <string name="license_setting">许可证和致谢</string>
     <string name="license_setting_desc">开源许可证</string>
     <string name="about_setting">应用信息</string>

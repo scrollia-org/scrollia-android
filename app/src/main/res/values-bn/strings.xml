@@ -97,7 +97,6 @@
     <string name="theme_dialog_apply_button">অ্যাপ্লাই</string>
     <string name="amoled_theme_setting">ব্ল্যাক থিম</string>
     <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_error">এই ফিচার শুধুমাত্র অ্যান্ড্রয়েড 12 বা তার উপরে চলমান ডিভাইসগুলির জন্য।</string>
     <string name="license_setting">লাইসেন্স &amp; স্বীকৃতি</string>
     <string name="license_setting_desc">ওপেন সোর্স লাইসেন্স।</string>
     <string name="about_setting">অ্যাপ সম্পর্কে</string>

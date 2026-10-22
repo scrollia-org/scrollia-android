@@ -98,7 +98,6 @@
     <string name="theme_dialog_apply_button">Anwenden</string>
     <string name="amoled_theme_setting">Dunkles Thema</string>
     <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_error">Diese Funktion gibt es nur für Geräte, auf denen mindestent Android 12 läuft.</string>
     <string name="license_setting">Lizenz &amp; Danksagungen</string>
     <string name="license_setting_desc">Open-Source-Lizenzen.</string>
     <string name="about_setting">App-Informationen</string>

@@ -96,7 +96,6 @@
     <string name="theme_option_system">الافتراضي للنظام</string>
     <string name="theme_dialog_apply_button">تطبيق</string>
     <string name="amoled_theme_setting">سمة اللون الأسود</string>
-    <string name="material_you_error">هذه الميزة  للاجهزه التى تدعم اندرويد 12 وما فوق</string>
     <string name="license_setting">التراخيص</string>
     <string name="license_setting_desc">التراخيص مفتوحة المصدر</string>
     <string name="about_setting">معلومات التطبيق</string>

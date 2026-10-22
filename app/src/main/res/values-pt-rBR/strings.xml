@@ -96,7 +96,6 @@
     <string name="theme_option_system">Padrão do sistema</string>
     <string name="theme_dialog_apply_button">Aplicar</string>
     <string name="amoled_theme_setting">Tema escuro</string>
-    <string name="material_you_error">Este recurso é apenas para dispositivos com Android 12 ou superior.</string>
     <string name="license_setting">Licença &amp; Agradecimentos</string>
     <string name="license_setting_desc">Licenças de código aberto.</string>
     <string name="about_setting">Informações do aplicativo</string>

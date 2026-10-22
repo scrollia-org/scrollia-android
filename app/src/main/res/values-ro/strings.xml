@@ -98,7 +98,6 @@
     <string name="theme_dialog_apply_button">Aplicați</string>
     <string name="amoled_theme_setting">Tema întunecată</string>
     <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_error">Această funcție este disponibilă numai pentru dispozitivele care rulează Android 12 sau o versiune ulterioară.</string>
     <string name="license_setting">Licență &amp; Recunoștințe</string>
     <string name="license_setting_desc">Licențe de sursă deschisă.</string>
     <string name="about_setting">Informații despre aplicație</string>

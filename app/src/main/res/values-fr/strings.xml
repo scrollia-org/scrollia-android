@@ -98,7 +98,6 @@
     <string name="theme_dialog_apply_button">Appliquer</string>
     <string name="amoled_theme_setting">Thème noir</string>
     <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_error">Cette fonctionnalité est uniquement disponible sur Android 12 ou supérieur.</string>
     <string name="license_setting">Licence &amp; Remerciements</string>
     <string name="license_setting_desc">Licences open source.</string>
     <string name="about_setting">Informations sur l’application</string>

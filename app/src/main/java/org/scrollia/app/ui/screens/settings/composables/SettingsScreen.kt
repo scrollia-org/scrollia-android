@@ -107,7 +107,7 @@ fun SettingsScreen(navController: NavController) {
         ) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 // Ordered by frequency of use: appearance first, legal/about last.
-                AppearanceOptionsUI(viewModel = viewModel, snackBarHostState = snackBarHostState)
+                AppearanceOptionsUI(viewModel = viewModel)
                 ReaderOptionsUI(viewModel = viewModel)
                 GeneralOptionsUI(viewModel = viewModel, snackBarHostState = snackBarHostState)
                 AboutUI(navController = navController)
@@ -135,12 +135,8 @@ private fun SettingsSectionHeader(titleRes: Int) {
 }
 
 @Composable
-private fun AppearanceOptionsUI(
-    viewModel: SettingsViewModel,
-    snackBarHostState: SnackbarHostState,
-) {
+private fun AppearanceOptionsUI(viewModel: SettingsViewModel) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     // Display settings for the theme
     val appThemeState = viewModel.theme.observeAsState(initial = ThemeMode.Auto)
@@ -179,20 +175,15 @@ private fun AppearanceOptionsUI(
             onCheckChange = {
                 viewModel.setAmoledTheme(it)
             })
-        SettingItemWIthSwitch(
-            icon = Icons.Filled.Edit,
-            mainText = stringResource(id = R.string.material_you_setting),
-            subText = stringResource(id = R.string.material_you_setting_desc),
-            switchState = materialYouState,
-            onCheckChange = { materialYouValue ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    viewModel.setMaterialYou(materialYouValue)
-                } else {
-                    viewModel.setMaterialYou(false)
-                    coroutineScope.launch { snackBarHostState.showSnackbar(context.getString(R.string.material_you_error)) }
-                }
-            }
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            SettingItemWIthSwitch(
+                icon = Icons.Filled.Edit,
+                mainText = stringResource(id = R.string.material_you_setting),
+                subText = stringResource(id = R.string.material_you_setting_desc),
+                switchState = materialYouState,
+                onCheckChange = { viewModel.setMaterialYou(it) }
+            )
+        }
     }
 
     if (appThemeDialog.value) {

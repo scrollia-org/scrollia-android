@@ -96,7 +96,6 @@
     <string name="theme_option_system">Как в системе</string>
     <string name="theme_dialog_apply_button">Применить</string>
     <string name="amoled_theme_setting">Тёмная тема</string>
-    <string name="material_you_error">Эта функция доступна только для устройств под управлением Android 12 или выше.</string>
     <string name="license_setting">Лицензия и благодарности</string>
     <string name="license_setting_desc">Лицензии с открытым исходным кодом.</string>
     <string name="about_setting">Информация о приложении</string>
