@@ -23,6 +23,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -52,6 +53,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +62,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,6 +80,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import org.scrollia.app.MainActivity
 import org.scrollia.app.R
+import org.scrollia.app.api.models.Edition
 import org.scrollia.app.helpers.Utils
 import org.scrollia.app.helpers.book.BookUtils
 import org.scrollia.app.helpers.getActivity
@@ -91,6 +95,7 @@ import org.scrollia.app.ui.theme.literataFont
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import java.util.Locale
 
 
 @Composable
@@ -176,6 +181,32 @@ private fun BookDetailContents(
     // Get book details for this bookId.
     val book = remember { state.bookSet.books.first() }
 
+    // A catalog entry is a WORK; its language editions come in book.editions.
+    // The selected edition decides what gets downloaded and opened.
+    val editions = book.editions
+    var selectedEditionId by rememberSaveable { mutableStateOf<Int?>(null) }
+    if (selectedEditionId == null && editions.isNotEmpty()) {
+        val deviceLang = Locale.getDefault().language
+        selectedEditionId =
+            editions.firstOrNull { deviceLang in it.languages }?.id ?: book.id
+    }
+    val displayBook = remember(book, selectedEditionId) {
+        val edition = editions.firstOrNull { it.id == selectedEditionId }
+        if (edition == null || edition.id == book.id) book
+        else book.copy(
+            id = edition.id,
+            title = edition.title,
+            languages = edition.languages,
+            downloadCount = edition.downloadCount,
+            formats = edition.formats
+        )
+    }
+    // The library stores edition ids; refresh the item when the selected
+    // edition changes so the button reflects that edition's download state.
+    LaunchedEffect(displayBook.id) {
+        viewModel.reFetchLibraryItem(displayBook.id) {}
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -185,11 +216,19 @@ private fun BookDetailContents(
         val authors = remember { BookUtils.getAuthorsAsString(book.authors) }
 
         BookDetailTopUI(
-            title = book.title,
+            title = displayBook.title,
             authors = authors,
-            imageData = state.extraInfo.coverImage.ifEmpty { book.formats.imagejpeg },
+            imageData = state.extraInfo.coverImage.ifEmpty { displayBook.formats.imagejpeg },
             currentThemeMode = settingsVM.getCurrentTheme()
         )
+
+        if (editions.size > 1) {
+            EditionSelector(
+                editions = editions,
+                selectedEditionId = selectedEditionId ?: book.id,
+                onEditionSelected = { selectedEditionId = it }
+            )
+        }
 
         val pageCount = remember {
             if (state.extraInfo.pageCount > 0) {
@@ -200,9 +239,10 @@ private fun BookDetailContents(
         }
         var buttonText by remember { mutableStateOf("") }
 
-        // Update button text based on download status.
-        LaunchedEffect(key1 = true) {
-            buttonText = if (viewModel.bookDownloader.isBookCurrentlyDownloading(book.id)) {
+        // Update button text based on download status. Re-runs when the
+        // selected edition (or its library row) changes.
+        LaunchedEffect(state.bookLibraryItem, displayBook.id) {
+            buttonText = if (viewModel.bookDownloader.isBookCurrentlyDownloading(displayBook.id)) {
                 context.getString(R.string.cancel)
             } else {
                 when (state.bookLibraryItem) {
@@ -236,18 +276,18 @@ private fun BookDetailContents(
         }
 
         // Check if this book is in downloadQueue.
-        if (viewModel.bookDownloader.isBookCurrentlyDownloading(book.id)) {
+        if (viewModel.bookDownloader.isBookCurrentlyDownloading(displayBook.id)) {
             progressState =
-                viewModel.bookDownloader.getRunningDownload(book.id)?.progress?.collectAsState()?.value!!
+                viewModel.bookDownloader.getRunningDownload(displayBook.id)?.progress?.collectAsState()?.value!!
             LaunchedEffect(key1 = progressState, block = {
-                updateBtnText(viewModel.bookDownloader.getRunningDownload(book.id)?.status)
+                updateBtnText(viewModel.bookDownloader.getRunningDownload(displayBook.id)?.status)
             })
         }
 
         MiddleBar(
-            bookLang = BookUtils.getLanguagesAsString(book.languages),
+            bookLang = BookUtils.getLanguagesAsString(displayBook.languages),
             pageCount = pageCount,
-            downloadCount = Utils.prettyCount(book.downloadCount),
+            downloadCount = Utils.prettyCount(displayBook.downloadCount),
             progressValue = progressState,
             buttonText = buttonText,
             showProgressBar = showProgressBar
@@ -263,7 +303,7 @@ private fun BookDetailContents(
                      */
                     if (state.bookLibraryItem == null) {
                         viewModel.reFetchLibraryItem(
-                            bookId = book.id,
+                            bookId = displayBook.id,
                             onComplete = { libraryItem ->
                                 BookUtils.openBookFile(
                                     context = context,
@@ -286,7 +326,7 @@ private fun BookDetailContents(
                 context.getString(R.string.download_book_button) -> {
                     view.weakHapticFeedback()
                     viewModel.downloadBook(
-                        book = book,
+                        book = displayBook,
                         downloadProgressListener = { downloadProgress, downloadStatus ->
                             progressState = downloadProgress
                             updateBtnText(downloadStatus)
@@ -300,7 +340,7 @@ private fun BookDetailContents(
 
                 context.getString(R.string.cancel) -> {
                     viewModel.bookDownloader.cancelDownload(
-                        viewModel.bookDownloader.getRunningDownload(book.id)?.downloadId
+                        viewModel.bookDownloader.getRunningDownload(displayBook.id)?.downloadId
                     )
                 }
             }
@@ -328,6 +368,52 @@ private fun BookDetailContents(
             NoSynopsisUI()
         }
     }
+}
+
+@Composable
+private fun EditionSelector(
+    editions: List<Edition>,
+    selectedEditionId: Int,
+    onEditionSelected: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.detail_select_language).uppercase(),
+            fontFamily = interFont,
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp,
+            letterSpacing = 1.2.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            editions.forEach { edition ->
+                FilterChip(
+                    selected = edition.id == selectedEditionId,
+                    onClick = { onEditionSelected(edition.id) },
+                    label = {
+                        Text(
+                            text = languageEndonym(edition.languages.firstOrNull() ?: ""),
+                            fontFamily = interFont
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
+
+/** Language name in its own language (endonym), e.g. "Español"/"English". */
+private fun languageEndonym(code: String): String = when (code.lowercase()) {
+    "es" -> "Español"
+    "en" -> "English"
+    else -> Locale.forLanguageTag(code)
+        .getDisplayLanguage(Locale.forLanguageTag(code))
+        .replaceFirstChar { it.uppercase() }
 }
 
 @Composable
