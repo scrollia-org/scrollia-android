@@ -143,6 +143,7 @@
     <string name="read_book_button">Start Reading</string>
     <string name="download_book_button">Download</string>
     <string name="download_started">Download Started!</string>
+    <string name="detail_select_language">Language</string>
     <string name="book_synopsis">Synopsis</string>
     <string name="book_synopsis_not_found">No synopsis available</string>
 

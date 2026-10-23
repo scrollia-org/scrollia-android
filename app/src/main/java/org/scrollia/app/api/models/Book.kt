@@ -31,6 +31,8 @@ data class Book(
     val copyright: Boolean,
     @SerialName("download_count")
     val downloadCount: Int,
+    @SerialName("editions")
+    val editions: List<Edition> = emptyList(),
     @SerialName("formats")
     val formats: Formats,
     @SerialName("id")

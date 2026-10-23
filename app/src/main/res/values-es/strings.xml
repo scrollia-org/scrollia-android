@@ -128,6 +128,7 @@
     <string name="read_book_button">Empezar a leer</string>
     <string name="download_book_button">Descargar</string>
     <string name="download_started">¡Descarga iniciada!</string>
+    <string name="detail_select_language">Idioma</string>
     <string name="book_synopsis">Sinopsis</string>
     <string name="book_synopsis_not_found">Sin sinopsis disponible</string>
     <!-- About Screen -->
