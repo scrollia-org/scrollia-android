@@ -92,6 +92,14 @@
     <string name="back">Back</string>
     <string name="reader_error_title">We couldn’t open this book</string>
     <string name="reader_error_message">The file may be damaged, unavailable, or no longer accessible.</string>
+    <string name="import_external_title">Add this book to your library?</string>
+    <string name="import_external_message">Scrollia keeps its own copy, so you can come back to it from your library and pick up where you left off.</string>
+    <string name="import_external_add">Add to my library</string>
+    <string name="import_external_importing">Adding to your library…</string>
+    <string name="import_external_failed_title">We couldn’t add this book</string>
+    <string name="import_error_not_epub">This file isn’t an EPUB book Scrollia can open.</string>
+    <string name="import_error_unreadable">The file couldn’t be read. Check that it’s still available and try again.</string>
+    <string name="import_error_storage">The book couldn’t be saved. Check the free space on your device and try again.</string>
     <string name="reader_chapter_list_title">Chapters</string>
     <string name="reader_theme_paper">Paper</string>
     <string name="reader_theme_sepia">Sepia</string>
@@ -104,6 +112,9 @@
     <string name="reader_mode_scroll">Scroll</string>
     <string name="reader_mode_paged">Pages</string>
     <string name="reader_page_indicator">Page %1$d of %2$d</string>
+    <string name="reader_page_previous">Previous page</string>
+    <string name="reader_page_next">Next page</string>
+    <string name="reader_page_loading">Loading page</string>
     <string name="reader_settings_font">Font</string>
     <string name="reader_settings_size">Size</string>
     <string name="reader_settings_size_value">%1$d%%</string>
@@ -111,6 +122,8 @@
     <string name="reader_settings_theme">Theme</string>
     <string name="reader_settings_justify">Justify text</string>
     <string name="reader_settings_justify_desc">Even margins, with automatic hyphenation</string>
+    <string name="reader_settings_keep_screen_on">Keep screen on</string>
+    <string name="reader_settings_keep_screen_on_desc">The screen won\'t turn off while a book is open</string>
     <string name="reader_settings_sample">It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness.</string>
     <string name="reader_font_system">System</string>
 

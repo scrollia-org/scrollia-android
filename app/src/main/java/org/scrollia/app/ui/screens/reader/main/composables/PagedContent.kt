@@ -18,10 +18,13 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,9 +41,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -60,6 +71,7 @@ import org.scrollia.app.ui.screens.reader.main.viewmodel.PagedStyles
 import org.scrollia.app.ui.screens.reader.main.viewmodel.PaginationEnvironment
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderPage
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
+import org.scrollia.app.ui.screens.reader.main.viewmodel.TextSlices
 import org.scrollia.app.ui.screens.reader.main.viewmodel.VisiblePosition
 import org.scrollia.app.ui.theme.interFont
 import kotlin.math.max
@@ -72,6 +84,10 @@ private val PageBottomMargin = 32.dp
 /**
  * Paged reading mode (docs/DESIGN.md §16): chapters laid out in viewport-sized pages, turned by
  * swiping or by tapping the outer thirds of the screen; the center third toggles the menu.
+ *
+ * Only the current page is selectable and visible to accessibility services: it gets its own
+ * selection container, so a selection never reaches an adjacent (composed but off-screen) page,
+ * and the pager exposes it as one node with "Page x of y" and previous/next page actions.
  */
 @Composable
 fun PagedChaptersContent(
@@ -139,7 +155,14 @@ fun PagedChaptersContent(
             }
     }
 
-    ReaderSelectionContainer { toolbarHidden ->
+    // Page taps and accessibility actions share this path.
+    val turnTo: (Int) -> Unit = { target ->
+        if (target in 0 until pagerState.pageCount) {
+            coroutineScope.launch { pagerState.animateScrollToPage(target) }
+        }
+    }
+
+    ReaderSelectionContainer(selectable = false) { toolbarHidden ->
         val selectionToolbarHidden by rememberUpdatedState(toolbarHidden)
         BoxWithConstraints(
             modifier = Modifier
@@ -167,12 +190,41 @@ fun PagedChaptersContent(
                 onPaginationEnvironment(PaginationEnvironment(spec, fontFamilyResolver))
             }
 
+            val currentPage = pagerState.currentPage
+            val currentEntry = entries.getOrNull(currentPage)
+            val pageDescription = if (currentEntry is PagedEntry.Page) {
+                stringResource(
+                    id = R.string.reader_page_indicator,
+                    currentEntry.pageIndex + 1,
+                    currentEntry.pageCount
+                )
+            } else stringResource(id = R.string.reader_page_loading)
+            val previousLabel = stringResource(id = R.string.reader_page_previous)
+            val nextLabel = stringResource(id = R.string.reader_page_next)
+            val pageActions = buildList {
+                if (currentPage > 0) {
+                    add(CustomAccessibilityAction(previousLabel) { turnTo(currentPage - 1); true })
+                }
+                if (currentPage < entries.lastIndex) {
+                    add(CustomAccessibilityAction(nextLabel) { turnTo(currentPage + 1); true })
+                }
+            }
+
             HorizontalPager(
                 state = pagerState,
                 key = { index -> currentEntries.getOrNull(index)?.key ?: "missing:$index" },
                 beyondViewportPageCount = 1,
+                // A swipe must not move or drop an active selection.
+                userScrollEnabled = toolbarHidden,
                 modifier = Modifier
                     .fillMaxSize()
+                    // One node for the current page: its visible text (the other pages are
+                    // cleared below), where it is, and how to turn it. Focus stays here when
+                    // the page turns; the new state description is what gets announced.
+                    .semantics(mergeDescendants = true) {
+                        stateDescription = pageDescription
+                        customActions = pageActions
+                    }
                     .pointerInput(layoutDirection) {
                         // Same tap routing as the scroll reader: never consume, so the selection
                         // container still sees the tap that dismisses its toolbar.
@@ -199,25 +251,48 @@ fun PagedChaptersContent(
                             if (forward == null) {
                                 onToggleReaderMenu()
                             } else {
-                                val target = pagerState.currentPage + if (forward) 1 else -1
-                                if (target in 0 until pagerState.pageCount) {
-                                    coroutineScope.launch { pagerState.animateScrollToPage(target) }
-                                }
+                                turnTo(pagerState.currentPage + if (forward) 1 else -1)
                             }
                         }
                     }
             ) { index ->
                 val entry = currentEntries.getOrNull(index)
                 if (entry is PagedEntry.Page && styles != null) {
-                    PageView(page = entry.page, state = state, styles = styles, onLoadImage = onLoadImage)
+                    if (index == currentPage) {
+                        // Keyed by content: repagination drops a selection on the old layout.
+                        key(entry.page, styles.spec) {
+                            CurrentPageSelection {
+                                PageView(
+                                    page = entry.page,
+                                    state = state,
+                                    styles = styles,
+                                    onLoadImage = onLoadImage
+                                )
+                            }
+                        }
+                    } else {
+                        Box(modifier = Modifier.clearAndSetSemantics { }) {
+                            PageView(
+                                page = entry.page,
+                                state = state,
+                                styles = styles,
+                                onLoadImage = onLoadImage
+                            )
+                        }
+                    }
                 } else {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clearAndSetSemantics { },
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator(color = state.readerTheme.textColor.copy(alpha = 0.45f))
                     }
                 }
             }
 
-            val current = entries.getOrNull(pagerState.currentPage) as? PagedEntry.Page
+            val current = currentEntry as? PagedEntry.Page
             if (current != null && styles != null) {
                 PageIndicator(
                     pageNumber = current.pageIndex + 1,
@@ -230,13 +305,28 @@ fun PagedChaptersContent(
     }
 }
 
-/** "Page x of y" in the reader's ink, aligned with the end of the text column. */
+/**
+ * Selection scoped to the current page. Leaving composition (page turn, repagination, mode
+ * change) also closes the toolbar, so it never points at disposed text.
+ */
+@Composable
+private fun CurrentPageSelection(content: @Composable () -> Unit) {
+    val toolbar = LocalTextToolbar.current
+    DisposableEffect(toolbar) { onDispose { toolbar.hide() } }
+    SelectionContainer { content() }
+}
+
+/**
+ * "Page x of y" in the reader's ink, aligned with the end of the text column. Silent for
+ * accessibility: the pager node already states the page.
+ */
 @Composable
 private fun PageIndicator(pageNumber: Int, pageCount: Int, widthPx: Int, state: ReaderScreenState) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 14.dp),
+            .padding(top = 14.dp)
+            .clearAndSetSemantics { },
         contentAlignment = Alignment.TopCenter
     ) {
         Text(
@@ -315,7 +405,12 @@ private fun PageView(
     }
 }
 
-/** A slice of a text item: the full paragraph layout seen through a window of whole lines. */
+/**
+ * A slice of a text item: the paragraph from the slice's first character, laid out at full
+ * width with only the slice's lines kept. The rest of the paragraph stays in the layout so the
+ * last line is justified and hyphenated as in the running text, while selection (which stops
+ * at the last visible character) and accessibility see only what is on the page.
+ */
 @Composable
 private fun LinesBlock(
     item: ReaderItem,
@@ -323,14 +418,24 @@ private fun LinesBlock(
     styles: PagedStyles,
     state: ReaderScreenState
 ) {
-    val text = remember(item) { PagedStyles.textOf(item) } ?: return
+    val fullText = remember(item) { PagedStyles.textOf(item) } ?: return
+    val text = remember(fullText, block.startChar) {
+        TextSlices.layoutText(fullText, block.startChar)
+    }
+    val visibleText = remember(fullText, block.startChar, block.endChar) {
+        TextSlices.visibleText(fullText, block.startChar, block.endChar)
+    }
     val style = styles.styleFor(item) ?: return
     val ink = state.readerTheme.textColor
     val color = if (item is ReaderItem.Blockquote) ink.copy(alpha = 0.8f) else ink
     val inner = styles.innerPaddingFor(item)
     val outer = styles.outerPaddingFor(item)
     val width = styles.spec.textWidthPx
-    Box(modifier = Modifier.exactSize(width, block.height)) {
+    Box(
+        modifier = Modifier
+            .exactSize(width, block.height)
+            .clearAndSetSemantics { this.text = visibleText }
+    ) {
         if (inner > 0) {
             val frameAlpha = if (item is ReaderItem.CodeBlock) 0.1f else 0.07f
             Box(
@@ -344,6 +449,8 @@ private fun LinesBlock(
         BasicText(
             text = text,
             style = style.copy(color = color),
+            overflow = TextOverflow.Clip,
+            maxLines = block.lineCount.coerceAtLeast(1),
             modifier = Modifier
                 .offset { IntOffset(inner, block.frameTop) }
                 .lineWindow(styles.textWidthFor(item), block.clipTop, block.clipHeight)

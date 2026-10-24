@@ -18,8 +18,10 @@
 package org.scrollia.app.ui.screens.reader.main.viewmodel
 
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.unit.IntSize
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import org.scrollia.app.database.library.LibraryDao
@@ -29,9 +31,11 @@ import org.scrollia.app.epub.EpubParser
 import org.scrollia.app.epub.models.EpubBook
 import org.scrollia.app.epub.models.EpubChapter
 import org.scrollia.app.helpers.PreferenceUtil
+import org.scrollia.app.helpers.book.BookImporter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +48,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.FileInputStream
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
@@ -67,6 +70,10 @@ data class ReaderScreenState(
     val loadedImages: Map<String, ByteArray> = emptyMap(),
     // Position to restore once its chapter body is loaded; null when nothing is pending.
     val pendingRestore: ReaderAnchor? = null,
+    // Library item being read; progress is saved against it.
+    val libraryItemId: Int? = null,
+    // An EPUB from another app that is being added to the library; null otherwise.
+    val externalImport: ExternalImport? = null,
     // Typography
     val fontSize: Int = 100,
     val fontFamily: ReaderFont = ReaderFont.Literata,
@@ -74,6 +81,8 @@ data class ReaderScreenState(
     val readerTheme: ReaderTheme = ReaderTheme.Paper,
     val justifyText: Boolean = false,
     val readingMode: ReadingMode = ReadingMode.SCROLL,
+    // Off by default: reading respects the system display timeout (DESIGN.md §19).
+    val keepScreenOn: Boolean = false,
     // Paged mode: spec the pages below were measured with, and pages per chapter index.
     val pageSpec: PageSpec? = null,
     val pages: Map<Int, List<ReaderPage>> = emptyMap(),
@@ -84,7 +93,9 @@ class ReaderViewModel @Inject constructor(
     private val libraryDao: LibraryDao,
     private val progressDao: ProgressDao,
     private val preferenceUtil: PreferenceUtil,
-    private val epubParser: EpubParser
+    private val epubParser: EpubParser,
+    private val bookImporter: BookImporter,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     // Mutable state flow to update the state.
@@ -120,6 +131,14 @@ class ReaderViewModel @Inject constructor(
     private val wantedPageChapters = ConcurrentHashMap.newKeySet<Int>()
     private val imageSizes = ConcurrentHashMap<String, IntSize>()
 
+    // External EPUB import.
+    private var externalUri: Uri? = null
+    private var externalName: String? = null
+    private var importJob: Job? = null
+    // Imported in this session and not opened successfully yet: rolled back if opening fails.
+    @Volatile
+    private var unopenedImportId: Int? = null
+
     init {
         viewModelScope.launch {
             progressUpdates.filterNotNull().conflate().flowOn(Dispatchers.Default)
@@ -154,6 +173,9 @@ class ReaderViewModel @Inject constructor(
                     justifyText = preferenceUtil.getBoolean(PreferenceUtil.READER_JUSTIFY_BOOL, false),
                     readingMode = ReadingMode.getById(
                         preferenceUtil.getString(PreferenceUtil.READER_MODE_STR, ReadingMode.SCROLL.id)
+                    ),
+                    keepScreenOn = preferenceUtil.getBoolean(
+                        PreferenceUtil.READER_KEEP_SCREEN_ON_BOOL, false
                     )
                 )
             }
@@ -175,7 +197,9 @@ class ReaderViewModel @Inject constructor(
      */
     fun loadEpubBook(libraryItemId: Int, startChapterIndex: Int? = null) {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(shouldShowLoader = true, hasError = false) }
+            _state.update {
+                it.copy(shouldShowLoader = true, hasError = false, libraryItemId = libraryItemId)
+            }
             try {
                 val libraryItem = libraryDao.getItemById(libraryItemId)
                     ?: throw IllegalStateException("Library item not found")
@@ -207,35 +231,95 @@ class ReaderViewModel @Inject constructor(
                     )
                 }
                 loadChapterBody(initialChapterIndex)
+                if (unopenedImportId == libraryItemId) unopenedImportId = null
                 delay(200L)
                 _state.update { it.copy(isLoading = false, shouldShowLoader = false) }
             } catch (exc: Exception) {
-                reportLoadError("Could not open library book", exc)
+                if (exc is CancellationException) throw exc
+                if (unopenedImportId == libraryItemId) {
+                    Log.e("ReaderViewModel", "Imported book could not be opened", exc)
+                    rollBackImport(libraryItemId)
+                } else {
+                    reportLoadError("Could not open library book", exc)
+                }
             }
         }
     }
 
-    fun loadEpubBookExternal(fileStream: FileInputStream) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(shouldShowLoader = true, hasError = false) }
-            try {
-                fileStream.use { fis ->
-                    val epubBook = epubParser.createEpubBook(fis, shouldUseToc = true)
-                    _state.update {
-                        it.copy(
-                            epubBook = epubBook,
-                            chapters = epubBook.chapters,
-                            pendingRestore = null,
-                            currentChapterIndex = 0
-                        )
-                    }
-                    loadChapterBody(0)
-                    delay(200L)
-                    _state.update { it.copy(isLoading = false, shouldShowLoader = false) }
+    /**
+     * An EPUB [uri] from another app. Asks before importing it; after an activity recreation
+     * the already imported copy is opened instead of importing again.
+     */
+    fun openExternal(uri: Uri) {
+        externalUri = uri
+        val importedId = savedStateHandle.get<Int>(KEY_IMPORTED_ID)
+        when {
+            importedId != null ->
+                if (state.value.libraryItemId != importedId || state.value.hasError) {
+                    loadEpubBook(importedId)
                 }
-            } catch (exc: Exception) {
-                reportLoadError("Could not open external book", exc)
+            state.value.externalImport == null && state.value.libraryItemId == null -> {
+                _state.update { it.copy(externalImport = ExternalImport.Confirm(null)) }
+                viewModelScope.launch(Dispatchers.IO) {
+                    val name = bookImporter.displayName(uri)
+                    externalName = name
+                    _state.update {
+                        if (it.externalImport is ExternalImport.Confirm) {
+                            it.copy(externalImport = ExternalImport.Confirm(name))
+                        } else it
+                    }
+                }
             }
+        }
+    }
+
+    /** Add the external EPUB to the library, then open it like any library book. */
+    fun confirmImport() {
+        val uri = externalUri ?: return
+        if (importJob?.isActive == true) return
+        val name = externalName
+        _state.update { it.copy(externalImport = ExternalImport.Importing(name, null)) }
+        importJob = viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val id = bookImporter.importUri(uri) { progress ->
+                    _state.update {
+                        if (it.externalImport is ExternalImport.Importing) {
+                            it.copy(externalImport = ExternalImport.Importing(name, progress))
+                        } else it
+                    }
+                }
+                savedStateHandle[KEY_IMPORTED_ID] = id
+                unopenedImportId = id
+                _state.update { it.copy(externalImport = null) }
+                loadEpubBook(id)
+            } catch (exc: CancellationException) {
+                throw exc
+            } catch (exc: Exception) {
+                Log.e("ReaderViewModel", "Could not import external book", exc)
+                val reason = (exc as? BookImporter.ImportException)?.reason
+                    ?: BookImporter.Reason.STORAGE
+                _state.update { it.copy(externalImport = ExternalImport.Failed(name, reason)) }
+            }
+        }
+    }
+
+    /** Stop an import in progress; the importer removes anything it created. */
+    fun cancelImport() {
+        importJob?.cancel()
+        importJob = null
+    }
+
+    private suspend fun rollBackImport(libraryItemId: Int) {
+        bookImporter.rollback(libraryItemId)
+        unopenedImportId = null
+        savedStateHandle.remove<Int>(KEY_IMPORTED_ID)
+        _state.update {
+            it.copy(
+                libraryItemId = null,
+                isLoading = true,
+                shouldShowLoader = false,
+                externalImport = ExternalImport.Failed(externalName, BookImporter.Reason.NOT_EPUB)
+            )
         }
     }
 
@@ -516,7 +600,13 @@ class ReaderViewModel @Inject constructor(
         _state.update { it.copy(justifyText = justify) }
     }
 
+    fun setKeepScreenOn(keepOn: Boolean) {
+        preferenceUtil.putBoolean(PreferenceUtil.READER_KEEP_SCREEN_ON_BOOL, keepOn)
+        _state.update { it.copy(keepScreenOn = keepOn) }
+    }
+
     private companion object {
+        const val KEY_IMPORTED_ID = "imported_library_item_id"
         const val PAGINATION_DEBOUNCE_MS = 150L
         const val MAX_CACHED_CHAPTER_PAGES = 48
     }

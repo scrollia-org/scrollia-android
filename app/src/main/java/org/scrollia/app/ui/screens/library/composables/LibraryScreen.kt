@@ -149,7 +149,6 @@ fun LibraryScreen(navController: NavController) {
             showImportDialog.value = true
             // Start books import.
             viewModel.importBooks(
-                context = context,
                 fileUris = uris,
                 onComplete = {
                     // Hide dialog and show success message.

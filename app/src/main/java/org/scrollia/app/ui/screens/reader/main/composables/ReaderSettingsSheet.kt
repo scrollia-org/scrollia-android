@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -70,6 +72,7 @@ fun ReaderSettingsSheet(
     onLineHeightChanged: (Float) -> Unit,
     onReaderThemeChanged: (ReaderTheme) -> Unit,
     onJustifyChanged: (Boolean) -> Unit,
+    onKeepScreenOnChanged: (Boolean) -> Unit,
     onReadingModeChanged: (ReadingMode) -> Unit,
 ) {
     val theme = state.readerTheme
@@ -200,41 +203,69 @@ fun ReaderSettingsSheet(
                 }
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(id = R.string.reader_settings_justify),
-                        fontFamily = interFont,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 15.sp,
-                        color = ink
-                    )
-                    Text(
-                        text = stringResource(id = R.string.reader_settings_justify_desc),
-                        fontFamily = interFont,
-                        fontSize = 12.sp,
-                        color = ink.copy(alpha = 0.65f)
-                    )
-                }
-                Switch(
-                    checked = state.justifyText,
-                    onCheckedChange = onJustifyChanged,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = theme.backgroundColor,
-                        checkedTrackColor = ink.copy(alpha = 0.8f),
-                        checkedBorderColor = Color.Transparent,
-                        uncheckedThumbColor = ink.copy(alpha = 0.6f),
-                        uncheckedTrackColor = ink.copy(alpha = 0.08f),
-                        uncheckedBorderColor = ink.copy(alpha = 0.4f),
-                    )
-                )
-            }
+            SwitchRow(
+                titleRes = R.string.reader_settings_justify,
+                descriptionRes = R.string.reader_settings_justify_desc,
+                checked = state.justifyText,
+                onCheckedChange = onJustifyChanged,
+                theme = theme,
+                modifier = Modifier.padding(top = 20.dp)
+            )
+            SwitchRow(
+                titleRes = R.string.reader_settings_keep_screen_on,
+                descriptionRes = R.string.reader_settings_keep_screen_on_desc,
+                checked = state.keepScreenOn,
+                onCheckedChange = onKeepScreenOnChanged,
+                theme = theme,
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
+    }
+}
+
+@Composable
+private fun SwitchRow(
+    titleRes: Int,
+    descriptionRes: Int,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    theme: ReaderTheme,
+    modifier: Modifier = Modifier
+) {
+    val ink = theme.textColor
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(id = titleRes),
+                fontFamily = interFont,
+                fontWeight = FontWeight.Medium,
+                fontSize = 15.sp,
+                color = ink
+            )
+            Text(
+                text = stringResource(id = descriptionRes),
+                fontFamily = interFont,
+                fontSize = 12.sp,
+                color = ink.copy(alpha = 0.65f)
+            )
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = theme.backgroundColor,
+                checkedTrackColor = ink.copy(alpha = 0.8f),
+                checkedBorderColor = Color.Transparent,
+                uncheckedThumbColor = ink.copy(alpha = 0.6f),
+                uncheckedTrackColor = ink.copy(alpha = 0.08f),
+                uncheckedBorderColor = ink.copy(alpha = 0.4f),
+            )
+        )
     }
 }
 

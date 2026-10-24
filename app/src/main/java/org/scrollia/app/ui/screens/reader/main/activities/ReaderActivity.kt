@@ -36,7 +36,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModelProvider
-import org.scrollia.app.helpers.Constants
 import androidx.compose.runtime.Composable
 import org.scrollia.app.ui.screens.reader.main.composables.ChaptersContent
 import org.scrollia.app.ui.screens.reader.main.composables.PagedChaptersContent
@@ -52,7 +51,6 @@ import org.scrollia.app.ui.theme.ScrolliaTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
-import java.io.FileInputStream
 
 @AndroidEntryPoint
 class ReaderActivity : AppCompatActivity() {
@@ -72,33 +70,29 @@ class ReaderActivity : AppCompatActivity() {
         setContent {
             ScrolliaTheme(settingsViewModel = settingsViewModel) {
                 // Handle intent and load epub book.
-                val intentData = remember {
-                    handleIntent(
-                        intent = intent,
-                        viewModel = viewModel,
-                        contentResolver = contentResolver,
-                        onError = { viewModel.showLoadError() })
+                remember {
+                    handleIntent(intent = intent, viewModel = viewModel) {
+                        viewModel.showLoadError()
+                    }
                 }
 
                 val state by viewModel.state.collectAsState()
+                LaunchedEffect(state.keepScreenOn) { applyKeepScreenOn(state.keepScreenOn) }
 
-                val onPositionChanged: (VisiblePosition) -> Unit = remember(intentData) {
+                val onPositionChanged: (VisiblePosition) -> Unit = remember {
                     { position ->
                         viewModel.setChapterScrollPercent(position.chapterFraction)
                         viewModel.setVisibleChapterIndex(position.firstChapterIndex)
                         position.anchor?.let { viewModel.onPositionChanged(it) }
                     }
                 }
-                val onSaveProgress: (VisiblePosition) -> Unit = remember(intentData) {
+                val onSaveProgress: (VisiblePosition) -> Unit = remember {
                     { position ->
-                        // If book was not opened from external epub file, update the
-                        // reading progress into the database.
                         val anchor = position.anchor
-                        if (anchor != null && !intentData.isExternalFile &&
-                            intentData.libraryItemId != null
-                        ) {
+                        val libraryItemId = viewModel.state.value.libraryItemId
+                        if (anchor != null && libraryItemId != null) {
                             viewModel.updateReaderProgress(
-                                libraryItemId = intentData.libraryItemId,
+                                libraryItemId = libraryItemId,
                                 anchor = anchor,
                                 chapterFraction = position.chapterFraction,
                                 lastVisible = position.lastVisible
@@ -159,9 +153,14 @@ class ReaderActivity : AppCompatActivity() {
             window.attributes.layoutInDisplayCutoutMode =
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
+    }
 
-        // Keep screen on.
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    private fun applyKeepScreenOn(keepOn: Boolean) {
+        if (keepOn) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
     }
 
     private fun toggleSystemBars(show: Boolean) {
@@ -192,61 +191,27 @@ object ReaderConstants {
 }
 
 /**
- * Data class to hold intent information for ReaderActivity.
- *
- * @param libraryItemId Library item id.
- * @param chapterIndex Chapter index.
- * @param isExternalFile Is book opened from external file.
+ * Load the book requested by [intent]: a library item by id, or an EPUB shared by another app
+ * through a `content://` URI, which is offered for import first (DESIGN.md §19).
  */
-data class IntentData(
-    val libraryItemId: Int?, val chapterIndex: Int?, val isExternalFile: Boolean
-)
-
-/**
- * Handle intent and load epub book from given id or external file.
- *
- * @param intent Intent to handle.
- * @param viewModel ReaderViewModel to load book.
- * @param contentResolver ContentResolver to open input stream.
- * @param onError Function to handle error.
- *
- * @return IntentData object containing book id, chapter index and isExternalBook.
- */
-fun handleIntent(
-    intent: Intent,
-    viewModel: ReaderViewModel,
-    contentResolver: ContentResolver,
-    onError: () -> Unit
-): IntentData {
+fun handleIntent(intent: Intent, viewModel: ReaderViewModel, onError: () -> Unit) {
     val libraryItemId = intent.extras?.getInt(
         ReaderConstants.EXTRA_LIBRARY_ITEM_ID, ReaderConstants.DEFAULT_NONE
-    )
+    )?.takeIf { it != ReaderConstants.DEFAULT_NONE }
     val chapterIndex = intent.extras?.getInt(
         ReaderConstants.EXTRA_CHAPTER_IDX, ReaderConstants.DEFAULT_NONE
     )?.takeIf { it != ReaderConstants.DEFAULT_NONE }
-    val isExternalFile = intent.type == Constants.EPUB_MIME_TYPE
-
-    // Internal book
-    if (libraryItemId != null && libraryItemId != ReaderConstants.DEFAULT_NONE) {
-        // Load epub book from library; restores the saved position unless a chapter was
-        // explicitly requested.
-        viewModel.loadEpubBook(libraryItemId = libraryItemId, startChapterIndex = chapterIndex)
-    } else if (isExternalFile) {
-        val inputStream = intent.data?.let { uri ->
-            runCatching { contentResolver.openInputStream(uri) }.getOrNull()
-        }
-        val fileInputStream = inputStream as? FileInputStream
-        if (fileInputStream != null) {
-            viewModel.loadEpubBookExternal(fileInputStream)
-        } else {
-            inputStream?.close()
-            onError()
-        }
-    } else {
-        onError() // Invalid intent.
+    val externalUri = intent.data?.takeIf {
+        intent.action == Intent.ACTION_VIEW && it.scheme == ContentResolver.SCHEME_CONTENT
     }
 
-    return IntentData(libraryItemId, chapterIndex, isExternalFile)
+    when {
+        // Restores the saved position unless a chapter was explicitly requested.
+        libraryItemId != null ->
+            viewModel.loadEpubBook(libraryItemId = libraryItemId, startChapterIndex = chapterIndex)
+        externalUri != null -> viewModel.openExternal(externalUri)
+        else -> onError()
+    }
 }
 
 /** Continuous scroll mode: the whole book as one lazy column. */

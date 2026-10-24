@@ -89,6 +89,18 @@ fun ReaderScreen(
     chaptersContent: @Composable (paddingValues: PaddingValues) -> Unit
 ) {
     val state = viewModel.state.collectAsState().value
+    state.externalImport?.let { importState ->
+        ExternalImportScreen(
+            importState = importState,
+            theme = state.readerTheme,
+            onAdd = { viewModel.confirmImport() },
+            onCancel = {
+                viewModel.cancelImport()
+                onBack()
+            }
+        )
+        return
+    }
     // Hide reader menu on back press.
     BackHandler(state.showReaderMenu) {
         viewModel.hideReaderInfo()
@@ -104,6 +116,7 @@ fun ReaderScreen(
             onLineHeightChanged = { viewModel.setLineHeight(it) },
             onReaderThemeChanged = { viewModel.setReaderTheme(it) },
             onJustifyChanged = { viewModel.setJustifyText(it) },
+            onKeepScreenOnChanged = { viewModel.setKeepScreenOn(it) },
             onReadingModeChanged = { viewModel.setReadingMode(it) },
         )
     }
