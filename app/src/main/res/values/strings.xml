@@ -157,6 +157,9 @@
     <string name="link_website_desc">Visit our website for more information.</string>
     <string name="link_privacy_policy">Privacy Policy</string>
     <string name="link_privacy_policy_desc">Read our latest privacy policy.</string>
+    <string name="about_credits">Credits</string>
+    <string name="about_based_on_myne">Based on Myne (github.com/Pool-Of-Tears/Myne), Apache-2.0 license</string>
+    <string name="about_based_on_myne_desc">Scrollia is a fork of Myne by Stɑrry Shivɑm. Tap to view the original project.</string>
 
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Licenses</string>

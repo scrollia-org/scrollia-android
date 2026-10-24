@@ -34,6 +34,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.Card
@@ -143,6 +144,31 @@ fun AboutScreen(navController: NavController) {
                     )
                 }
 
+                Text(
+                    text = stringResource(id = R.string.about_credits),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, bottom = 12.dp, top = 12.dp),
+                    fontSize = 16.sp,
+                    fontFamily = interFont,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp)
+                ) {
+                    SettingItem(
+                        icon = Icons.Filled.Info,
+                        mainText = stringResource(id = R.string.about_based_on_myne),
+                        subText = stringResource(id = R.string.about_based_on_myne_desc),
+                        onClick = { Utils.openWebLink(context, Constants.MYNE_REPO) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }

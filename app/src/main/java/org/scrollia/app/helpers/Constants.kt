@@ -31,6 +31,9 @@ object Constants {
     const val WEBSITE = "https://scrollia.org"
     const val PRIVACY_POLICY = "https://scrollia.org/privacy"
 
+    /** Upstream project Scrollia is forked from (Apache-2.0). */
+    const val MYNE_REPO = "https://github.com/Pool-Of-Tears/Myne"
+
     // TODO: Restore these once the resources exist publicly. The GitHub org
     //  (github.com/scrollia-org) is private for now, and there is no Telegram
     //  community or sponsorship page yet. The matching entries in AboutScreen
