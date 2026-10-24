@@ -29,6 +29,23 @@ sealed class ReaderListEntry {
     }
 }
 
+/**
+ * What is on screen right now, in semantic terms (both reading modes report it).
+ *
+ * @param anchor First visible item, or null if it is an unloaded chapter placeholder.
+ * @param lastVisible Last visible item (null for placeholders).
+ * @param firstChapterIndex Chapter of the first visible row or page.
+ * @param visibleChapters Chapters with at least one visible row.
+ * @param chapterFraction How far (0..1) the reader is into the first visible chapter.
+ */
+data class VisiblePosition(
+    val anchor: ReaderAnchor?,
+    val lastVisible: ReaderAnchor?,
+    val firstChapterIndex: Int,
+    val visibleChapters: Set<Int>,
+    val chapterFraction: Float
+)
+
 object ReaderPosition {
 
     /** Fraction of the last chapter that must be reached for a book to count as finished. */

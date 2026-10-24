@@ -167,8 +167,9 @@ fun ChaptersContent(
     }
 }
 
+/** Selection with copy/share/search/translate/dictionary; [content] learns if the toolbar is hidden. */
 @Composable
-private fun ReaderSelectionContainer(content: @Composable () -> Unit) {
+internal fun ReaderSelectionContainer(content: @Composable (toolbarHidden: Boolean) -> Unit) {
     val context = LocalContext.current
     ScrolliaSelectionContainer(
         onCopyRequested = {
@@ -238,7 +239,7 @@ private fun ReaderSelectionContainer(content: @Composable () -> Unit) {
                 }
             }
         }
-    ) { content() }
+    ) { toolbarHidden -> content(toolbarHidden) }
 }
 
 @Composable

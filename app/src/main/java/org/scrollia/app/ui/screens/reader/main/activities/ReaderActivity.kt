@@ -39,13 +39,16 @@ import androidx.lifecycle.ViewModelProvider
 import org.scrollia.app.R
 import org.scrollia.app.helpers.Constants
 import org.scrollia.app.helpers.toToast
+import androidx.compose.runtime.Composable
 import org.scrollia.app.ui.screens.reader.main.composables.ChaptersContent
+import org.scrollia.app.ui.screens.reader.main.composables.PagedChaptersContent
 import org.scrollia.app.ui.screens.reader.main.composables.ReaderScreen
-import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderAnchor
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderListEntry
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderPosition
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderViewModel
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReadingMode
+import org.scrollia.app.ui.screens.reader.main.viewmodel.VisiblePosition
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.theme.ScrolliaTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,7 +73,6 @@ class ReaderActivity : AppCompatActivity() {
         // Set UI contents.
         setContent {
             ScrolliaTheme(settingsViewModel = settingsViewModel) {
-                val lazyListState = rememberLazyListState()
                 // Handle intent and load epub book.
                 val intentData = remember {
                     handleIntent(
@@ -84,75 +86,57 @@ class ReaderActivity : AppCompatActivity() {
                 }
 
                 val state by viewModel.state.collectAsState()
-                val entries = remember(state.chapters, state.loadedChapters) {
-                    ReaderPosition.buildEntries(state.chapters.map {
-                        state.loadedChapters[it.chapterId]?.body?.size
-                    })
+
+                val onPositionChanged: (VisiblePosition) -> Unit = remember(intentData) {
+                    { position ->
+                        viewModel.setChapterScrollPercent(position.chapterFraction)
+                        viewModel.setVisibleChapterIndex(position.firstChapterIndex)
+                        position.anchor?.let { viewModel.onPositionChanged(it) }
+                    }
                 }
-                val entriesByKey = remember(entries) { entries.associateBy { it.key } }
-                val currentEntries by rememberUpdatedState(entries)
-                val currentEntriesByKey by rememberUpdatedState(entriesByKey)
+                val onSaveProgress: (VisiblePosition) -> Unit = remember(intentData) {
+                    { position ->
+                        // If book was not opened from external epub file, update the
+                        // reading progress into the database.
+                        val anchor = position.anchor
+                        if (anchor != null && !intentData.isExternalFile &&
+                            intentData.libraryItemId != null
+                        ) {
+                            viewModel.updateReaderProgress(
+                                libraryItemId = intentData.libraryItemId,
+                                anchor = anchor,
+                                chapterFraction = position.chapterFraction,
+                                lastVisible = position.lastVisible
+                            )
+                        }
+                    }
+                }
 
                 ReaderScreen(
                     viewModel = viewModel,
-                    onScrollToChapter = { chapterIndex ->
-                        val index = ReaderPosition.chapterStartIndex(currentEntries, chapterIndex)
-                        if (index >= 0) lazyListState.scrollToItem(index)
-                    },
+                    onScrollToChapter = { chapterIndex -> viewModel.jumpToChapter(chapterIndex) },
                     chaptersContent = {
-                        // Restore the saved position only once its chapter body is loaded:
-                        // scrolling earlier would land on placeholder geometry.
-                        LaunchedEffect(state.pendingRestore, entries) {
-                            val target = state.pendingRestore ?: return@LaunchedEffect
-                            val index = ReaderPosition.indexOf(entries, target)
-                                ?: return@LaunchedEffect
-                            lazyListState.scrollToItem(index)
-                            viewModel.onRestoreComplete()
-                        }
+                        when (state.readingMode) {
+                            ReadingMode.SCROLL -> ScrollReaderContent(
+                                state = state,
+                                viewModel = viewModel,
+                                onPositionChanged = onPositionChanged,
+                                onSaveProgress = onSaveProgress
+                            )
 
-                        LaunchedEffect(lazyListState) {
-                            snapshotFlow { readVisiblePosition(lazyListState, currentEntriesByKey, state) }
-                                .filterNotNull()
-                                .collect { position ->
-                                    viewModel.setChapterScrollPercent(position.chapterFraction)
-                                    viewModel.setVisibleChapterIndex(position.firstChapterIndex)
-                                    position.visibleChapters.forEach { chapterIdx ->
-                                        viewModel.loadChapterBody(chapterIdx)
-                                        viewModel.loadChapterBody(chapterIdx + 1)
-                                        viewModel.loadChapterBody(chapterIdx - 1)
-                                    }
-                                }
+                            ReadingMode.PAGED -> PagedChaptersContent(
+                                state = state,
+                                onToggleReaderMenu = { viewModel.toggleReaderMenu() },
+                                onPaginationEnvironment = { viewModel.setPaginationEnvironment(it) },
+                                onRequestPages = { viewModel.requestPages(it) },
+                                onRestoreComplete = { viewModel.onRestoreComplete() },
+                                onPositionChanged = { position ->
+                                    onPositionChanged(position)
+                                    onSaveProgress(position)
+                                },
+                                onLoadImage = { viewModel.loadImageData(it) }
+                            )
                         }
-
-                        LaunchedEffect(lazyListState) {
-                            snapshotFlow { readVisiblePosition(lazyListState, currentEntriesByKey, state) }
-                                .filterNotNull()
-                                .distinctUntilChanged { old, new ->
-                                    old.anchor == new.anchor && old.lastVisible == new.lastVisible
-                                }
-                                .collect { position ->
-                                    // If book was not opened from external epub file, update the
-                                    // reading progress into the database.
-                                    val anchor = position.anchor ?: return@collect
-                                    if (!intentData.isExternalFile && intentData.libraryItemId != null) {
-                                        viewModel.updateReaderProgress(
-                                            libraryItemId = intentData.libraryItemId,
-                                            anchor = anchor,
-                                            chapterFraction = position.chapterFraction,
-                                            lastVisible = position.lastVisible
-                                        )
-                                    }
-                                }
-                        }
-
-                        // Reader content lazy column.
-                        ChaptersContent(
-                            state = state,
-                            entries = entries,
-                            lazyListState = lazyListState,
-                            onToggleReaderMenu = { viewModel.toggleReaderMenu() },
-                            onLoadImage = { viewModel.loadImageData(it) }
-                        )
 
                         // Toggle system bars based on reader menu visibility.
                         LaunchedEffect(state.showReaderMenu) {
@@ -264,22 +248,63 @@ fun handleIntent(
     return IntentData(libraryItemId, chapterIndex, isExternalFile)
 }
 
-/**
- * What is on screen right now, in semantic terms.
- *
- * @param anchor First visible item, or null if it is an unloaded chapter placeholder.
- * @param lastVisible Last visible item (null for placeholders).
- * @param firstChapterIndex Chapter of the first visible row.
- * @param visibleChapters Chapters with at least one visible row.
- * @param chapterFraction How far (0..1) the reader is into the first visible chapter.
- */
-data class VisiblePosition(
-    val anchor: ReaderAnchor?,
-    val lastVisible: ReaderAnchor?,
-    val firstChapterIndex: Int,
-    val visibleChapters: Set<Int>,
-    val chapterFraction: Float
-)
+/** Continuous scroll mode: the whole book as one lazy column. */
+@Composable
+private fun ScrollReaderContent(
+    state: ReaderScreenState,
+    viewModel: ReaderViewModel,
+    onPositionChanged: (VisiblePosition) -> Unit,
+    onSaveProgress: (VisiblePosition) -> Unit
+) {
+    val lazyListState = rememberLazyListState()
+    val entries = remember(state.chapters, state.loadedChapters) {
+        ReaderPosition.buildEntries(state.chapters.map {
+            state.loadedChapters[it.chapterId]?.body?.size
+        })
+    }
+    val entriesByKey = remember(entries) { entries.associateBy { it.key } }
+    val currentEntriesByKey by rememberUpdatedState(entriesByKey)
+    val currentState by rememberUpdatedState(state)
+
+    // Restore the saved position only once its chapter body is loaded:
+    // scrolling earlier would land on placeholder geometry.
+    LaunchedEffect(state.pendingRestore, entries) {
+        val target = state.pendingRestore ?: return@LaunchedEffect
+        val index = ReaderPosition.indexOf(entries, target) ?: return@LaunchedEffect
+        lazyListState.scrollToItem(index)
+        viewModel.onRestoreComplete()
+    }
+
+    LaunchedEffect(lazyListState) {
+        snapshotFlow { readVisiblePosition(lazyListState, currentEntriesByKey, currentState) }
+            .filterNotNull()
+            .collect { position ->
+                onPositionChanged(position)
+                position.visibleChapters.forEach { chapterIdx ->
+                    viewModel.loadChapterBody(chapterIdx)
+                    viewModel.loadChapterBody(chapterIdx + 1)
+                    viewModel.loadChapterBody(chapterIdx - 1)
+                }
+            }
+    }
+
+    LaunchedEffect(lazyListState) {
+        snapshotFlow { readVisiblePosition(lazyListState, currentEntriesByKey, currentState) }
+            .filterNotNull()
+            .distinctUntilChanged { old, new ->
+                old.anchor == new.anchor && old.lastVisible == new.lastVisible
+            }
+            .collect { position -> onSaveProgress(position) }
+    }
+
+    ChaptersContent(
+        state = state,
+        entries = entries,
+        lazyListState = lazyListState,
+        onToggleReaderMenu = { viewModel.toggleReaderMenu() },
+        onLoadImage = { viewModel.loadImageData(it) }
+    )
+}
 
 /**
  * Read the visible position from the list layout. Returns null while a restore is pending so

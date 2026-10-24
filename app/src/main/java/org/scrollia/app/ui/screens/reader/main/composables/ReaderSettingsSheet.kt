@@ -44,6 +44,7 @@ import org.scrollia.app.R
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderFont
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderTheme
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReadingMode
 import org.scrollia.app.ui.theme.frauncesFont
 import org.scrollia.app.ui.theme.interFont
 import kotlin.math.roundToInt
@@ -69,6 +70,7 @@ fun ReaderSettingsSheet(
     onLineHeightChanged: (Float) -> Unit,
     onReaderThemeChanged: (ReaderTheme) -> Unit,
     onJustifyChanged: (Boolean) -> Unit,
+    onReadingModeChanged: (ReadingMode) -> Unit,
 ) {
     val theme = state.readerTheme
     val ink = theme.textColor
@@ -100,39 +102,39 @@ fun ReaderSettingsSheet(
                 color = ink
             )
 
+            SheetSectionHeader(R.string.reader_settings_mode, ink)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ReadingMode.entries.forEach { mode ->
+                    ReaderChip(
+                        selected = mode == state.readingMode,
+                        onClick = { onReadingModeChanged(mode) },
+                        ink = ink
+                    ) {
+                        Text(
+                            text = stringResource(
+                                id = when (mode) {
+                                    ReadingMode.SCROLL -> R.string.reader_mode_scroll
+                                    ReadingMode.PAGED -> R.string.reader_mode_paged
+                                }
+                            ),
+                            fontFamily = interFont,
+                            fontSize = 15.sp
+                        )
+                    }
+                }
+            }
+
             SheetSectionHeader(R.string.reader_settings_font, ink)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ReaderFont.getAllFonts().forEach { font ->
-                    val selected = font == state.fontFamily
-                    FilterChip(
-                        selected = selected,
+                    ReaderChip(
+                        selected = font == state.fontFamily,
                         onClick = { onFontFamilyChanged(font) },
-                        label = {
-                            Text(
-                                text = fontLabel(font),
-                                fontFamily = font.fontFamily,
-                                fontSize = 15.sp
-                            )
-                        },
-                        leadingIcon = if (selected) {
-                            {
-                                Icon(
-                                    Icons.Filled.Check,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                                )
-                            }
-                        } else null,
-                        shape = RoundedCornerShape(4.dp),
-                        colors = readerChipColors(ink),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = selected,
-                            borderColor = ink.copy(alpha = 0.3f),
-                            selectedBorderColor = ink.copy(alpha = 0.6f)
-                        ),
+                        ink = ink,
                         modifier = Modifier.padding(bottom = 4.dp)
-                    )
+                    ) {
+                        Text(text = fontLabel(font), fontFamily = font.fontFamily, fontSize = 15.sp)
+                    }
                 }
             }
 
@@ -328,6 +330,40 @@ private fun ThemeSwatch(
             Text(text = label, fontFamily = interFont, fontSize = 12.sp, color = theme.textColor)
         }
     }
+}
+
+/** Chip in the reader's ink: 4 dp radius, check mark when selected. */
+@Composable
+private fun ReaderChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    ink: Color,
+    modifier: Modifier = Modifier,
+    label: @Composable () -> Unit
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = label,
+        leadingIcon = if (selected) {
+            {
+                Icon(
+                    Icons.Filled.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                )
+            }
+        } else null,
+        shape = RoundedCornerShape(4.dp),
+        colors = readerChipColors(ink),
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = selected,
+            borderColor = ink.copy(alpha = 0.3f),
+            selectedBorderColor = ink.copy(alpha = 0.6f)
+        ),
+        modifier = modifier
+    )
 }
 
 @Composable

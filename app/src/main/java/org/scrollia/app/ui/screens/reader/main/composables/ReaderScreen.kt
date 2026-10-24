@@ -101,6 +101,7 @@ fun ReaderScreen(
             onLineHeightChanged = { viewModel.setLineHeight(it) },
             onReaderThemeChanged = { viewModel.setReaderTheme(it) },
             onJustifyChanged = { viewModel.setJustifyText(it) },
+            onReadingModeChanged = { viewModel.setReadingMode(it) },
         )
     }
 

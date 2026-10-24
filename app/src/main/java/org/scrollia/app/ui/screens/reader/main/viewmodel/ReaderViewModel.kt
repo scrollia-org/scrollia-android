@@ -17,6 +17,8 @@
 
 package org.scrollia.app.ui.screens.reader.main.viewmodel
 
+import android.graphics.BitmapFactory
+import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import org.scrollia.app.database.library.LibraryDao
@@ -32,6 +34,8 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOn
@@ -66,6 +70,10 @@ data class ReaderScreenState(
     val lineHeight: Float = 1.7f,
     val readerTheme: ReaderTheme = ReaderTheme.Paper,
     val justifyText: Boolean = false,
+    val readingMode: ReadingMode = ReadingMode.SCROLL,
+    // Paged mode: spec the pages below were measured with, and pages per chapter index.
+    val pageSpec: PageSpec? = null,
+    val pages: Map<Int, List<ReaderPage>> = emptyMap(),
 )
 
 @HiltViewModel
@@ -94,10 +102,34 @@ class ReaderViewModel @Inject constructor(
     // Progress writes go through a single conflated collector so they are applied in order.
     private val progressUpdates = MutableStateFlow<ProgressUpdate?>(null)
 
+    // Last position reported by the UI, in either mode; used to keep the place across
+    // mode switches and repagination.
+    @Volatile
+    private var currentAnchor: ReaderAnchor? = null
+
+    // Paged mode.
+    private val paginationRequests = MutableStateFlow<PaginationEnvironment?>(null)
+    @Volatile
+    private var activePagination: PaginationEnvironment? = null
+    private data class PageCacheKey(val chapterIndex: Int, val spec: PageSpec)
+    private val pageCache = ConcurrentHashMap<PageCacheKey, List<ReaderPage>>()
+    private val paginatingKeys = ConcurrentHashMap.newKeySet<PageCacheKey>()
+    private val wantedPageChapters = ConcurrentHashMap.newKeySet<Int>()
+    private val imageSizes = ConcurrentHashMap<String, IntSize>()
+
     init {
         viewModelScope.launch {
             progressUpdates.filterNotNull().conflate().flowOn(Dispatchers.Default)
                 .collect { saveProgress(it) }
+        }
+        viewModelScope.launch {
+            paginationRequests.filterNotNull()
+                .distinctUntilChangedBy { it.spec }
+                .collectLatest { environment ->
+                    // Debounce slider drags and resizes; the first spec applies immediately.
+                    if (activePagination != null) delay(PAGINATION_DEBOUNCE_MS)
+                    applyPagination(environment)
+                }
         }
         viewModelScope.launch {
             _state.update {
@@ -116,7 +148,10 @@ class ReaderViewModel @Inject constructor(
                             ReaderTheme.Paper.id
                         )
                     ),
-                    justifyText = preferenceUtil.getBoolean(PreferenceUtil.READER_JUSTIFY_BOOL, false)
+                    justifyText = preferenceUtil.getBoolean(PreferenceUtil.READER_JUSTIFY_BOOL, false),
+                    readingMode = ReadingMode.getById(
+                        preferenceUtil.getString(PreferenceUtil.READER_MODE_STR, ReadingMode.SCROLL.id)
+                    )
                 )
             }
             // Collect the state to update the current chapter.
@@ -228,6 +263,7 @@ class ReaderViewModel @Inject constructor(
             } finally {
                 loadingChapterIds.remove(chapter.chapterId)
             }
+            if (wantedPageChapters.remove(index)) requestPages(index)
         }
     }
 
@@ -253,6 +289,118 @@ class ReaderViewModel @Inject constructor(
     /** Called by the UI once the pending restore position has been scrolled into view. */
     fun onRestoreComplete() {
         _state.update { it.copy(pendingRestore = null) }
+    }
+
+    /** Latest position on screen (first visible item), in either reading mode. */
+    fun onPositionChanged(anchor: ReaderAnchor) {
+        currentAnchor = anchor
+    }
+
+    /** Open the start of [chapterIndex], in either reading mode. */
+    fun jumpToChapter(chapterIndex: Int) {
+        if (chapterIndex !in state.value.chapters.indices) return
+        _state.update { it.copy(pendingRestore = ReaderAnchor(chapterIndex, 0)) }
+        loadChapterBody(chapterIndex)
+        if (state.value.readingMode == ReadingMode.PAGED) requestPages(chapterIndex)
+    }
+
+    fun setReadingMode(mode: ReadingMode) {
+        if (mode == state.value.readingMode) return
+        preferenceUtil.putString(PreferenceUtil.READER_MODE_STR, mode.id)
+        _state.update {
+            it.copy(readingMode = mode, pendingRestore = it.pendingRestore ?: currentAnchor)
+        }
+    }
+
+    /** Paged mode: the UI reports the viewport and typography it lays pages out with. */
+    fun setPaginationEnvironment(environment: PaginationEnvironment) {
+        paginationRequests.value = environment
+    }
+
+    private fun applyPagination(environment: PaginationEnvironment) {
+        val hadPages = activePagination != null
+        activePagination = environment
+        val cached = pageCache.filterKeys { it.spec == environment.spec }
+            .mapKeys { it.key.chapterIndex }
+        // Different specs never share pages; keep the cache bounded.
+        if (pageCache.size > MAX_CACHED_CHAPTER_PAGES) {
+            pageCache.keys.removeAll { it.spec != environment.spec }
+        }
+        _state.update {
+            it.copy(
+                pageSpec = environment.spec,
+                pages = cached,
+                // Repagination moves every page: return to the paragraph that was on screen.
+                pendingRestore = it.pendingRestore ?: currentAnchor.takeIf { hadPages }
+            )
+        }
+        val current = state.value
+        val focus = current.pendingRestore?.chapterIndex ?: current.currentChapterIndex
+        requestPages(focus)
+        requestPages(focus + 1)
+        requestPages(focus - 1)
+    }
+
+    /** Make sure [chapterIndex] is paginated for the active spec, loading its body if needed. */
+    fun requestPages(chapterIndex: Int) {
+        val environment = activePagination ?: return
+        val current = state.value
+        val chapter = current.chapters.getOrNull(chapterIndex) ?: return
+        if (current.pageSpec == environment.spec && current.pages.containsKey(chapterIndex)) return
+        val body = current.loadedChapters[chapter.chapterId]?.body
+        if (body == null) {
+            wantedPageChapters.add(chapterIndex)
+            loadChapterBody(chapterIndex)
+            // The body may have landed between the read above and registering the wish.
+            val landed = state.value.loadedChapters.containsKey(chapter.chapterId)
+            if (landed && wantedPageChapters.remove(chapterIndex)) requestPages(chapterIndex)
+            return
+        }
+        val key = PageCacheKey(chapterIndex, environment.spec)
+        pageCache[key]?.let { pages ->
+            publishPages(environment, chapterIndex, pages)
+            return
+        }
+        if (!paginatingKeys.add(key)) return
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val pages = ChapterPaginator(environment).paginate(
+                    chapterIndex = chapterIndex,
+                    title = chapter.title,
+                    items = body,
+                    imageSize = ::imageSize
+                )
+                pageCache[key] = pages
+                publishPages(environment, chapterIndex, pages)
+            } finally {
+                paginatingKeys.remove(key)
+            }
+        }
+    }
+
+    private fun publishPages(
+        environment: PaginationEnvironment,
+        chapterIndex: Int,
+        pages: List<ReaderPage>
+    ) {
+        _state.update {
+            if (it.pageSpec != environment.spec) it
+            else it.copy(pages = it.pages + (chapterIndex to pages))
+        }
+    }
+
+    /** Pixel size of an EPUB image, loading its bytes for display at the same time. */
+    private suspend fun imageSize(path: String): IntSize? {
+        imageSizes[path]?.let { return it }
+        val bytes = state.value.loadedImages[path] ?: withContext(Dispatchers.IO) {
+            epubParser.getImageData(state.value.epubBook?.filePath ?: "", path)
+        }?.also { data ->
+            _state.update { it.copy(loadedImages = it.loadedImages + (path to data)) }
+        } ?: return null
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
+        if (options.outWidth <= 0 || options.outHeight <= 0) return null
+        return IntSize(options.outWidth, options.outHeight).also { imageSizes[path] = it }
     }
 
     /**
@@ -315,6 +463,11 @@ class ReaderViewModel @Inject constructor(
             loadChapterBody(index)
             loadChapterBody(index + 1)
             loadChapterBody(index - 1)
+            if (state.value.readingMode == ReadingMode.PAGED) {
+                requestPages(index)
+                requestPages(index + 1)
+                requestPages(index - 1)
+            }
         }
     }
 
@@ -351,4 +504,8 @@ class ReaderViewModel @Inject constructor(
         _state.update { it.copy(justifyText = justify) }
     }
 
+    private companion object {
+        const val PAGINATION_DEBOUNCE_MS = 150L
+        const val MAX_CACHED_CHAPTER_PAGES = 48
+    }
 }

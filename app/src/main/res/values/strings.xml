@@ -97,6 +97,10 @@
     <string name="reader_next_chapter">Next chapter</string>
     <string name="reader_chapter_progress">Chapter %1$d of %2$d · %3$d%%</string>
     <string name="reader_settings_title">Reading settings</string>
+    <string name="reader_settings_mode">Reading mode</string>
+    <string name="reader_mode_scroll">Scroll</string>
+    <string name="reader_mode_paged">Pages</string>
+    <string name="reader_page_indicator">Page %1$d of %2$d</string>
     <string name="reader_settings_font">Font</string>
     <string name="reader_settings_size">Size</string>
     <string name="reader_settings_size_value">%1$d%%</string>
