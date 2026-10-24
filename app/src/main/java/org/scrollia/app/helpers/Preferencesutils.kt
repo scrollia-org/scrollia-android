@@ -50,6 +50,9 @@ class PreferenceUtil(context: Context) {
         // Home screen preference keys
         const val PREFERRED_BOOK_LANG_STR = "preferred_book_language"
 
+        // Library screen preference keys
+        const val LIBRARY_SORT_STR = "library_sort"
+
         // Temporary preference keys
         const val LIBRARY_ONBOARDING_BOOL = "show_library_onboarding"
         const val LIBRARY_SWIPE_TOOLTIP_BOOL = "show_library_tooltip"

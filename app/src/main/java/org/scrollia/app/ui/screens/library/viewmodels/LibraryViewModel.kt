@@ -27,12 +27,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import org.scrollia.app.database.library.LibraryDao
 import org.scrollia.app.database.library.LibraryItem
+import org.scrollia.app.database.progress.ProgressDao
+import org.scrollia.app.database.progress.ProgressData
 import org.scrollia.app.epub.EpubParser
 import org.scrollia.app.helpers.PreferenceUtil
 import org.scrollia.app.helpers.book.BookDownloader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -43,11 +47,26 @@ import javax.inject.Inject
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val libraryDao: LibraryDao,
+    progressDao: ProgressDao,
     private val epubParser: EpubParser,
     private val preferenceUtil: PreferenceUtil
 ) : ViewModel() {
 
     val allItems: LiveData<List<LibraryItem>> = libraryDao.getAllItems()
+
+    /** Reading progress keyed by library item id; books never opened are absent. */
+    val progress: Flow<Map<Int, ProgressData>> = progressDao.getAllReaderItemsAsFlow()
+        .map { rows -> rows.associateBy { it.libraryItemId } }
+
+    private val _sort: MutableState<LibrarySort> = mutableStateOf(
+        LibrarySort.getById(preferenceUtil.getString(PreferenceUtil.LIBRARY_SORT_STR, ""))
+    )
+    val sort: State<LibrarySort> = _sort
+
+    fun setSort(sort: LibrarySort) {
+        preferenceUtil.putString(PreferenceUtil.LIBRARY_SORT_STR, sort.id)
+        _sort.value = sort
+    }
 
     private val _showOnboardingTapTargets: MutableState<Boolean> = mutableStateOf(
         value = preferenceUtil.getBoolean(PreferenceUtil.LIBRARY_ONBOARDING_BOOL, true)
