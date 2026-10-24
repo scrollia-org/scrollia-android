@@ -127,4 +127,6 @@ object ReaderPosition {
         if (lastChapterItemCount <= 0) return true
         return (lastVisibleItemIndex + 1).toFloat() / lastChapterItemCount >= FINISHED_THRESHOLD
     }
+
+    fun retainFinished(wasFinished: Boolean, isFinished: Boolean) = wasFinished || isFinished
 }
