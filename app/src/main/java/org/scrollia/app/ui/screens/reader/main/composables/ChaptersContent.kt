@@ -49,6 +49,7 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -78,6 +79,9 @@ fun ChaptersContent(
 ) {
     val targetFontSize = remember(state.fontSize) { ReaderLayout.fontSizeSp(state.fontSize) }
     val maxTextWidth = rememberReaderMeasure(targetFontSize, state.fontFamily.fontFamily)
+    val bodyStyle = remember(state.epubBook?.language, state.justifyText) {
+        ReaderLayout.bodyTextStyle(state.epubBook?.language, state.justifyText)
+    }
     val fontSize by animateFloatAsState(
         targetValue = targetFontSize,
         animationSpec = tween(durationMillis = 300),
@@ -152,6 +156,7 @@ fun ChaptersContent(
                                 fontSize = fontSize,
                                 lineHeight = lineHeight,
                                 maxTextWidth = maxTextWidth,
+                                bodyStyle = bodyStyle,
                                 onLoadImage = onLoadImage
                             )
                         }
@@ -270,6 +275,7 @@ private fun ReaderItemContent(
     fontSize: Float,
     lineHeight: Float,
     maxTextWidth: Dp,
+    bodyStyle: TextStyle,
     onLoadImage: (String) -> Unit
 ) {
     when (item) {
@@ -281,6 +287,7 @@ private fun ReaderItemContent(
                 lineHeight = lineHeight.em,
                 fontFamily = state.fontFamily.fontFamily,
                 color = state.readerTheme.textColor,
+                style = bodyStyle,
                 modifier = Modifier
                     .readerColumn(maxTextWidth)
                     .padding(bottom = 8.dp),

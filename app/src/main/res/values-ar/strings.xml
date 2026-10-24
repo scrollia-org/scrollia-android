@@ -64,7 +64,6 @@
     <string name="start_reading_button">يبدأ</string>
     <string name="continue_reading_button">استمرار</string>
     <!--Reader Screen -->
-    <string name="reader_font_style_chooser">تغيير نمط الخط</string>
     <string name="reader_chapter_list_title">الفصول</string>
     <!-- Text selection -->
     <string name="copy">نسخ</string>

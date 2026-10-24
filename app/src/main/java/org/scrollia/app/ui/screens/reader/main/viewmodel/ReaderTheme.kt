@@ -28,10 +28,16 @@ import org.scrollia.app.ui.theme.ReaderSepiaText
  * Reading themes (docs/DESIGN.md §3.6). Independent from the app theme:
  * the choice belongs to the reading session, not to the system dark mode.
  */
-enum class ReaderTheme(val id: String, val backgroundColor: Color, val textColor: Color) {
-    Paper("paper", ReaderPaperBackground, ReaderPaperText),
-    Sepia("sepia", ReaderSepiaBackground, ReaderSepiaText),
-    Night("night", ReaderNightBackground, ReaderNightText);
+enum class ReaderTheme(
+    val id: String,
+    val backgroundColor: Color,
+    val textColor: Color,
+    /** Scrim behind sheets/dialogs over the page: tinted with the theme's ink by day. */
+    val scrimColor: Color,
+) {
+    Paper("paper", ReaderPaperBackground, ReaderPaperText, ReaderPaperText.copy(alpha = 0.32f)),
+    Sepia("sepia", ReaderSepiaBackground, ReaderSepiaText, ReaderSepiaText.copy(alpha = 0.32f)),
+    Night("night", ReaderNightBackground, ReaderNightText, Color.Black.copy(alpha = 0.6f));
 
     companion object {
         fun getById(id: String?) = entries.find { it.id == id } ?: Paper

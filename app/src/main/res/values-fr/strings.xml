@@ -65,7 +65,6 @@
     <string name="start_reading_button">Commencer</string>
     <string name="continue_reading_button">Reprendre</string>
     <!-- Reader Screen -->
-    <string name="reader_font_style_chooser">Changer la police</string>
     <string name="reader_chapter_list_title">Chapitres</string>
     <!-- Text selection -->
     <string name="copy">Copier</string>

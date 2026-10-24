@@ -64,7 +64,6 @@
     <string name="start_reading_button">Começar</string>
     <string name="continue_reading_button">Retomar</string>
     <!--Reader Screen -->
-    <string name="reader_font_style_chooser">Mudar estilo da fonte</string>
     <string name="reader_chapter_list_title">Capítulos</string>
     <!-- Text selection -->
     <string name="copy">Copiar</string>

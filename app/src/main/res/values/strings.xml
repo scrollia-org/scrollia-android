@@ -85,7 +85,6 @@
     <string name="library_finished">Finished</string>
 
     <!--Reader Screen -->
-    <string name="reader_font_style_chooser">Change FontStyle</string>
     <string name="reader_chapter_list_title">Chapters</string>
     <string name="reader_theme_paper">Paper</string>
     <string name="reader_theme_sepia">Sepia</string>
@@ -93,6 +92,16 @@
     <string name="reader_previous_chapter">Previous chapter</string>
     <string name="reader_next_chapter">Next chapter</string>
     <string name="reader_chapter_progress">Chapter %1$d of %2$d · %3$d%%</string>
+    <string name="reader_settings_title">Reading settings</string>
+    <string name="reader_settings_font">Font</string>
+    <string name="reader_settings_size">Size</string>
+    <string name="reader_settings_size_value">%1$d%%</string>
+    <string name="reader_settings_line_height">Line height</string>
+    <string name="reader_settings_theme">Theme</string>
+    <string name="reader_settings_justify">Justify text</string>
+    <string name="reader_settings_justify_desc">Even margins, with automatic hyphenation</string>
+    <string name="reader_settings_sample">It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness.</string>
+    <string name="reader_font_system">System</string>
 
     <!-- Text selection -->
     <string name="copy">Copy</string>

@@ -64,7 +64,6 @@
     <string name="start_reading_button">शुरू करें</string>
     <string name="continue_reading_button">पुनः आरंभ करें</string>
     <!--Reader Screen -->
-    <string name="reader_font_style_chooser">फ़ॉन्ट शैली बदलें</string>
     <string name="reader_chapter_list_title">अध्याय</string>
     <!-- Text selection -->
     <string name="copy">प्रतिलिपि करें</string>

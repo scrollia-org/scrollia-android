@@ -11,6 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -32,6 +35,23 @@ object ReaderLayout {
 
     /** Maps the stored 50..200 font-size preference to sp. */
     fun fontSizeSp(fontSizePref: Int): Float = (fontSizePref / 5) * 0.9f
+
+    private val noJustifyLanguages = setOf("zh", "ja", "ko")
+
+    /**
+     * Paragraph style for body text. The book language is always applied (font fallback,
+     * hyphenation, DESIGN.md §3.5); justification comes with automatic hyphenation and is
+     * skipped for CJK scripts.
+     */
+    fun bodyTextStyle(language: String?, justify: Boolean): TextStyle {
+        val tag = language?.trim()?.takeIf { it.isNotEmpty() }
+        val canJustify = justify && tag?.substringBefore('-')?.lowercase() !in noJustifyLanguages
+        return TextStyle(
+            localeList = tag?.let { LocaleList(it) },
+            textAlign = if (canJustify) TextAlign.Justify else TextAlign.Start,
+            hyphens = if (canJustify) Hyphens.Auto else Hyphens.None
+        )
+    }
 }
 
 /** Width of [ReaderLayout.MEASURE_CH] zeros in the current reader font: the max text measure. */

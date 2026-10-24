@@ -65,6 +65,7 @@ data class ReaderScreenState(
     val fontFamily: ReaderFont = ReaderFont.Literata,
     val lineHeight: Float = 1.7f,
     val readerTheme: ReaderTheme = ReaderTheme.Paper,
+    val justifyText: Boolean = false,
 )
 
 @HiltViewModel
@@ -114,7 +115,8 @@ class ReaderViewModel @Inject constructor(
                             PreferenceUtil.READER_THEME_STR,
                             ReaderTheme.Paper.id
                         )
-                    )
+                    ),
+                    justifyText = preferenceUtil.getBoolean(PreferenceUtil.READER_JUSTIFY_BOOL, false)
                 )
             }
             // Collect the state to update the current chapter.
@@ -342,6 +344,11 @@ class ReaderViewModel @Inject constructor(
     fun setReaderTheme(theme: ReaderTheme) {
         preferenceUtil.putString(PreferenceUtil.READER_THEME_STR, theme.id)
         _state.update { it.copy(readerTheme = theme) }
+    }
+
+    fun setJustifyText(justify: Boolean) {
+        preferenceUtil.putBoolean(PreferenceUtil.READER_JUSTIFY_BOOL, justify)
+        _state.update { it.copy(justifyText = justify) }
     }
 
 }
