@@ -385,7 +385,10 @@ class ReaderViewModel @Inject constructor(
     ) {
         _state.update {
             if (it.pageSpec != environment.spec) it
-            else it.copy(pages = it.pages + (chapterIndex to pages))
+            else it.copy(
+                pages = it.pages + (chapterIndex to pages),
+                pendingRestore = it.pendingRestore ?: currentAnchor
+            )
         }
     }
 
