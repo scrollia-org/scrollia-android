@@ -18,105 +18,396 @@ package org.scrollia.app
 
 
 import com.google.common.truth.Truth.assertThat
-import org.scrollia.app.helpers.Paginator
+import java.io.IOException
+import java.net.UnknownHostException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
+import kotlinx.coroutines.withContext
 import org.junit.Test
-import java.lang.reflect.Field
-
-data class PaginatorTestResult(
-    var error: Throwable? = null,
-    var result: List<String>? = null,
-    var nextPage: Int = 1
-)
+import org.scrollia.app.api.HttpStatusException
+import org.scrollia.app.api.MalformedResponseException
+import org.scrollia.app.helpers.ContentState
+import org.scrollia.app.helpers.LoadFailure
+import org.scrollia.app.helpers.PageResult
+import org.scrollia.app.helpers.Paginator
 
 class PaginatorTest {
 
-    private lateinit var paginator: Paginator<Int, List<String>>
-    private lateinit var paginatorWithError: Paginator<Int, List<String>>
+    private data class Book(val id: Int, val title: String = "Book $id")
 
-    private lateinit var isMakingRequestField: Field
-    private lateinit var currentPage: Field
+    /** Answers each page request with whatever the test completes it with. */
+    private class FakeServer {
+        val requests = mutableListOf<Long>()
+        private val pending = mutableListOf<CompletableDeferred<Result<PageResult<Book>>>>()
 
-    private lateinit var testResult: PaginatorTestResult
+        suspend fun request(page: Long): Result<PageResult<Book>> {
+            requests += page
+            val answer = CompletableDeferred<Result<PageResult<Book>>>()
+            pending += answer
+            // Like an HTTP call that has already left: cancellation does not stop the answer.
+            return withContext(NonCancellable) { answer.await() }
+        }
 
-    @Before
-    fun setup() {
-        testResult = PaginatorTestResult()
-        paginator = Paginator(
-            initialPage = 1,
-            onLoadUpdated = {},
-            onRequest = { Result.success(listOf("book1", "book2", "book3")) },
-            getNextPage = { 2 },
-            onError = { testResult = testResult.copy(error = it) },
-            onSuccess = { books, nextPage ->
-                testResult = testResult.copy(result = books, nextPage = nextPage)
-            }
-        )
-        paginatorWithError = Paginator(
-            initialPage = 1,
-            onLoadUpdated = {},
-            onRequest = { Result.failure(NullPointerException("meow")) },
-            getNextPage = { it.size + 1 },
-            onError = { testResult = testResult.copy(error = it) },
-            onSuccess = { books, nextPage ->
-                testResult = testResult.copy(result = books, nextPage = nextPage)
-            }
-        )
+        fun respond(vararg ids: Int, hasNext: Boolean = true) {
+            pending.removeAt(0).complete(
+                Result.success(PageResult(ids.map { Book(it) }, hasNext))
+            )
+        }
 
-        // Access private fields.
-        isMakingRequestField =
-            Paginator::class.java.getDeclaredField("isMakingRequest").apply { isAccessible = true }
-        currentPage =
-            Paginator::class.java.getDeclaredField("currentPage").apply { isAccessible = true }
+        fun fail(error: Throwable) {
+            pending.removeAt(0).complete(Result.failure(error))
+        }
+
+        val inFlight: Int get() = pending.size
     }
+
+    /** Run everything due, past any debounce (advanceUntilIdle skips background work). */
+    private fun TestScope.settle() {
+        advanceTimeBy(1_000)
+        runCurrent()
+    }
+
+    private fun TestScope.paginator(
+        server: FakeServer,
+        arrange: (List<Book>) -> List<Book> = { it }
+    ) = Paginator(scope = backgroundScope, idOf = Book::id, arrange = arrange, request = server::request)
 
     @Test
     fun `test paginator with valid result`() = runTest {
-        // test paginator internal stuffs.
-        paginator.loadNextItems()
-        assertThat(getIsMakingRequest(false)).isFalse()
-        assertThat(getCurrentPage(false)).isEqualTo(2)
-        // check test result
-        assertThat(testResult.result).isNotNull()
-        assertThat(testResult.result).hasSize(3)
-        assertThat(testResult.result).contains("book2")
-        // check for error
-        assertThat(testResult.error).isNull()
-        // check next page
-        assertThat(testResult.nextPage).isEqualTo(2)
+        val server = FakeServer()
+        val paginator = paginator(server)
+
+        paginator.loadNext()
+        settle()
+        assertThat(paginator.state.value.content).isEqualTo(ContentState.LOADING)
+        server.respond(1, 2, 3)
+        settle()
+
+        val state = paginator.state.value
+        assertThat(state.content).isEqualTo(ContentState.RESULTS)
+        assertThat(state.items.map { it.id }).containsExactly(1, 2, 3).inOrder()
+        assertThat(state.nextPage).isEqualTo(2)
+        assertThat(state.isLoading).isFalse()
+        assertThat(state.failure).isNull()
     }
 
     @Test
     fun `test paginator with error result`() = runTest {
-        // test paginator internal stuffs.
-        paginatorWithError.loadNextItems()
-        assertThat(getIsMakingRequest(true)).isFalse()
-        assertThat(getCurrentPage(true)).isEqualTo(1)
-        // check test result
-        assertThat(testResult.result).isNull()
-        // check for error
-        assertThat(testResult.error).isNotNull()
-        assertThat(testResult.error).isInstanceOf(NullPointerException::class.java)
-        assertThat(testResult.error).hasMessageThat().contains("meow")
-        // check next page
-        assertThat(testResult.nextPage).isEqualTo(1)
-    }
+        val server = FakeServer()
+        val paginator = paginator(server)
 
+        paginator.loadNext()
+        settle()
+        server.fail(NullPointerException("meow"))
+        settle()
+
+        val state = paginator.state.value
+        assertThat(state.content).isEqualTo(ContentState.ERROR)
+        assertThat(state.nextPage).isEqualTo(1)
+        assertThat(state.items).isEmpty()
+        assertThat(state.isLoading).isFalse()
+    }
 
     @Test
-    fun `test paginator reset`() {
+    fun `test paginator reset`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.respond(1)
+        settle()
+
         paginator.reset()
-        assertThat(getCurrentPage(false)).isEqualTo(1)
+
+        val state = paginator.state.value
+        assertThat(state.items).isEmpty()
+        assertThat(state.nextPage).isEqualTo(1)
+        assertThat(state.content).isEqualTo(ContentState.LOADING)
+        assertThat(state.generation).isEqualTo(1)
     }
 
-    private fun getIsMakingRequest(errorPaginator: Boolean): Boolean {
-        val paginatorObj = if (errorPaginator) paginatorWithError else paginator
-        return isMakingRequestField.get(paginatorObj) as Boolean
+    @Test
+    fun `successful empty complete result is Empty`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.respond(hasNext = false)
+        settle()
+
+        assertThat(paginator.state.value.content).isEqualTo(ContentState.EMPTY)
     }
 
-    private fun getCurrentPage(errorPaginator: Boolean): Int {
-        val paginatorObj = if (errorPaginator) paginatorWithError else paginator
-        return currentPage.get(paginatorObj) as Int
+    @Test
+    fun `network failure is Offline and server failures are Error, never Empty`() = runTest {
+        val cases = mapOf(
+            UnknownHostException("api.scrollia.org") to ContentState.OFFLINE,
+            IOException("timeout") to ContentState.OFFLINE,
+            HttpStatusException(500) to ContentState.ERROR,
+            MalformedResponseException(IllegalArgumentException()) to ContentState.ERROR
+        )
+        for ((error, expected) in cases) {
+            val server = FakeServer()
+            val paginator = paginator(server)
+            paginator.loadNext()
+            settle()
+            server.fail(error)
+            settle()
+            assertThat(paginator.state.value.content).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `retry requests the same page and a success leaves no sticky error`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.fail(IOException())
+        settle()
+
+        paginator.retry()
+        paginator.retry()
+        settle()
+        assertThat(server.requests).containsExactly(1L, 1L).inOrder()
+        assertThat(paginator.state.value.content).isEqualTo(ContentState.LOADING)
+        server.respond(1, 2)
+        settle()
+
+        val state = paginator.state.value
+        assertThat(state.content).isEqualTo(ContentState.RESULTS)
+        assertThat(state.failure).isNull()
+        assertThat(state.isLoading).isFalse()
+    }
+
+    @Test
+    fun `scroll callbacks never duplicate an in-flight request`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        repeat(5) { paginator.loadNext() }
+        settle()
+
+        assertThat(server.requests).containsExactly(1L)
+        assertThat(server.inFlight).isEqualTo(1)
+    }
+
+    @Test
+    fun `append failure keeps items and the failed page until retry`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.respond(1, 2)
+        settle()
+        paginator.loadNext()
+        settle()
+        server.fail(IOException())
+        settle()
+
+        var state = paginator.state.value
+        assertThat(state.content).isEqualTo(ContentState.RESULTS)
+        assertThat(state.items.map { it.id }).containsExactly(1, 2)
+        assertThat(state.appendFailure).isEqualTo(LoadFailure.OFFLINE)
+        assertThat(state.nextPage).isEqualTo(2)
+
+        // Scrolling does not retry by itself.
+        paginator.loadNext()
+        settle()
+        assertThat(server.requests).containsExactly(1L, 2L).inOrder()
+
+        paginator.retry()
+        settle()
+        server.respond(3, 4)
+        settle()
+
+        state = paginator.state.value
+        assertThat(server.requests).containsExactly(1L, 2L, 2L).inOrder()
+        assertThat(state.items.map { it.id }).containsExactly(1, 2, 3, 4).inOrder()
+        assertThat(state.appendFailure).isNull()
+        assertThat(state.isAppending).isFalse()
+        assertThat(state.nextPage).isEqualTo(3)
+    }
+
+    @Test
+    fun `reconnect retries only an eligible failure and never duplicates`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+
+        // Nothing failed: no request.
+        paginator.retryAfterReconnect()
+        settle()
+        assertThat(server.requests).isEmpty()
+
+        paginator.loadNext()
+        settle()
+        // In flight: reconnect callbacks add nothing.
+        repeat(3) { paginator.retryAfterReconnect() }
+        settle()
+        assertThat(server.requests).containsExactly(1L)
+
+        server.fail(IOException())
+        settle()
+        repeat(3) { paginator.retryAfterReconnect() }
+        settle()
+        assertThat(server.requests).containsExactly(1L, 1L)
+    }
+
+    @Test
+    fun `reconnect does not retry an initial server error`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.fail(HttpStatusException(500))
+        settle()
+
+        paginator.retryAfterReconnect()
+        settle()
+
+        assertThat(server.requests).containsExactly(1L)
+        assertThat(paginator.state.value.content).isEqualTo(ContentState.ERROR)
+    }
+
+    @Test
+    fun `reconnect retries a failed later page`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.respond(1)
+        settle()
+        paginator.loadNext()
+        settle()
+        server.fail(HttpStatusException(503))
+        settle()
+
+        paginator.retryAfterReconnect()
+        settle()
+
+        assertThat(server.requests).containsExactly(1L, 2L, 2L).inOrder()
+    }
+
+    @Test
+    fun `a filtered-out page with a next link is not the end`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.respond(hasNext = true)
+        settle()
+
+        var state = paginator.state.value
+        assertThat(state.endReached).isFalse()
+        assertThat(state.content).isEqualTo(ContentState.LOADING)
+        assertThat(server.requests).containsExactly(1L, 2L).inOrder()
+
+        server.respond(7, hasNext = false)
+        settle()
+        state = paginator.state.value
+        assertThat(state.items.map { it.id }).containsExactly(7)
+        assertThat(state.endReached).isTrue()
+    }
+
+    @Test
+    fun `a null next link stops further requests`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.respond(1, 2, hasNext = false)
+        settle()
+
+        repeat(3) { paginator.loadNext() }
+        paginator.retry()
+        paginator.retryAfterReconnect()
+        settle()
+
+        val state = paginator.state.value
+        assertThat(server.requests).containsExactly(1L)
+        assertThat(state.endReached).isTrue()
+        assertThat(state.isAppending).isFalse()
+        assertThat(state.appendFailure).isNull()
+    }
+
+    @Test
+    fun `responses from before a reset never land in the new list`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.respond(1, 2)
+        settle()
+        paginator.loadNext() // page 2 of the old filters, in flight
+        settle()
+
+        paginator.reset()
+        paginator.loadNext() // page 1 of the new filters
+        settle()
+
+        server.respond(3, 4) // late answer for the old page 2
+        settle()
+        assertThat(paginator.state.value.items).isEmpty()
+        assertThat(paginator.state.value.isLoading).isTrue()
+
+        server.respond(10, 11)
+        settle()
+        val state = paginator.state.value
+        assertThat(state.items.map { it.id }).containsExactly(10, 11).inOrder()
+        assertThat(state.nextPage).isEqualTo(2)
+    }
+
+    @Test
+    fun `a failure from before a reset is ignored too`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+
+        paginator.reset()
+        server.fail(IOException())
+        settle()
+
+        assertThat(paginator.state.value.failure).isNull()
+        assertThat(paginator.state.value.isLoading).isFalse()
+    }
+
+    @Test
+    fun `merged pages keep one entry per book and the selected order`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server, arrange = { books -> books.sortedByDescending { it.id } })
+        paginator.loadNext()
+        settle()
+        server.respond(1, 5, 3)
+        settle()
+        paginator.loadNext()
+        settle()
+        server.respond(5, 4, 2)
+        settle()
+
+        assertThat(paginator.state.value.items.map { it.id })
+            .containsExactly(5, 4, 3, 2, 1).inOrder()
+    }
+
+    @Test
+    fun `a page of only duplicates continues to the next page`() = runTest {
+        val server = FakeServer()
+        val paginator = paginator(server)
+        paginator.loadNext()
+        settle()
+        server.respond(1, 2)
+        settle()
+        paginator.loadNext()
+        settle()
+        server.respond(1, 2)
+        settle()
+
+        assertThat(server.requests).containsExactly(1L, 2L, 3L).inOrder()
+        server.respond(3, hasNext = false)
+        settle()
+        assertThat(paginator.state.value.items.map { it.id }).containsExactly(1, 2, 3).inOrder()
     }
 }

@@ -25,6 +25,15 @@
     <!-- Home screen. -->
     <string name="home_header">All Books</string>
     <string name="home_search_icon_desc">Search books</string>
+    <string name="state_offline">You’re offline. Connect to the internet and try again.</string>
+    <string name="state_error">Something went wrong while loading. Please try again.</string>
+    <string name="append_failed_offline">Couldn’t load more books: you’re offline.</string>
+    <string name="append_failed_error">Couldn’t load more books.</string>
+    <string name="catalog_empty">No books match these filters.</string>
+    <string name="search_empty">No books found for “%1$s”.</string>
+    <string name="categories_empty">There are no categories yet.</string>
+    <string name="home_search_placeholder">Search…</string>
+    <string name="home_search_close_desc">Clear or close search</string>
     <string name="language_menu_title">Browse by language</string>
     <string name="filter_icon_desc">Filter books</string>
     <string name="filter_sheet_title">Filters</string>

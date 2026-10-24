@@ -17,12 +17,9 @@
 package org.scrollia.app.ui.screens.home.composables
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,7 +37,10 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -60,6 +60,10 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -79,26 +83,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import org.scrollia.app.R
+import org.scrollia.app.api.models.Book
+import org.scrollia.app.helpers.ContentState
 import org.scrollia.app.helpers.NetworkObserver
+import org.scrollia.app.helpers.PagedState
+import org.scrollia.app.helpers.SearchState
 import org.scrollia.app.helpers.book.BookLanguage
 import org.scrollia.app.helpers.book.BookUtils
 import org.scrollia.app.ui.common.BookItemCard
 import org.scrollia.app.ui.common.BookItemShimmerLoader
-import org.scrollia.app.ui.common.NetworkError
+import org.scrollia.app.ui.common.AppendFooter
+import org.scrollia.app.ui.common.LoadFailureState
+import org.scrollia.app.ui.common.LoadMoreEffect
+import org.scrollia.app.ui.common.NoBooksAvailable
 import org.scrollia.app.ui.common.ProgressDots
-import org.scrollia.app.ui.navigation.BottomBarScreen
 import org.scrollia.app.ui.navigation.Screens
-import org.scrollia.app.ui.screens.home.viewmodels.AllBooksState
 import org.scrollia.app.ui.screens.home.viewmodels.HomeViewModel
-import org.scrollia.app.ui.screens.home.viewmodels.SearchBarState
 import org.scrollia.app.ui.screens.home.viewmodels.UserAction
 import org.scrollia.app.ui.screens.main.bottomNavPadding
 import org.scrollia.app.ui.theme.frauncesFont
 import org.scrollia.app.ui.theme.interFont
-import kotlinx.coroutines.delay
 import androidx.compose.runtime.getValue
 
 
@@ -106,35 +112,18 @@ import androidx.compose.runtime.getValue
 fun HomeScreen(navController: NavController, networkStatus: NetworkObserver.Status) {
 
     val viewModel: HomeViewModel = hiltViewModel()
+    val searchState by viewModel.searchState.collectAsState()
 
-    // Load the first set of items.
-    LaunchedEffect(key1 = true) {
-        delay(200)
-        viewModel.loadNextItems()
+    LaunchedEffect(networkStatus) {
+        if (networkStatus == NetworkObserver.Status.Available) viewModel.onNetworkAvailable()
     }
 
-    /*
-     Block back button press if search bar is visible to avoid
-     app from closing immediately, instead disable search bar
-     on first back press, and close app on second.
-     */
-    val sysBackButtonState = remember { mutableStateOf(false) }
-    BackHandler(enabled = sysBackButtonState.value) {
-        if (viewModel.searchBarState.isSearchBarVisible) {
-            if (viewModel.searchBarState.searchText.isNotEmpty()) {
-                viewModel.onAction(UserAction.TextFieldInput("", networkStatus))
-            } else {
-                viewModel.onAction(UserAction.CloseIconClicked)
-            }
-        }
-    }
-
-    // Close search bar when navigating to other screens.
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-    LaunchedEffect(currentDestination) {
-        if (currentDestination?.route != BottomBarScreen.Home.route) {
-            viewModel.onAction(UserAction.TextFieldInput("", networkStatus))
+    // With search open, Back first clears the text, then closes search; only then may it
+    // leave Home.
+    BackHandler(enabled = searchState.isVisible) {
+        if (searchState.text.isNotEmpty()) {
+            viewModel.onAction(UserAction.TextFieldInput(""))
+        } else {
             viewModel.onAction(UserAction.CloseIconClicked)
         }
     }
@@ -153,27 +142,22 @@ fun HomeScreen(navController: NavController, networkStatus: NetworkObserver.Stat
 
     HomeScreenScaffold(
         viewModel = viewModel,
-        networkStatus = networkStatus,
+        searchState = searchState,
         navController = navController,
-        sysBackButtonState = sysBackButtonState,
         showFilterSheet = showFilterSheet
     )
-
-
 }
 
 
 @Composable
 private fun HomeScreenScaffold(
     viewModel: HomeViewModel,
-    networkStatus: NetworkObserver.Status,
+    searchState: SearchState<Book>,
     navController: NavController,
-    sysBackButtonState: MutableState<Boolean>,
     showFilterSheet: MutableState<Boolean>
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
-    val topBarState = viewModel.searchBarState
 
     Scaffold(
         modifier = Modifier
@@ -189,21 +173,18 @@ private fun HomeScreenScaffold(
             ) {
                 Crossfade(
                     modifier = Modifier.animateContentSize(),
-                    targetState = topBarState.isSearchBarVisible,
+                    targetState = searchState.isVisible,
                     animationSpec = tween(durationMillis = 200), label = "search cross fade"
                 ) {
                     if (it) {
                         SearchAppBar(onCloseIconClicked = {
                             viewModel.onAction(UserAction.CloseIconClicked)
                         }, onInputValueChange = { newText ->
-                            viewModel.onAction(
-                                UserAction.TextFieldInput(newText, networkStatus)
-                            )
-                        }, text = topBarState.searchText, onSearchClicked = {
+                            viewModel.onAction(UserAction.TextFieldInput(newText))
+                        }, text = searchState.text, onSearchClicked = {
                             keyboardController?.hide()
                             focusManager.clearFocus()
                         })
-                        sysBackButtonState.value = true
                     } else {
                         HomeTopAppBar(
                             bookLanguage = viewModel.language.value,
@@ -213,7 +194,6 @@ private fun HomeScreenScaffold(
                             }, onFilterIconClicked = {
                                 showFilterSheet.value = true
                             })
-                        sysBackButtonState.value = false
                     }
                 }
                 HorizontalDivider(
@@ -225,7 +205,7 @@ private fun HomeScreenScaffold(
     ) { paddingValues ->
         HomeScreenContents(
             viewModel = viewModel,
-            networkStatus = networkStatus,
+            searchState = searchState,
             navController = navController,
             paddingValues = paddingValues
         )
@@ -233,15 +213,35 @@ private fun HomeScreenScaffold(
 }
 
 @Composable
-fun HomeScreenContents(
+private fun HomeScreenContents(
     viewModel: HomeViewModel,
-    networkStatus: NetworkObserver.Status,
+    searchState: SearchState<Book>,
     navController: NavController,
     paddingValues: PaddingValues
 ) {
-    val topBarState = viewModel.searchBarState
-    val allBooksState = viewModel.allBooksState
-
+    val catalogState by viewModel.catalogState.collectAsState()
+    // Hoisted so each list keeps its position while the other is shown, across tab changes
+    // (saved with the destination) and rotation.
+    val catalogGridState = rememberLazyGridState()
+    val searchGridState = rememberLazyGridState()
+    // New filters start a new list at the top; coming back to Home keeps the position.
+    var shownGeneration by rememberSaveable { mutableIntStateOf(catalogState.generation) }
+    LaunchedEffect(catalogState.generation) {
+        if (catalogState.generation != shownGeneration) {
+            shownGeneration = catalogState.generation
+            catalogGridState.scrollToItem(0)
+        }
+    }
+    var shownQuery by rememberSaveable { mutableStateOf(searchState.query) }
+    LaunchedEffect(searchState.query) {
+        if (searchState.query != shownQuery) {
+            shownQuery = searchState.query
+            searchGridState.scrollToItem(0)
+        }
+    }
+    val onOpenBook: (Book) -> Unit = { book ->
+        navController.navigate(Screens.BookDetailScreen.withBookId(book.id.toString()))
+    }
 
     Column(
         Modifier
@@ -249,15 +249,20 @@ fun HomeScreenContents(
             .background(MaterialTheme.colorScheme.background)
             .padding(paddingValues)
     ) {
-
-        // If search text is empty show list of all books.
-        if (topBarState.searchText.isBlank()) {
+        if (searchState.isActive) {
+            SearchBookList(
+                searchState = searchState,
+                gridState = searchGridState,
+                onRetry = { viewModel.retrySearch() },
+                onOpenBook = onOpenBook
+            )
+        } else {
             AllBooksList(
-                allBooksState = allBooksState,
-                networkStatus = networkStatus,
-                navController = navController,
-                onRetryClicked = { viewModel.reloadItems() },
+                catalogState = catalogState,
+                gridState = catalogGridState,
+                onRetry = { viewModel.retryCatalog() },
                 onLoadNextItems = { viewModel.loadNextItems() },
+                onOpenBook = onOpenBook,
                 header = {
                     ContinueReadingRail(
                         items = viewModel.continueReading,
@@ -269,134 +274,104 @@ fun HomeScreenContents(
                     )
                 }
             )
-        } else {
-            SearchBookList(searchBarState = topBarState, navController = navController)
         }
     }
 }
 
 @Composable
 private fun AllBooksList(
-    allBooksState: AllBooksState,
-    networkStatus: NetworkObserver.Status,
-    navController: NavController,
-    onRetryClicked: () -> Unit,
+    catalogState: PagedState<Book>,
+    gridState: LazyGridState,
+    onRetry: () -> Unit,
     onLoadNextItems: () -> Unit,
+    onOpenBook: (Book) -> Unit,
     header: @Composable () -> Unit
 ) {
-    // The header (Continue reading) stays reachable while the catalog loads or is offline.
-    AnimatedVisibility(
-        visible = allBooksState.page == 1L && allBooksState.isLoading,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        Column {
-            Box(modifier = Modifier.padding(horizontal = 8.dp)) { header() }
-            BookItemShimmerLoader()
+    // The header (Continue reading) stays reachable whatever the catalog's state: a catalog
+    // failure must not hide the reader's own books.
+    when (val content = catalogState.content) {
+        ContentState.RESULTS -> {
+            LoadMoreEffect(gridState = gridState, onLoadMore = onLoadNextItems)
+            BookGrid(
+                books = catalogState.items,
+                gridState = gridState,
+                onOpenBook = onOpenBook,
+                header = header,
+                footer = {
+                    AppendFooter(
+                        isAppending = catalogState.isAppending,
+                        failure = catalogState.appendFailure,
+                        onRetry = onRetry
+                    )
+                }
+            )
         }
-    }
 
-    AnimatedVisibility(
-        visible = !allBooksState.isLoading && allBooksState.error != null,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        Column {
+        else -> Column {
             Box(modifier = Modifier.padding(horizontal = 8.dp)) { header() }
-            NetworkError(onRetryClicked = { onRetryClicked() })
-        }
-    }
-
-    AnimatedVisibility(
-        visible = !allBooksState.isLoading || allBooksState.error == null,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        LazyVerticalGrid(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(start = 8.dp, end = 8.dp),
-            columns = GridCells.Adaptive(295.dp)
-        ) {
-            item(span = { GridItemSpan(maxLineSpan) }) { header() }
-            items(allBooksState.items.size) { i ->
-                val item = allBooksState.items[i]
-                if (networkStatus == NetworkObserver.Status.Available
-                    && i >= allBooksState.items.size - 1
-                    && !allBooksState.endReached
-                    && !allBooksState.isLoading
-                ) {
-                    onLoadNextItems()
-                }
-                Box(
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    BookItemCard(
-                        title = item.title,
-                        author = BookUtils.getAuthorsAsString(item.authors),
-                        language = BookUtils.getLanguagesAsString(item.languages),
-                        subjects = BookUtils.getSubjectsAsString(
-                            item.subjects, 3
-                        ),
-                        coverImageUrl = item.formats.imagejpeg
-                    ) {
-                        navController.navigate(
-                            Screens.BookDetailScreen.withBookId(
-                                item.id.toString()
-                            )
-                        )
-                    }
-                }
-            }
-
-            item {
-                AnimatedVisibility(
-                    visible = allBooksState.isLoading,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        ProgressDots()
-                    }
-                }
+            when (content) {
+                ContentState.LOADING -> BookItemShimmerLoader()
+                ContentState.EMPTY -> NoBooksAvailable(
+                    text = stringResource(id = R.string.catalog_empty)
+                )
+                else -> LoadFailureState(failure = catalogState.failure!!, onRetry = onRetry)
             }
         }
     }
 }
 
 @Composable
-private fun SearchBookList(searchBarState: SearchBarState, navController: NavController) {
+private fun SearchBookList(
+    searchState: SearchState<Book>,
+    gridState: LazyGridState,
+    onRetry: () -> Unit,
+    onOpenBook: (Book) -> Unit
+) {
+    when (searchState.content) {
+        ContentState.LOADING -> Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            ProgressDots()
+        }
+
+        ContentState.RESULTS -> BookGrid(
+            books = searchState.results,
+            gridState = gridState,
+            onOpenBook = onOpenBook
+        )
+
+        ContentState.EMPTY -> NoBooksAvailable(
+            text = stringResource(id = R.string.search_empty, searchState.query)
+        )
+
+        ContentState.OFFLINE, ContentState.ERROR ->
+            LoadFailureState(failure = searchState.failure!!, onRetry = onRetry)
+    }
+}
+
+@Composable
+private fun BookGrid(
+    books: List<Book>,
+    gridState: LazyGridState,
+    onOpenBook: (Book) -> Unit,
+    header: (@Composable () -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null
+) {
     LazyVerticalGrid(
+        state = gridState,
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 8.dp, end = 8.dp),
         columns = GridCells.Adaptive(295.dp)
     ) {
-        if (searchBarState.isSearching) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    ProgressDots()
-                }
-            }
+        if (header != null) {
+            item(key = "header", span = { GridItemSpan(maxLineSpan) }) { header() }
         }
-
-        items(searchBarState.searchResults.size) { i ->
-            val item = searchBarState.searchResults[i]
+        items(books, key = { it.id }) { item ->
             Box(
                 modifier = Modifier
                     .padding(4.dp)
@@ -407,18 +382,15 @@ private fun SearchBookList(searchBarState: SearchBarState, navController: NavCon
                     title = item.title,
                     author = BookUtils.getAuthorsAsString(item.authors),
                     language = BookUtils.getLanguagesAsString(item.languages),
-                    subjects = BookUtils.getSubjectsAsString(
-                        item.subjects, 3
-                    ),
+                    subjects = BookUtils.getSubjectsAsString(item.subjects, 3),
                     coverImageUrl = item.formats.imagejpeg
                 ) {
-                    navController.navigate(
-                        Screens.BookDetailScreen.withBookId(
-                            item.id.toString()
-                        )
-                    )
+                    onOpenBook(item)
                 }
             }
+        }
+        if (footer != null) {
+            item(key = "footer", span = { GridItemSpan(maxLineSpan) }) { footer() }
         }
     }
 }
@@ -497,7 +469,7 @@ private fun SearchAppBar(
             onValueChange = { onInputValueChange(it) },
             placeholder = {
                 Text(
-                    text = "Search...",
+                    text = stringResource(id = R.string.home_search_placeholder),
                     fontFamily = interFont,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                 )
@@ -505,7 +477,7 @@ private fun SearchAppBar(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Filled.Search,
-                    contentDescription = "Search Icon",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onBackground.copy(
                         alpha = 0.5f
                     )
@@ -521,7 +493,7 @@ private fun SearchAppBar(
                 }) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "Close Icon",
+                        contentDescription = stringResource(id = R.string.home_search_close_desc),
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
                 }

@@ -109,7 +109,7 @@ fun NavGraph(
                 } else bottomNavPopEnter()
             },
             popExitTransition = { bottomNavPopExit() }) {
-            CategoriesScreen(navController)
+            CategoriesScreen(navController, networkStatus)
         }
 
         /** Category Detail Screen */

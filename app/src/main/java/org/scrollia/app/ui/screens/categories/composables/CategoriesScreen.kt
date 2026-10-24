@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -47,8 +49,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import org.scrollia.app.R
+import org.scrollia.app.helpers.ContentState
+import org.scrollia.app.helpers.NetworkObserver
 import org.scrollia.app.helpers.weakHapticFeedback
 import org.scrollia.app.ui.common.CustomTopAppBar
+import org.scrollia.app.ui.common.LoadFailureState
+import org.scrollia.app.ui.common.NoBooksAvailable
 import org.scrollia.app.ui.common.ProgressDots
 import org.scrollia.app.ui.navigation.Screens
 import org.scrollia.app.ui.screens.categories.viewmodels.CategoriesViewModel
@@ -57,9 +63,14 @@ import org.scrollia.app.ui.theme.interFont
 
 
 @Composable
-fun CategoriesScreen(navController: NavController) {
+fun CategoriesScreen(navController: NavController, networkStatus: NetworkObserver.Status) {
     val viewModel: CategoriesViewModel = hiltViewModel()
     val state = viewModel.state
+    val gridState = rememberLazyGridState()
+
+    LaunchedEffect(networkStatus) {
+        if (networkStatus == NetworkObserver.Status.Available) viewModel.retryAfterReconnect()
+    }
 
     Scaffold(
         modifier = Modifier
@@ -77,21 +88,27 @@ fun CategoriesScreen(navController: NavController) {
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues)
             ) {
-                // Only show categories that have books when the backend
-                // reports counts; fall back to the full static list when the
-                // endpoint is unavailable.
-                val categories = state.categories?.let { infos ->
-                    BookCategories.ALL.filter { cat ->
-                        infos.any { it.category == cat.category && it.count > 0 }
-                    }
-                }
-                if (categories == null && state.isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                when (state.content) {
+                    ContentState.LOADING -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         ProgressDots()
                     }
-                } else {
-                    val items = categories ?: BookCategories.ALL.asList()
+
+                    ContentState.EMPTY -> NoBooksAvailable(
+                        text = stringResource(id = R.string.categories_empty)
+                    )
+
+                    ContentState.OFFLINE, ContentState.ERROR -> LoadFailureState(
+                        failure = state.failure!!,
+                        onRetry = { viewModel.retry() }
+                    )
+
+                    ContentState.RESULTS -> {
+                    val items = state.categories
                     LazyVerticalGrid(
+                        state = gridState,
                         columns = GridCells.Adaptive(168.dp),
                         modifier = Modifier
                             .fillMaxSize()
@@ -110,6 +127,7 @@ fun CategoriesScreen(navController: NavController) {
                             }
                         },
                     )
+                    }
                 }
             }
         })
@@ -154,5 +172,5 @@ private fun CategoriesItem(category: String, onClick: () -> Unit) {
 @Composable
 @Preview(showBackground = true)
 fun CategoriesScreenPreview() {
-    CategoriesScreen(rememberNavController())
+    CategoriesScreen(rememberNavController(), NetworkObserver.Status.Available)
 }

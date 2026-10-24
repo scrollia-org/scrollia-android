@@ -127,13 +127,9 @@ private fun BottomBar(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 screens.forEach { screen ->
-                    CustomBottomNavigationItem(
-                        screen = screen, isSelected = screen.route == currentDestination?.route
-                    ) {
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.findStartDestination().id)
-                            launchSingleTop = true
-                        }
+                    val isSelected = screen.route == currentDestination?.route
+                    CustomBottomNavigationItem(screen = screen, isSelected = isSelected) {
+                        if (!isSelected) navController.navigateToTab(screen.route)
                     }
                 }
             }
@@ -192,10 +188,20 @@ private fun HandleShortcutIntent(intent: Intent, navController: NavController) {
             return
         }
         if (intent.getBooleanExtra(MainViewModel.LC_SC_BOOK_LIBRARY, false)) {
-            navController.navigate(BottomBarScreen.Library.route) {
-                popUpTo(navController.graph.findStartDestination().id)
-                launchSingleTop = true
-            }
+            navController.navigateToTab(BottomBarScreen.Library.route)
         }
+    }
+}
+
+/**
+ * Standard bottom-tab navigation: one copy of each tab above the start tab, each tab's state
+ * (screen, view model, scroll, inner back stack) saved when leaving and restored on return.
+ * Back from another tab's root therefore returns to the start tab (Home or Library).
+ */
+fun NavController.navigateToTab(route: String) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }
