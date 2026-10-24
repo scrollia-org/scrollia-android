@@ -126,6 +126,19 @@ class EpubParserTest {
         assertThat(epubBook.coverImage!!.byteCount).isGreaterThan(0)
     }
 
+    @Test
+    fun testPeekCoverImage() {
+        val file = File.createTempFile("peek_cover", ".epub")
+        try {
+            file.writeBytes(testEpubFile)
+            val cover = epubParser.peekCoverImage(file.absolutePath)
+            assertThat(cover).isNotNull()
+            assertThat(cover!!.size).isEqualTo(1024)
+        } finally {
+            file.delete()
+        }
+    }
+
     // Creates a sample EPUB file with two chapters and two images
     private fun createSampleEpubFile(hasToc: Boolean): ByteArray {
         val containerXml = """

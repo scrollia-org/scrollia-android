@@ -218,6 +218,26 @@ class EpubParser {
         return document.metadata.selectFirstChildTag("dc:language")?.textContent ?: "en"
     }
 
+    /**
+     * Reads the raw cover image bytes without parsing chapters. Supports the EPUB 2
+     * `<meta name="cover">` and EPUB 3 `properties="cover-image"` conventions.
+     *
+     * @param filePath The file path of the EPUB file.
+     * @return The cover image bytes, or null if the book declares no cover.
+     */
+    fun peekCoverImage(filePath: String): ByteArray? {
+        val files = getZipFilesFromFile(filePath)
+        val document = createEpubDocument(files)
+        val hrefRootPath = File(document.opfFilePath).parentFile ?: File("")
+        val manifestItems = getManifestItems(document.manifest, hrefRootPath)
+        val coverItem = manifestItems[getMetadataCoverId(document.metadata)]
+            ?: manifestItems.values.firstOrNull { it.properties.contains("cover-image") }
+            ?: return null
+        return ZipFile(filePath).use { zipFile ->
+            zipFile.getEntry(coverItem.absPath)?.let { zipFile.getInputStream(it).readBytes() }
+        }
+    }
+
 
     /**
      * Get all of the files located in the EPUB archive.
