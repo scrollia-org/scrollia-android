@@ -24,7 +24,9 @@ import org.scrollia.app.api.models.ExtraInfo
 import org.scrollia.app.helpers.PreferenceUtil
 import org.scrollia.app.helpers.book.BookLanguage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
@@ -145,55 +147,54 @@ class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
     }
 
     /**
-     * Fetches the list of book categories with their book counts from the
-     * Scrollia backend. Returns null if the endpoint is missing or fails
-     * (e.g. older backends), so callers can fall back to the built-in
-     * static category list.
+     * Fetches the list of book categories with their book counts from the Scrollia backend.
+     * Failures keep their kind: [IOException] when the server could not be reached,
+     * [HttpStatusException] (404 on backends without the endpoint) or
+     * [MalformedResponseException] otherwise.
      */
-    suspend fun getCategories(): List<CategoryInfo>? = suspendCoroutine { continuation ->
+    suspend fun getCategories(): Result<List<CategoryInfo>> {
         val request = Request.Builder().get().url(categoriesApiUrl).build()
-        okHttpClient.newCall(request).enqueue(object : Callback {
+        return makeApiRequest(request, ListSerializer(CategoryInfo.serializer()))
+    }
+
+    private suspend fun makeApiRequest(request: Request): Result<BookSet> =
+        makeApiRequest(request, BookSet.serializer()) { response, bookSet ->
+            bookSet.copy(isCached = response.cacheResponse != null)
+        }
+
+    /** Cancelling the caller cancels the HTTP call. */
+    private suspend fun <T> makeApiRequest(
+        request: Request,
+        serializer: KSerializer<T>,
+        decorate: (Response, T) -> T = { _, value -> value }
+    ): Result<T> = suspendCancellableCoroutine { continuation ->
+        val call = okHttpClient.newCall(request)
+        continuation.invokeOnCancellation { call.cancel() }
+        call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                continuation.resume(null)
+                if (continuation.isActive) continuation.resume(Result.failure(e))
             }
 
             override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    val categories = runCatching {
-                        if (!it.isSuccessful) throw IOException("HTTP ${it.code}")
-                        json.decodeFromString(
-                            ListSerializer(CategoryInfo.serializer()),
-                            it.body!!.string()
-                        )
-                    }.getOrNull()
-                    continuation.resume(categories)
+                val result = response.use {
+                    if (!it.isSuccessful) {
+                        Result.failure(HttpStatusException(it.code))
+                    } else {
+                        try {
+                            Result.success(
+                                decorate(it, json.decodeFromString(serializer, it.body.string()))
+                            )
+                        } catch (exc: IOException) {
+                            Result.failure(exc)
+                        } catch (exc: Exception) {
+                            Result.failure(MalformedResponseException(exc))
+                        }
+                    }
                 }
+                if (continuation.isActive) continuation.resume(result)
             }
         })
     }
-
-    // Helper function to make API requests.
-    private suspend fun makeApiRequest(request: Request): Result<BookSet> =
-        suspendCoroutine { continuation ->
-            okHttpClient.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    continuation.resume(Result.failure(exception = e))
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    response.use {
-                        continuation.resume(
-                            Result.success(
-                                json.decodeFromString(
-                                    BookSet.serializer(),
-                                    response.body!!.string()
-                                ).copy(isCached = response.cacheResponse != null)
-                            )
-                        )
-                    }
-                }
-            })
-        }
 
     // Fetches extra info (cover image, page count, description) for a book
     // from the Scrollia backend, which proxies/enriches metadata server-side

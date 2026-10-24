@@ -24,17 +24,19 @@ import androidx.lifecycle.viewModelScope
 import org.scrollia.app.api.BookAPI
 import org.scrollia.app.api.models.Book
 import org.scrollia.app.api.models.CategoryInfo
-import org.scrollia.app.helpers.Constants
-import org.scrollia.app.helpers.NetworkObserver
+import org.scrollia.app.helpers.PageResult
+import org.scrollia.app.helpers.PagedState
 import org.scrollia.app.helpers.Paginator
 import org.scrollia.app.helpers.PreferenceUtil
+import org.scrollia.app.helpers.SearchController
+import org.scrollia.app.helpers.SearchState
 import org.scrollia.app.helpers.book.BookCoverCache
 import org.scrollia.app.helpers.book.BookLanguage
 import org.scrollia.app.database.library.LibraryDao
 import org.scrollia.app.database.progress.ProgressDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -44,29 +46,10 @@ import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
-data class AllBooksState(
-    val isLoading: Boolean = false,
-    val items: List<Book> = emptyList(),
-    val error: String? = null,
-    val endReached: Boolean = false,
-    val page: Long = 1L
-)
-
-data class SearchBarState(
-    val searchText: String = "",
-    val isSearchBarVisible: Boolean = false,
-    val isSortMenuVisible: Boolean = false,
-    val isSearching: Boolean = false,
-    val searchResults: List<Book> = emptyList()
-)
-
 sealed class UserAction {
     data object SearchIconClicked : UserAction()
     data object CloseIconClicked : UserAction()
-    data class TextFieldInput(
-        val text: String,
-        val networkStatus: NetworkObserver.Status
-    ) : UserAction()
+    data class TextFieldInput(val text: String) : UserAction()
 
     data class ApplyFilters(
         val language: BookLanguage,
@@ -87,9 +70,6 @@ class HomeViewModel @Inject constructor(
     progressDao: ProgressDao,
     private val bookCoverCache: BookCoverCache,
 ) : ViewModel() {
-    var allBooksState by mutableStateOf(AllBooksState())
-    var searchBarState by mutableStateOf(SearchBarState())
-
     private val _language: MutableState<BookLanguage> = mutableStateOf(getPreferredLanguage())
     val language: State<BookLanguage> = _language
 
@@ -111,12 +91,48 @@ class HomeViewModel @Inject constructor(
     var continueReading by mutableStateOf<List<ContinueReadingItem>>(emptyList())
         private set
 
-    private var searchJob: Job? = null
+    private val catalog = Paginator(
+        scope = viewModelScope,
+        idOf = Book::id,
+        // Sorted client-side over all loaded items (the backend has no sort params).
+        arrange = { books ->
+            when (sortOption) {
+                SortOption.TITLE -> books.sortedBy { it.title.lowercase() }
+                SortOption.AUTHOR -> books.sortedBy {
+                    it.authors.firstOrNull()?.name?.lowercase() ?: ""
+                }
+                SortOption.POPULARITY -> books
+            }
+        }
+    ) { page ->
+        // Only delay the first page, to show the shimmer instead of a flicker when Home
+        // opens straight after the welcome screen.
+        if (page == 1L) delay(400L)
+        bookAPI.getAllBooks(page, language.value, genre).map { bookSet ->
+            PageResult(
+                items = bookSet.books.filter {
+                    it.formats.applicationepubzip != null && it.id !in HIDDEN_BOOK_IDS
+                },
+                hasNext = bookSet.next != null
+            )
+        }
+    }
+
+    val catalogState: StateFlow<PagedState<Book>> = catalog.state
+
+    private val search = SearchController(scope = viewModelScope) { query ->
+        bookAPI.searchBooks(query).map { bookSet ->
+            bookSet.books.filter { it.formats.applicationepubzip != null }
+        }
+    }
+
+    val searchState: StateFlow<SearchState<Book>> = search.state
+
+    private var genresRequested = false
 
     init {
-        viewModelScope.launch {
-            genreOptions = bookAPI.getCategories()?.filter { it.count > 0 }
-        }
+        catalog.loadNext()
+        loadGenres()
         // Room flows re-emit on every progress write, so the rail is current when the user
         // comes back from the reader.
         viewModelScope.launch {
@@ -141,109 +157,50 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private val pagination = Paginator(initialPage = allBooksState.page, onLoadUpdated = {
-        allBooksState = allBooksState.copy(isLoading = it)
-    }, onRequest = { nextPage ->
-        try {
-            // Only add delay when loading first page to show shimmer effect
-            // and avoid flickering when navigating to home from welcome screen
-            // and immediately loading the first page.
-            if (nextPage == 1L) delay(400L)
-            bookAPI.getAllBooks(nextPage, language.value, genre)
-        } catch (exc: Exception) {
-            Result.failure(exc)
-        }
-    }, getNextPage = {
-        allBooksState.page + 1L
-    }, onError = {
-        allBooksState = allBooksState.copy(error = it?.localizedMessage ?: Constants.UNKNOWN_ERR)
-    }, onSuccess = { bookSet, newPage ->
+    fun loadNextItems() = catalog.loadNext()
 
-        val books = run {
-            val books =
-                bookSet.books.filter { it.formats.applicationepubzip != null } as ArrayList<Book>
-            // Ignore ...
-            val index = books.indexOfFirst { it.id == 1513 }
-            if (index != -1) {
-                books.removeAt(index)
-            }
-            books // return the list of books
-        }
+    fun retryCatalog() = catalog.retry()
 
-        // Sort client-side over all loaded items (the backend has no sort
-        // params); with the current 40-book catalog every page merges into
-        // its sorted position as the user scrolls.
-        val merged = when (sortOption) {
-            SortOption.TITLE -> (allBooksState.items + books).sortedBy { it.title.lowercase() }
-            SortOption.AUTHOR -> (allBooksState.items + books)
-                .sortedBy { it.authors.firstOrNull()?.name?.lowercase() ?: "" }
+    fun retrySearch() = search.retry()
 
-            SortOption.POPULARITY -> allBooksState.items + books
-        }
-
-        allBooksState = allBooksState.copy(
-            items = merged,
-            page = newPage,
-            endReached = books.isEmpty()
-        )
-    })
-
-    fun loadNextItems() {
-        viewModelScope.launch {
-            pagination.loadNextItems()
-        }
-    }
-
-    fun reloadItems() {
-        pagination.reset()
-        allBooksState = AllBooksState()
-        loadNextItems()
+    /**
+     * Connectivity is back: retry only what failed for lack of it (or a failed later page).
+     * Loaded items, query, filters and position are untouched.
+     */
+    fun onNetworkAvailable() {
+        catalog.retryAfterReconnect()
+        search.retryAfterReconnect()
+        if (genreOptions == null && !genresRequested) loadGenres()
     }
 
     fun onAction(userAction: UserAction) {
         when (userAction) {
-            UserAction.CloseIconClicked -> {
-                searchBarState = searchBarState.copy(isSearchBarVisible = false)
-            }
-
-            UserAction.SearchIconClicked -> {
-                searchBarState = searchBarState.copy(isSearchBarVisible = true)
-            }
-
-            is UserAction.TextFieldInput -> {
-                searchBarState = searchBarState.copy(searchText = userAction.text)
-                if (userAction.networkStatus == NetworkObserver.Status.Available) {
-                    searchJob?.cancel()
-                    searchJob = viewModelScope.launch {
-                        if (userAction.text.isNotBlank()) {
-                            searchBarState = searchBarState.copy(isSearching = true)
-                        }
-                        delay(500L)
-                        searchBooks(userAction.text)
-                    }
-                }
-            }
-
+            UserAction.CloseIconClicked -> search.close()
+            UserAction.SearchIconClicked -> search.open()
+            is UserAction.TextFieldInput -> search.onTextChange(userAction.text)
             is UserAction.ApplyFilters -> {
+                val changed = userAction.language != language.value ||
+                        userAction.genre != genre || userAction.sortOption != sortOption
+                if (!changed) return
                 _language.value = userAction.language
                 preferenceUtil.putString(
                     PreferenceUtil.PREFERRED_BOOK_LANG_STR, userAction.language.isoCode
                 )
                 genre = userAction.genre
                 sortOption = userAction.sortOption
-                reloadItems()
+                catalog.reset()
+                catalog.loadNext()
             }
         }
     }
 
-    private suspend fun searchBooks(query: String) {
-        if (query.isBlank()) return // no need to search for empty query
-        val bookSet = bookAPI.searchBooks(query)
-        val books = bookSet.getOrNull()?.books?.filter { it.formats.applicationepubzip != null }
-        searchBarState = searchBarState.copy(
-            searchResults = books ?: emptyList(),
-            isSearching = false
-        )
+    private fun loadGenres() {
+        genresRequested = true
+        viewModelScope.launch {
+            // Null hides the genre filter section.
+            genreOptions = bookAPI.getCategories().getOrNull()?.filter { it.count > 0 }
+            genresRequested = genreOptions != null
+        }
     }
 
     private fun getPreferredLanguage(): BookLanguage {
@@ -253,5 +210,10 @@ class HomeViewModel @Inject constructor(
         )
         return BookLanguage.getAllLanguages().find { it.isoCode == isoCode }
             ?: BookLanguage.AllBooks
+    }
+
+    private companion object {
+        // Books the catalog never lists.
+        val HIDDEN_BOOK_IDS = setOf(1513)
     }
 }

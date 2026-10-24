@@ -24,15 +24,50 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.scrollia.app.api.BookAPI
+import org.scrollia.app.api.HttpStatusException
 import org.scrollia.app.api.models.CategoryInfo
+import org.scrollia.app.helpers.ContentState
+import org.scrollia.app.helpers.LoadFailure
+import org.scrollia.app.ui.screens.categories.composables.BookCategories
 import javax.inject.Inject
 
 data class CategoriesState(
     val isLoading: Boolean = true,
-    // Null when the /categories endpoint is unavailable; the UI then falls
-    // back to the built-in static category list.
-    val categories: List<CategoryInfo>? = null
-)
+    val categories: List<BookCategories> = emptyList(),
+    val failure: LoadFailure? = null
+) {
+    val content: ContentState
+        get() = when {
+            categories.isNotEmpty() -> ContentState.RESULTS
+            failure != null -> failure.contentState
+            isLoading -> ContentState.LOADING
+            else -> ContentState.EMPTY
+        }
+
+    companion object {
+        /**
+         * The categories that have books. A backend without `/categories` (HTTP 404) is the one
+         * deliberate fallback to the built-in list; every other failure is reported as such.
+         */
+        fun from(result: Result<List<CategoryInfo>>): CategoriesState = result.fold(
+            onSuccess = { infos ->
+                CategoriesState(
+                    isLoading = false,
+                    categories = BookCategories.ALL.filter { category ->
+                        infos.any { it.category == category.category && it.count > 0 }
+                    }
+                )
+            },
+            onFailure = { error ->
+                if (error is HttpStatusException && error.code == 404) {
+                    CategoriesState(isLoading = false, categories = BookCategories.ALL.asList())
+                } else {
+                    CategoriesState(isLoading = false, failure = LoadFailure.of(error))
+                }
+            }
+        )
+    }
+}
 
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(private val booksApi: BookAPI) : ViewModel() {
@@ -41,8 +76,22 @@ class CategoriesViewModel @Inject constructor(private val booksApi: BookAPI) : V
         private set
 
     init {
+        load()
+    }
+
+    fun retry() {
+        if (state.isLoading || state.failure == null) return
+        load()
+    }
+
+    fun retryAfterReconnect() {
+        if (state.failure == LoadFailure.OFFLINE) retry()
+    }
+
+    private fun load() {
+        state = state.copy(isLoading = true, failure = null)
         viewModelScope.launch {
-            state = CategoriesState(isLoading = false, categories = booksApi.getCategories())
+            state = CategoriesState.from(booksApi.getCategories())
         }
     }
 }

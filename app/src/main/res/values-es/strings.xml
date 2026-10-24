@@ -21,6 +21,15 @@
     <!-- Home screen. -->
     <string name="home_header">Todos los libros</string>
     <string name="home_search_icon_desc">Buscar libros</string>
+    <string name="state_offline">Sin conexión. Conéctate a internet e inténtalo de nuevo.</string>
+    <string name="state_error">Algo falló al cargar. Inténtalo de nuevo.</string>
+    <string name="append_failed_offline">No se pudieron cargar más libros: sin conexión.</string>
+    <string name="append_failed_error">No se pudieron cargar más libros.</string>
+    <string name="catalog_empty">Ningún libro coincide con estos filtros.</string>
+    <string name="search_empty">No se encontraron libros para «%1$s».</string>
+    <string name="categories_empty">Todavía no hay categorías.</string>
+    <string name="home_search_placeholder">Buscar…</string>
+    <string name="home_search_close_desc">Borrar o cerrar la búsqueda</string>
     <string name="language_menu_title">Buscar por idioma</string>
     <string name="filter_icon_desc">Filtrar libros</string>
     <string name="filter_sheet_title">Filtros</string>
