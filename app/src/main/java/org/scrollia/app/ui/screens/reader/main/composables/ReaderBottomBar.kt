@@ -22,21 +22,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
@@ -47,7 +44,6 @@ import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderFont
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderTheme
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.theme.interFont
-import kotlinx.coroutines.launch
 
 private enum class ControlButtonType { INCREASE, DECREASE }
 
@@ -55,7 +51,6 @@ private enum class ControlButtonType { INCREASE, DECREASE }
 fun ReaderBottomBar(
     state: ReaderScreenState,
     showFontDialog: MutableState<Boolean>,
-    snackBarHostState: SnackbarHostState,
     onFontSizeChanged: (newValue: Int) -> Unit,
     onLineHeightChanged: (newValue: Float) -> Unit,
     onReaderThemeChanged: (newValue: ReaderTheme) -> Unit
@@ -71,14 +66,12 @@ fun ReaderBottomBar(
         TextScaleControls(
             fontSize = state.fontSize,
             textColor = state.readerTheme.textColor,
-            snackBarHostState = snackBarHostState,
             onFontSizeChanged = onFontSizeChanged
         )
         Spacer(modifier = Modifier.height(16.dp))
         LineHeightControls(
             lineHeight = state.lineHeight,
             textColor = state.readerTheme.textColor,
-            snackBarHostState = snackBarHostState,
             onLineHeightChanged = onLineHeightChanged
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -141,7 +134,6 @@ private fun ReaderThemeControls(
 private fun TextScaleControls(
     fontSize: Int,
     textColor: Color,
-    snackBarHostState: SnackbarHostState,
     onFontSizeChanged: (newValue: Int) -> Unit
 ) {
     Row(
@@ -152,7 +144,6 @@ private fun TextScaleControls(
         ReaderFontSizeButton(
             buttonType = ControlButtonType.DECREASE,
             fontSize = fontSize,
-            snackBarHostState = snackBarHostState,
             onFontSizeChanged = onFontSizeChanged
         )
         Box(
@@ -174,7 +165,6 @@ private fun TextScaleControls(
         ReaderFontSizeButton(
             buttonType = ControlButtonType.INCREASE,
             fontSize = fontSize,
-            snackBarHostState = snackBarHostState,
             onFontSizeChanged = onFontSizeChanged
         )
     }
@@ -184,7 +174,6 @@ private fun TextScaleControls(
 private fun LineHeightControls(
     lineHeight: Float,
     textColor: Color,
-    snackBarHostState: SnackbarHostState,
     onLineHeightChanged: (newValue: Float) -> Unit
 ) {
     Row(
@@ -195,7 +184,6 @@ private fun LineHeightControls(
         ReaderLineHeightButton(
             buttonType = ControlButtonType.DECREASE,
             lineHeight = lineHeight,
-            snackBarHostState = snackBarHostState,
             onLineHeightChanged = onLineHeightChanged
         )
         Box(
@@ -217,7 +205,6 @@ private fun LineHeightControls(
         ReaderLineHeightButton(
             buttonType = ControlButtonType.INCREASE,
             lineHeight = lineHeight,
-            snackBarHostState = snackBarHostState,
             onLineHeightChanged = onLineHeightChanged
         )
     }
@@ -256,12 +243,8 @@ private fun FontSelectionButton(
 private fun ReaderFontSizeButton(
     buttonType: ControlButtonType,
     fontSize: Int,
-    snackBarHostState: SnackbarHostState,
     onFontSizeChanged: (newValue: Int) -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
-    val context = LocalContext.current
     val (iconRes, adjustment) = remember(buttonType) {
         when (buttonType) {
             ControlButtonType.DECREASE -> Pair(R.drawable.ic_reader_text_minus, -5)
@@ -270,32 +253,8 @@ private fun ReaderFontSizeButton(
     }
 
     val callback: () -> Unit = {
-        val newSize = fontSize + adjustment
-        when {
-            newSize < 50 -> {
-                coroutineScope.launch {
-                    snackBarHostState.showSnackbar(
-                        context.getString(R.string.reader_min_font_size_reached),
-                        null
-                    )
-                }
-            }
-
-            newSize > 200 -> {
-                coroutineScope.launch {
-                    snackBarHostState.showSnackbar(
-                        context.getString(R.string.reader_max_font_size_reached),
-                        null
-                    )
-                }
-            }
-
-            else -> {
-                coroutineScope.launch {
-                    onFontSizeChanged(newSize)
-                }
-            }
-        }
+        val newSize = (fontSize + adjustment).coerceIn(50, 200)
+        if (newSize != fontSize) onFontSizeChanged(newSize)
     }
 
     FilledTonalButton(
@@ -315,12 +274,8 @@ private fun ReaderFontSizeButton(
 private fun ReaderLineHeightButton(
     buttonType: ControlButtonType,
     lineHeight: Float,
-    snackBarHostState: SnackbarHostState,
     onLineHeightChanged: (newValue: Float) -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
-    val context = LocalContext.current
     val (iconRes, adjustment) = remember(buttonType) {
         when (buttonType) {
             ControlButtonType.DECREASE -> Pair(R.drawable.ic_reader_line_height_minus, -0.1f)
@@ -329,32 +284,8 @@ private fun ReaderLineHeightButton(
     }
 
     val callback: () -> Unit = {
-        val newValue = lineHeight + adjustment
-        when {
-            newValue < 1.0f -> {
-                coroutineScope.launch {
-                    snackBarHostState.showSnackbar(
-                        context.getString(R.string.reader_min_line_height_reached),
-                        null
-                    )
-                }
-            }
-
-            newValue > 3.0f -> {
-                coroutineScope.launch {
-                    snackBarHostState.showSnackbar(
-                        context.getString(R.string.reader_max_line_height_reached),
-                        null
-                    )
-                }
-            }
-
-            else -> {
-                coroutineScope.launch {
-                    onLineHeightChanged(newValue)
-                }
-            }
-        }
+        val newValue = (lineHeight + adjustment).coerceIn(1.0f, 3.0f)
+        if (newValue != lineHeight) onLineHeightChanged(newValue)
     }
 
     FilledTonalButton(

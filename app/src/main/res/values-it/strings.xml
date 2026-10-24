@@ -64,8 +64,6 @@
     <string name="start_reading_button">Inizia</string>
     <string name="continue_reading_button">Riprendi</string>
     <!--Reader Screen -->
-    <string name="reader_max_font_size_reached">Spiacenti, non si può andare più in alto!</string>
-    <string name="reader_min_font_size_reached">Spiacenti, non si può andare più in basso!</string>
     <string name="reader_font_style_chooser">Cambia Font</string>
     <string name="reader_chapter_list_title">Capitoli</string>
     <!-- Text selection -->

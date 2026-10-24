@@ -64,8 +64,6 @@
     <string name="start_reading_button">শুরু</string>
     <string name="continue_reading_button">চালিয়ে যান</string>
     <!--Reader Screen -->
-    <string name="reader_max_font_size_reached">দুঃখিত, এর চেয়ে বাড়ানো যাবে না!</string>
-    <string name="reader_min_font_size_reached">দুঃখিত, এর চেয়ে কমানো যাবে না!</string>
     <string name="reader_font_style_chooser">ফন্ট স্টাইল পরিবর্তন করুন</string>
     <string name="reader_chapter_list_title">অধ্যায়</string>
     <!-- Text selection -->
