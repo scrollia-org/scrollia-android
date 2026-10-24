@@ -18,6 +18,7 @@
 package org.scrollia.app.ui.screens.reader.main.viewmodel
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,6 +30,7 @@ import org.scrollia.app.epub.models.EpubBook
 import org.scrollia.app.epub.models.EpubChapter
 import org.scrollia.app.helpers.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -51,6 +53,7 @@ data class ReaderScreenState(
     // Screen state
     val isLoading: Boolean = true,
     val shouldShowLoader: Boolean = false,
+    val hasError: Boolean = false,
     val showReaderMenu: Boolean = false,
     val currentChapterIndex: Int = 0,
     val currentChapter: EpubChapter = EpubChapter("", "", "", emptyList()),
@@ -172,79 +175,78 @@ class ReaderViewModel @Inject constructor(
      */
     fun loadEpubBook(libraryItemId: Int, startChapterIndex: Int? = null) {
         viewModelScope.launch(Dispatchers.IO) {
-            val libraryItem = libraryDao.getItemById(libraryItemId)
-            _state.update { it.copy(shouldShowLoader = true) }
-            val readerData = progressDao.getReaderData(libraryItemId)
-
-            // Gutenberg for some reason don't include proper navMap for chinese books
-            // in toc file, so we need to parse the book based on spine, instead of toc.
-            // This is special case for Chinese books.
-            val isInternalChineseBook =
-                !libraryItem!!.isImported && epubParser.peekLanguage(libraryItem.filePath) == "zh"
-            val shouldUseToc = !isInternalChineseBook
-
-            val epubBook = epubParser.createEpubBook(libraryItem.filePath, shouldUseToc)
-
-            val lastIndex = (epubBook.chapters.size - 1).coerceAtLeast(0)
-            val restoreTarget = when {
-                startChapterIndex != null -> ReaderAnchor(startChapterIndex.coerceIn(0, lastIndex), 0)
-                readerData != null -> ReaderAnchor(
-                    readerData.lastChapterIndex.coerceIn(0, lastIndex),
-                    readerData.lastChapterItemIndex
+            _state.update { it.copy(shouldShowLoader = true, hasError = false) }
+            try {
+                val libraryItem = libraryDao.getItemById(libraryItemId)
+                    ?: throw IllegalStateException("Library item not found")
+                val readerData = progressDao.getReaderData(libraryItemId)
+                val isInternalChineseBook =
+                    !libraryItem.isImported && epubParser.peekLanguage(libraryItem.filePath) == "zh"
+                val epubBook = epubParser.createEpubBook(
+                    libraryItem.filePath,
+                    shouldUseToc = !isInternalChineseBook
                 )
-
-                else -> null
-            }
-            val initialChapterIndex = restoreTarget?.chapterIndex ?: 0
-            _state.update {
-                it.copy(
-                    epubBook = epubBook,
-                    chapters = epubBook.chapters,
-                    pendingRestore = restoreTarget,
-                    currentChapterIndex = initialChapterIndex
-                )
-            }
-            // Load the initial chapter
-            loadChapterBody(initialChapterIndex)
-
-            // Added some delay to avoid choppy animation.
-            delay(200L)
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    shouldShowLoader = false
-                )
-            }
-        }
-    }
-
-    // Load epub book from file stream, used when opening books via file picker/intent
-    fun loadEpubBookExternal(fileStream: FileInputStream) {
-        viewModelScope.launch(Dispatchers.IO) {
-            fileStream.use { fis ->
-                // parse and create epub book
-                val epubBook = epubParser.createEpubBook(fis, shouldUseToc = true)
+                val lastIndex = (epubBook.chapters.size - 1).coerceAtLeast(0)
+                val restoreTarget = when {
+                    startChapterIndex != null -> ReaderAnchor(
+                        startChapterIndex.coerceIn(0, lastIndex), 0
+                    )
+                    readerData != null -> ReaderAnchor(
+                        readerData.lastChapterIndex.coerceIn(0, lastIndex),
+                        readerData.lastChapterItemIndex
+                    )
+                    else -> null
+                }
+                val initialChapterIndex = restoreTarget?.chapterIndex ?: 0
                 _state.update {
                     it.copy(
                         epubBook = epubBook,
                         chapters = epubBook.chapters,
-                        pendingRestore = null,
-                        currentChapterIndex = 0
+                        pendingRestore = restoreTarget,
+                        currentChapterIndex = initialChapterIndex
                     )
                 }
-                // Load the initial chapter
-                loadChapterBody(0)
-
-                // Added some delay to avoid choppy animation.
+                loadChapterBody(initialChapterIndex)
                 delay(200L)
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        shouldShowLoader = false
-                    )
-                }
+                _state.update { it.copy(isLoading = false, shouldShowLoader = false) }
+            } catch (exc: Exception) {
+                reportLoadError("Could not open library book", exc)
             }
         }
+    }
+
+    fun loadEpubBookExternal(fileStream: FileInputStream) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(shouldShowLoader = true, hasError = false) }
+            try {
+                fileStream.use { fis ->
+                    val epubBook = epubParser.createEpubBook(fis, shouldUseToc = true)
+                    _state.update {
+                        it.copy(
+                            epubBook = epubBook,
+                            chapters = epubBook.chapters,
+                            pendingRestore = null,
+                            currentChapterIndex = 0
+                        )
+                    }
+                    loadChapterBody(0)
+                    delay(200L)
+                    _state.update { it.copy(isLoading = false, shouldShowLoader = false) }
+                }
+            } catch (exc: Exception) {
+                reportLoadError("Could not open external book", exc)
+            }
+        }
+    }
+
+    fun showLoadError() {
+        _state.update { it.copy(isLoading = false, shouldShowLoader = false, hasError = true) }
+    }
+
+    private fun reportLoadError(message: String, exc: Exception) {
+        if (exc is CancellationException) throw exc
+        Log.e("ReaderViewModel", message, exc)
+        showLoadError()
     }
 
     fun loadChapterBody(index: Int) {
@@ -260,10 +262,12 @@ class ReaderViewModel @Inject constructor(
                 _state.update {
                     it.copy(loadedChapters = it.loadedChapters + (chapter.chapterId to content))
                 }
+                if (wantedPageChapters.remove(index)) requestPages(index)
+            } catch (exc: Exception) {
+                reportLoadError("Could not load chapter", exc)
             } finally {
                 loadingChapterIds.remove(chapter.chapterId)
             }
-            if (wantedPageChapters.remove(index)) requestPages(index)
         }
     }
 
@@ -280,6 +284,9 @@ class ReaderViewModel @Inject constructor(
                         it.copy(loadedImages = it.loadedImages + (imagePath to data))
                     }
                 }
+            } catch (exc: Exception) {
+                if (exc is CancellationException) throw exc
+                Log.e("ReaderViewModel", "Could not load EPUB image", exc)
             } finally {
                 loadingImagePaths.remove(imagePath)
             }
@@ -372,6 +379,8 @@ class ReaderViewModel @Inject constructor(
                 )
                 pageCache[key] = pages
                 publishPages(environment, chapterIndex, pages)
+            } catch (exc: Exception) {
+                reportLoadError("Could not paginate chapter", exc)
             } finally {
                 paginatingKeys.remove(key)
             }

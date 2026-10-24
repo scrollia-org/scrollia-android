@@ -20,6 +20,7 @@ package org.scrollia.app.di
 import android.content.Context
 import org.scrollia.app.api.BookAPI
 import org.scrollia.app.database.ScrolliaDatabase
+import org.scrollia.app.database.library.LibraryDao
 import org.scrollia.app.epub.EpubParser
 import org.scrollia.app.helpers.PreferenceUtil
 import org.scrollia.app.helpers.book.BookCoverCache
@@ -68,7 +69,10 @@ class MainModule {
 
     @Singleton
     @Provides
-    fun provideBookDownloader(@ApplicationContext context: Context) = BookDownloader(context)
+    fun provideBookDownloader(
+        @ApplicationContext context: Context,
+        libraryDao: LibraryDao
+    ) = BookDownloader(context, libraryDao)
 
     @Singleton
     @Provides

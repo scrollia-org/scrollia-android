@@ -238,50 +238,30 @@ private fun BookDetailContents(
             }
         }
         var buttonText by remember { mutableStateOf("") }
-
-        // Update button text based on download status. Re-runs when the
-        // selected edition (or its library row) changes.
-        LaunchedEffect(state.bookLibraryItem, displayBook.id) {
-            buttonText = if (viewModel.bookDownloader.isBookCurrentlyDownloading(displayBook.id)) {
-                context.getString(R.string.cancel)
-            } else {
-                when (state.bookLibraryItem) {
-                    null -> context.getString(R.string.download_book_button)
-                    else -> context.getString(R.string.read_book_button)
-                }
-            }
-        }
-
         var progressState by remember { mutableFloatStateOf(0f) }
         var showProgressBar by remember { mutableStateOf(false) }
+        val downloads by viewModel.bookDownloader.downloads.collectAsState()
+        val downloadInfo = downloads[displayBook.id]
 
-        // Callable which updates book details screen button.
-        val updateBtnText: (Int?) -> Unit = { downloadStatus ->
-            buttonText = when (downloadStatus) {
-                DownloadManager.STATUS_RUNNING -> {
-                    showProgressBar = true
-                    context.getString(R.string.cancel)
-                }
-
-                DownloadManager.STATUS_SUCCESSFUL -> {
-                    showProgressBar = false
-                    context.getString(R.string.read_book_button)
-                }
-
-                else -> {
-                    showProgressBar = false
-                    context.getString(R.string.download_book_button)
-                }
-            }
+        LaunchedEffect(displayBook.id, downloadInfo?.status) {
+            viewModel.reFetchLibraryItem(displayBook.id) {}
         }
 
-        // Check if this book is in downloadQueue.
-        if (viewModel.bookDownloader.isBookCurrentlyDownloading(displayBook.id)) {
-            progressState =
-                viewModel.bookDownloader.getRunningDownload(displayBook.id)?.progress?.collectAsState()?.value!!
-            LaunchedEffect(key1 = progressState, block = {
-                updateBtnText(viewModel.bookDownloader.getRunningDownload(displayBook.id)?.status)
-            })
+        LaunchedEffect(state.bookLibraryItem, displayBook.id, downloadInfo) {
+            val active = downloadInfo?.status in listOf(
+                DownloadManager.STATUS_PENDING,
+                DownloadManager.STATUS_RUNNING,
+                DownloadManager.STATUS_PAUSED
+            )
+            showProgressBar = active
+            progressState = downloadInfo?.progress ?: 0f
+            buttonText = when {
+                active -> context.getString(R.string.cancel)
+                downloadInfo?.status == DownloadManager.STATUS_FAILED ->
+                    context.getString(R.string.download_retry)
+                state.bookLibraryItem != null -> context.getString(R.string.read_book_button)
+                else -> context.getString(R.string.download_book_button)
+            }
         }
 
         MiddleBar(
@@ -323,14 +303,10 @@ private fun BookDetailContents(
                     }
                 }
 
-                context.getString(R.string.download_book_button) -> {
+                context.getString(R.string.download_book_button),
+                context.getString(R.string.download_retry) -> {
                     view.weakHapticFeedback()
-                    viewModel.downloadBook(
-                        book = displayBook,
-                        downloadProgressListener = { downloadProgress, downloadStatus ->
-                            progressState = downloadProgress
-                            updateBtnText(downloadStatus)
-                        })
+                    viewModel.downloadBook(displayBook)
                     coroutineScope.launch {
                         snackBarHostState.showSnackbar(
                             message = context.getString(R.string.download_started),

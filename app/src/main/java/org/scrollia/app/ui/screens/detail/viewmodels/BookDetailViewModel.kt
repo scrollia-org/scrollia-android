@@ -28,7 +28,6 @@ import org.scrollia.app.database.library.LibraryItem
 import org.scrollia.app.helpers.Constants
 import org.scrollia.app.helpers.PreferenceUtil
 import org.scrollia.app.helpers.book.BookDownloader
-import org.scrollia.app.helpers.book.BookUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -102,27 +101,7 @@ class BookDetailViewModel @Inject constructor(
         }
     }
 
-    fun downloadBook(
-        book: Book, downloadProgressListener: (Float, Int) -> Unit
-    ) {
-        bookDownloader.downloadBook(
-            book = book,
-            downloadProgressListener = downloadProgressListener,
-            onDownloadSuccess = { filePath ->
-                insertIntoDB(book = book, filePath = filePath)
-                state = state.copy(bookLibraryItem = libraryDao.getItemByBookId(book.id))
-            }
-        )
-    }
-
-    private fun insertIntoDB(book: Book, filePath: String) {
-        val libraryItem = LibraryItem(
-            bookId = book.id,
-            title = book.title,
-            authors = BookUtils.getAuthorsAsString(book.authors),
-            filePath = filePath,
-            createdAt = System.currentTimeMillis()
-        )
-        libraryDao.insert(libraryItem)
+    fun downloadBook(book: Book) {
+        bookDownloader.downloadBook(book)
     }
 }

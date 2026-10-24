@@ -36,9 +36,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModelProvider
-import org.scrollia.app.R
 import org.scrollia.app.helpers.Constants
-import org.scrollia.app.helpers.toToast
 import androidx.compose.runtime.Composable
 import org.scrollia.app.ui.screens.reader.main.composables.ChaptersContent
 import org.scrollia.app.ui.screens.reader.main.composables.PagedChaptersContent
@@ -79,10 +77,7 @@ class ReaderActivity : AppCompatActivity() {
                         intent = intent,
                         viewModel = viewModel,
                         contentResolver = contentResolver,
-                        onError = {
-                            getString(R.string.error).toToast(this)
-                            finish()
-                        })
+                        onError = { viewModel.showLoadError() })
                 }
 
                 val state by viewModel.state.collectAsState()
@@ -115,6 +110,8 @@ class ReaderActivity : AppCompatActivity() {
                 ReaderScreen(
                     viewModel = viewModel,
                     onScrollToChapter = { chapterIndex -> viewModel.jumpToChapter(chapterIndex) },
+                    onRetry = { recreate() },
+                    onBack = { finish() },
                     chaptersContent = {
                         when (state.readingMode) {
                             ReadingMode.SCROLL -> ScrollReaderContent(
@@ -235,11 +232,15 @@ fun handleIntent(
         // explicitly requested.
         viewModel.loadEpubBook(libraryItemId = libraryItemId, startChapterIndex = chapterIndex)
     } else if (isExternalFile) {
-        // External book from file.
-        intent.data?.let {
-            contentResolver.openInputStream(it)?.let { ips ->
-                viewModel.loadEpubBookExternal(ips as FileInputStream)
-            }
+        val inputStream = intent.data?.let { uri ->
+            runCatching { contentResolver.openInputStream(uri) }.getOrNull()
+        }
+        val fileInputStream = inputStream as? FileInputStream
+        if (fileInputStream != null) {
+            viewModel.loadEpubBookExternal(fileInputStream)
+        } else {
+            inputStream?.close()
+            onError()
         }
     } else {
         onError() // Invalid intent.

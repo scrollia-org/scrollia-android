@@ -66,11 +66,11 @@ import org.scrollia.app.R
 import org.scrollia.app.database.progress.ProgressData
 import org.scrollia.app.helpers.NetworkObserver
 import org.scrollia.app.helpers.getActivity
-import org.scrollia.app.helpers.toToast
 import org.scrollia.app.helpers.weakHapticFeedback
 import org.scrollia.app.ui.common.BookDetailTopUI
 import org.scrollia.app.ui.common.CustomTopAppBar
 import org.scrollia.app.ui.common.ProgressDots
+import org.scrollia.app.ui.common.RecoverableError
 import org.scrollia.app.ui.common.simpleVerticalScrollbar
 import org.scrollia.app.ui.screens.reader.main.activities.ReaderActivity
 import org.scrollia.app.ui.screens.reader.main.activities.ReaderConstants
@@ -95,6 +95,7 @@ fun ReaderDetailScreen(
         navController = navController,
         state = state,
         progressData = readerData,
+        onRetry = { viewModel.loadEbookData(libraryItemId, networkStatus) }
     )
 }
 
@@ -103,11 +104,9 @@ fun ReaderDetailScreen(
     libraryItemId: String,
     navController: NavController,
     state: ReaderDetailScreenState,
-    progressData: ProgressData?
+    progressData: ProgressData?,
+    onRetry: () -> Unit
 ) {
-    val context = LocalContext.current
-
-
     Crossfade(targetState = state.isLoading, label = "ReaderDetailLoadingCrossFade") { isLoading ->
         if (isLoading) {
             Box(
@@ -120,8 +119,10 @@ fun ReaderDetailScreen(
             }
         } else {
             if (state.error != null) {
-                stringResource(id = R.string.error).toToast(context)
-                navController.navigateUp()
+                RecoverableError(
+                    onRetry = onRetry,
+                    onBack = { navController.navigateUp() }
+                )
             } else {
                 ReaderDetailScaffold(
                     libraryItemId = libraryItemId,
@@ -298,6 +299,6 @@ fun EpubDetailScreenPV() {
             lastChapterIndex = 0,
             lastReadTime = 0,
         ),
+        onRetry = {}
     )
-    //ReaderError(rememberNavController())
 }
