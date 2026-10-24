@@ -132,14 +132,17 @@
     <string name="book_synopsis">Sinopsis</string>
     <string name="book_synopsis_not_found">Sin sinopsis disponible</string>
     <!-- About Screen -->
-    <string name="about_header">A cerca de</string>
+    <string name="about_header">Acerca de</string>
     <string name="about_desc">Una aplicación Android gratuita y de código abierto para descargar libros electrónicos del Proyecto GutenBerg.</string>
     <string name="developed_by">Desarrollado por</string>
-    <string name="useful_links">Nützliche Links</string>
+    <string name="useful_links">Enlaces útiles</string>
     <string name="link_website">Sitio web</string>
     <string name="link_website_desc">Visite nuestro sitio web para más información.</string>
-    <string name="link_privacy_policy">Datenschutzrichtlinie</string>
-    <string name="link_privacy_policy_desc">Lesen Sie unsere neueste Datenschutzrichtlinie.</string>
+    <string name="link_privacy_policy">Política de privacidad</string>
+    <string name="link_privacy_policy_desc">Lee nuestra política de privacidad más reciente.</string>
+    <string name="about_credits">Créditos</string>
+    <string name="about_based_on_myne">Basada en Myne (github.com/Pool-Of-Tears/Myne), licencia Apache-2.0</string>
+    <string name="about_based_on_myne_desc">Scrollia es un fork de Myne, de Stɑrry Shivɑm. Toca para ver el proyecto original.</string>
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Licencias</string>
 
