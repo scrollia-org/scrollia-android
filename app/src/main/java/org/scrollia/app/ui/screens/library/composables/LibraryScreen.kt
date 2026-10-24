@@ -27,6 +27,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,6 +47,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
@@ -56,6 +58,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -69,6 +73,8 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,6 +82,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -99,6 +106,7 @@ import org.scrollia.app.BuildConfig
 import org.scrollia.app.MainActivity
 import org.scrollia.app.R
 import org.scrollia.app.database.library.LibraryItem
+import org.scrollia.app.database.progress.ProgressData
 import org.scrollia.app.helpers.Constants
 import org.scrollia.app.helpers.book.BookUtils
 import org.scrollia.app.helpers.getActivity
@@ -107,6 +115,8 @@ import org.scrollia.app.helpers.weakHapticFeedback
 import org.scrollia.app.ui.common.CustomTopAppBar
 import org.scrollia.app.ui.common.NoBooksAvailable
 import org.scrollia.app.ui.navigation.Screens
+import org.scrollia.app.ui.screens.library.viewmodels.LibrarySort
+import org.scrollia.app.ui.screens.library.viewmodels.LibrarySorting
 import org.scrollia.app.ui.screens.library.viewmodels.LibraryViewModel
 import org.scrollia.app.ui.screens.main.bottomNavPadding
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
@@ -298,6 +308,11 @@ private fun LibraryContents(
     val context = LocalContext.current
     val settingsVm = (context.getActivity() as MainActivity).settingsViewModel
     val libraryItems = viewModel.allItems.observeAsState(listOf()).value
+    val progress by viewModel.progress.collectAsState(initial = emptyMap())
+    val sort by viewModel.sort
+    val sortedItems = remember(libraryItems, progress, sort) {
+        LibrarySorting.sort(libraryItems, progress, sort)
+    }
 
     // Show tooltip for library screen.
     LaunchedEffect(key1 = true) {
@@ -333,15 +348,19 @@ private fun LibraryContents(
                     .background(MaterialTheme.colorScheme.background),
                 state = lazyListState
             ) {
+                item(key = "library_sort") {
+                    LibrarySortRow(sort = sort, onSortSelected = { viewModel.setSort(it) })
+                }
                 items(
-                    count = libraryItems.size,
-                    key = { i -> libraryItems[i].id }
+                    count = sortedItems.size,
+                    key = { i -> sortedItems[i].id }
                 ) { i ->
-                    val item = libraryItems[i]
+                    val item = sortedItems[i]
                     if (item.fileExist()) {
                         LibraryLazyItem(
                             modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null),
                             item = item,
+                            progress = progress[item.id],
                             snackBarHostState = snackBarHostState,
                             navController = navController,
                             viewModel = viewModel,
@@ -361,6 +380,7 @@ private fun LibraryContents(
 private fun LibraryLazyItem(
     modifier: Modifier,
     item: LibraryItem,
+    progress: ProgressData?,
     snackBarHostState: SnackbarHostState,
     navController: NavController,
     viewModel: LibraryViewModel,
@@ -428,6 +448,7 @@ private fun LibraryLazyItem(
             item.getFileSize(),
             item.getDownloadDate(),
             isExternalBook = item.isImported,
+            progress = progress,
             onReadClick = {
                 BookUtils.openBookFile(
                     context = context,
@@ -488,6 +509,7 @@ private fun LibraryCard(
     fileSize: String,
     date: String,
     isExternalBook: Boolean,
+    progress: ProgressData? = null,
     onReadClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -570,6 +592,15 @@ private fun LibraryCard(
                     )
                 }
 
+                if (progress != null) {
+                    LibraryProgress(
+                        progress = progress,
+                        modifier = Modifier
+                            .offset(y = (-6).dp)
+                            .padding(bottom = 4.dp)
+                    )
+                }
+
                 Row(modifier = Modifier.offset(y = (-4).dp)) {
                     LibraryCardButton(
                         text = stringResource(id = R.string.library_read_button),
@@ -585,6 +616,82 @@ private fun LibraryCard(
                 }
                 Spacer(modifier = Modifier.height(2.dp))
             }
+        }
+    }
+}
+
+/** Sort chips above the list (DESIGN.md §15), same visual language as the Home filter sheet. */
+@Composable
+private fun LibrarySortRow(sort: LibrarySort, onSortSelected: (LibrarySort) -> Unit) {
+    val view = LocalView.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        LibrarySort.entries.forEach { option ->
+            FilterChip(
+                selected = sort == option,
+                onClick = {
+                    view.weakHapticFeedback()
+                    onSortSelected(option)
+                },
+                label = {
+                    Text(
+                        text = stringResource(
+                            id = when (option) {
+                                LibrarySort.RECENTLY_READ -> R.string.library_sort_recent
+                                LibrarySort.TITLE -> R.string.library_sort_title
+                            }
+                        ),
+                        fontFamily = interFont
+                    )
+                }
+            )
+        }
+    }
+}
+
+/** Discreet progress: thin line + percent, or a Finished marker (DESIGN.md §15). */
+@Composable
+private fun LibraryProgress(progress: ProgressData, modifier: Modifier = Modifier) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        if (progress.finished) {
+            Icon(
+                imageVector = Icons.Outlined.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.size(14.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(id = R.string.library_finished),
+                fontFamily = interFont,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        } else {
+            LinearProgressIndicator(
+                progress = { progress.progress.coerceIn(0f, 1f) },
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(2.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                trackColor = MaterialTheme.colorScheme.outlineVariant,
+                strokeCap = StrokeCap.Butt,
+                gapSize = 0.dp,
+                drawStopIndicator = {}
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(id = R.string.progress_percent, progress.progressPercent()),
+                fontFamily = interFont,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

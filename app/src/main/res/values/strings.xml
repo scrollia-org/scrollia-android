@@ -85,6 +85,8 @@
     <string name="progress_percent">%1$d%%</string>
     <string name="home_continue_reading">Continue reading</string>
     <string name="library_finished">Finished</string>
+    <string name="library_sort_recent">Recently read</string>
+    <string name="library_sort_title">Title A–Z</string>
 
     <!--Reader Screen -->
     <string name="reader_chapter_list_title">Chapters</string>
