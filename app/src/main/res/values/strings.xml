@@ -81,6 +81,8 @@
     <string name="reader_detail_header">Ebook Reader</string>
     <string name="start_reading_button">Start</string>
     <string name="continue_reading_button">Resume</string>
+    <string name="progress_percent_read">%1$d%% read</string>
+    <string name="library_finished">Finished</string>
 
     <!--Reader Screen -->
     <string name="reader_max_font_size_reached">Max font size reached</string>

@@ -45,4 +45,7 @@ interface ProgressDao {
 
     @Query("SELECT * FROM reader_table WHERE library_item_id = :libraryItemId")
     fun getReaderDataAsFlow(libraryItemId: Int): Flow<ProgressData?>
+
+    @Query("SELECT * FROM reader_table ORDER BY last_read_time DESC")
+    fun getAllReaderItemsAsFlow(): Flow<List<ProgressData>>
 }

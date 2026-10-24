@@ -58,10 +58,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.scrollia.app.R
 import org.scrollia.app.epub.asAnnotatedString
-import org.scrollia.app.epub.models.EpubChapter
 import org.scrollia.app.epub.models.ReaderItem
 import org.scrollia.app.helpers.toToast
 import org.scrollia.app.ui.common.ScrolliaSelectionContainer
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderListEntry
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.theme.frauncesFont
 import androidx.compose.runtime.getValue
@@ -70,65 +70,16 @@ import androidx.compose.runtime.getValue
 @Composable
 fun ChaptersContent(
     state: ReaderScreenState,
+    entries: List<ReaderListEntry>,
     lazyListState: LazyListState,
     onToggleReaderMenu: () -> Unit,
     onLoadImage: (String) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        state = lazyListState
-    ) {
-        items(
-            count = state.chapters.size,
-            key = { index -> state.chapters[index].chapterId }
-        ) { index ->
-            val chapter = state.chapters[index]
-            val content = state.loadedChapters[chapter.chapterId]
-            if (content != null) {
-                ChapterLazyItemItem(
-                    chapter = chapter,
-                    readerItems = content.body,
-                    state = state,
-                    onClick = onToggleReaderMenu,
-                    onLoadImage = onLoadImage
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ChapterLazyItemItem(
-    chapter: EpubChapter,
-    readerItems: List<ReaderItem>,
-    state: ReaderScreenState,
-    onClick: () -> Unit,
-    onLoadImage: (String) -> Unit
-) {
-    val context = LocalContext.current
-
-    val targetFontSize = remember(state.fontSize) {
-        (state.fontSize / 5) * 0.9f
-    }
-
+    val targetFontSize = remember(state.fontSize) { (state.fontSize / 5) * 0.9f }
     val fontSize by animateFloatAsState(
         targetValue = targetFontSize,
         animationSpec = tween(durationMillis = 300),
         label = "fontSize"
-    )
-    val titleFontSize by animateFloatAsState(
-        targetValue = targetFontSize * 1.35f,
-        animationSpec = tween(durationMillis = 300),
-        label = "titleFontSize"
     )
     val lineHeight by animateFloatAsState(
         targetValue = state.lineHeight,
@@ -136,6 +87,79 @@ private fun ChapterLazyItemItem(
         label = "lineHeight"
     )
 
+    ReaderSelectionContainer {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    // We're using awaitEachGesture instead of Modifier.clickable or
+                    // Modifier.detectTapGestures so that we can propagate the click
+                    // event to the parent, which in this case is SelectionContainer.
+                    // Without this, the click event would be consumed before reaching
+                    // SelectionContainer, preventing the copy/paste popup from being
+                    // dismissed until the user copies the selected text.
+                    awaitEachGesture {
+                        val down: PointerInputChange = awaitFirstDown()
+                        val up: PointerInputChange? = waitForUpOrCancellation()
+                        // only trigger the click if the pointer hasn't moved up or down
+                        // i.e. only on tap gesture
+                        if (up != null && down.id == up.id) {
+                            onToggleReaderMenu()
+                        }
+                    }
+                },
+            state = lazyListState
+        ) {
+            items(
+                count = entries.size,
+                key = { index -> entries[index].key },
+                contentType = { index -> entries[index]::class }
+            ) { index ->
+                when (val entry = entries[index]) {
+                    is ReaderListEntry.Placeholder -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    is ReaderListEntry.ChapterHeader -> {
+                        val chapter = state.chapters[entry.chapterIndex]
+                        ChapterHeader(
+                            title = chapter.title,
+                            isFirstChapter = entry.chapterIndex == 0,
+                            fontSize = fontSize,
+                            state = state
+                        )
+                    }
+
+                    is ReaderListEntry.Item -> {
+                        val chapter = state.chapters[entry.chapterIndex]
+                        val item = state.loadedChapters[chapter.chapterId]?.body
+                            ?.getOrNull(entry.itemIndex)
+                        if (item != null) {
+                            ReaderItemContent(
+                                item = item,
+                                state = state,
+                                fontSize = fontSize,
+                                lineHeight = lineHeight,
+                                onLoadImage = onLoadImage
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReaderSelectionContainer(content: @Composable () -> Unit) {
+    val context = LocalContext.current
     ScrolliaSelectionContainer(
         onCopyRequested = {
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
@@ -204,136 +228,128 @@ private fun ChapterLazyItemItem(
                 }
             }
         }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .pointerInput(Unit) {
-                    // We're using awaitEachGesture instead of Modifier.clickable or
-                    // Modifier.detectTapGestures so that we can propagate the click
-                    // event to the parent, which in this case is SelectionContainer.
-                    // Without this, the click event would be consumed before reaching
-                    // SelectionContainer, preventing the copy/paste popup from being
-                    // dismissed until the user copies the selected text.
-                    awaitEachGesture {
-                        val down: PointerInputChange = awaitFirstDown()
-                        val up: PointerInputChange? = waitForUpOrCancellation()
-                        // only trigger the click if the pointer hasn't moved up or down
-                        // i.e. only on tap gesture
-                        if (up != null && down.id == up.id) {
-                            onClick()
-                        }
-                    }
-                }
-        ) {
-            Text(
-                modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 10.dp),
-                text = chapter.title,
-                fontSize = titleFontSize.sp,
-                lineHeight = 1.3f.em,
-                fontFamily = frauncesFont,
-                fontWeight = FontWeight.Medium,
-                color = state.readerTheme.textColor.copy(alpha = 0.88f)
+    ) { content() }
+}
+
+@Composable
+private fun ChapterHeader(
+    title: String,
+    isFirstChapter: Boolean,
+    fontSize: Float,
+    state: ReaderScreenState
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (!isFirstChapter) {
+            HorizontalDivider(
+                thickness = 2.dp,
+                color = state.readerTheme.textColor.copy(alpha = 0.2f)
             )
-            Spacer(modifier = Modifier.height(12.dp))
+        }
+        Text(
+            modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 10.dp),
+            text = title,
+            fontSize = (fontSize * 1.35f).sp,
+            lineHeight = 1.3f.em,
+            fontFamily = frauncesFont,
+            fontWeight = FontWeight.Medium,
+            color = state.readerTheme.textColor.copy(alpha = 0.88f)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+}
 
-            readerItems.forEach { item ->
-                when (item) {
-                    is ReaderItem.Text -> {
-                        val annotatedString = remember(item.spans, state.fontFamily.fontFamily) {
-                            item.spans.asAnnotatedString()
-                        }
-                        Text(
-                            text = annotatedString,
-                            fontSize = fontSize.sp,
-                            lineHeight = lineHeight.em,
-                            fontFamily = state.fontFamily.fontFamily,
-                            color = state.readerTheme.textColor,
-                            modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 8.dp),
-                        )
-                    }
+@Composable
+private fun ReaderItemContent(
+    item: ReaderItem,
+    state: ReaderScreenState,
+    fontSize: Float,
+    lineHeight: Float,
+    onLoadImage: (String) -> Unit
+) {
+    when (item) {
+        is ReaderItem.Text -> {
+            val annotatedString = remember(item.spans) { item.spans.asAnnotatedString() }
+            Text(
+                text = annotatedString,
+                fontSize = fontSize.sp,
+                lineHeight = lineHeight.em,
+                fontFamily = state.fontFamily.fontFamily,
+                color = state.readerTheme.textColor,
+                modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 8.dp),
+            )
+        }
 
-                    is ReaderItem.Image -> {
-                        val imageBytes = state.loadedImages[item.path]
-                        if (imageBytes != null) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(imageBytes)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(vertical = 6.dp)
-                            )
-                        } else {
-                            LaunchedEffect(item.path) {
-                                onLoadImage(item.path)
-                            }
-                            @Suppress("EXPECTED_CONDITION_ALWAYS_TRUE")
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(200.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        }
-                    }
-
-                    is ReaderItem.CodeBlock -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 14.dp, vertical = 8.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(state.readerTheme.textColor.copy(alpha = 0.1f))
-                                .padding(12.dp)
-                        ) {
-                            val annotatedString = remember(item.code, state.fontFamily.fontFamily) {
-                                item.code.asAnnotatedString(collapseWhitespace = false)
-                            }
-                            Text(
-                                text = annotatedString,
-                                fontSize = (fontSize * 0.9f).sp,
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                                color = state.readerTheme.textColor
-                            )
-                        }
-                    }
-
-                    is ReaderItem.Blockquote -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 14.dp, vertical = 8.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(state.readerTheme.textColor.copy(alpha = 0.07f))
-                                .padding(16.dp)
-                        ) {
-                            val annotatedString =
-                                remember(item.spans, state.fontFamily.fontFamily) {
-                                    item.spans.asAnnotatedString(collapseWhitespace = false)
-                                }
-                            Text(
-                                text = annotatedString,
-                                fontSize = fontSize.sp,
-                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                                lineHeight = lineHeight.em,
-                                fontFamily = state.fontFamily.fontFamily,
-                                color = state.readerTheme.textColor.copy(alpha = 0.8f)
-                            )
-                        }
-                    }
+        is ReaderItem.Image -> {
+            val imageBytes = state.loadedImages[item.path]
+            if (imageBytes != null) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageBytes)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 6.dp)
+                )
+            } else {
+                LaunchedEffect(item.path) {
+                    onLoadImage(item.path)
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
         }
 
-        HorizontalDivider(
-            thickness = 2.dp,
-            color = state.readerTheme.textColor.copy(alpha = 0.2f)
-        )
+        is ReaderItem.CodeBlock -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(state.readerTheme.textColor.copy(alpha = 0.1f))
+                    .padding(12.dp)
+            ) {
+                val annotatedString = remember(item.code) {
+                    item.code.asAnnotatedString(collapseWhitespace = false)
+                }
+                Text(
+                    text = annotatedString,
+                    fontSize = (fontSize * 0.9f).sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    color = state.readerTheme.textColor
+                )
+            }
+        }
+
+        is ReaderItem.Blockquote -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(state.readerTheme.textColor.copy(alpha = 0.07f))
+                    .padding(16.dp)
+            ) {
+                val annotatedString = remember(item.spans) {
+                    item.spans.asAnnotatedString(collapseWhitespace = false)
+                }
+                Text(
+                    text = annotatedString,
+                    fontSize = fontSize.sp,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    lineHeight = lineHeight.em,
+                    fontFamily = state.fontFamily.fontFamily,
+                    color = state.readerTheme.textColor.copy(alpha = 0.8f)
+                )
+            }
+        }
     }
 }
