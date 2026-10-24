@@ -18,6 +18,8 @@
 package org.scrollia.app
 
 import android.app.Application
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import cat.ereza.customactivityoncrash.config.CaocConfig
 import coil.ImageLoader
 import coil.ImageLoaderFactory
@@ -37,8 +39,13 @@ class ScrolliaApp : Application(), ImageLoaderFactory {
     @Inject
     lateinit var bookDownloader: BookDownloader
 
+    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate() {
         super.onCreate()
+        // Text selection must use LocalTextToolbar: it carries the reader's actions (Share,
+        // Web search, Translate, Dictionary) and tells Pages mode that a selection is active.
+        // The new context menu, on by default since Compose Foundation 1.11, ignores it.
+        ComposeFoundationFlags.isNewContextMenuEnabled = false
         CaocConfig.Builder.create().restartActivity(MainActivity::class.java).apply()
     }
 
