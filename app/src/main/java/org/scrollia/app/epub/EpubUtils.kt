@@ -30,17 +30,11 @@ import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.io.path.invariantSeparatorsPathString
 import org.jsoup.nodes.Node as JsoupNode
 
-fun parseXMLFile(inputSteam: InputStream): Document? {
-    val factory = DocumentBuilderFactory.newInstance().apply {
-        setFeature("http://xml.org/sax/features/external-general-entities", false)
-        setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-        setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
-    }
-    return factory.newDocumentBuilder().run {
+fun parseXMLFile(inputSteam: InputStream): Document? =
+    DocumentBuilderFactory.newInstance().newDocumentBuilder().run {
         setEntityResolver { _, _ -> InputSource(StringReader("")) }
         parse(inputSteam)
     }
-}
 
 fun parseXMLFile(byteArray: ByteArray): Document? = parseXMLFile(byteArray.inputStream())
 
