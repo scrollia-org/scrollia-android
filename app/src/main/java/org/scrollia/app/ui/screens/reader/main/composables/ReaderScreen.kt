@@ -21,7 +21,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -29,12 +28,18 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,8 +48,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -57,9 +60,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import org.scrollia.app.R
+import kotlin.math.roundToInt
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderViewModel
 import org.scrollia.app.ui.theme.interFont
@@ -85,7 +94,6 @@ fun ReaderScreen(
         onFontFamilyChanged = { viewModel.setFontFamily(it) }
     )
 
-    val snackBarHostState = remember { SnackbarHostState() }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
@@ -103,11 +111,16 @@ fun ReaderScreen(
     ) {
         Scaffold(
             containerColor = state.readerTheme.backgroundColor,
-            snackbarHost = { SnackbarHost(snackBarHostState) },
             topBar = {
                 ReaderTopAppBar(
                     state = state,
-                    onChapterListClicked = { coroutineScope.launch { drawerState.open() } }
+                    onChapterListClicked = { coroutineScope.launch { drawerState.open() } },
+                    onPreviousChapter = {
+                        coroutineScope.launch { onScrollToChapter(state.currentChapterIndex - 1) }
+                    },
+                    onNextChapter = {
+                        coroutineScope.launch { onScrollToChapter(state.currentChapterIndex + 1) }
+                    }
                 )
             },
             bottomBar = {
@@ -119,7 +132,6 @@ fun ReaderScreen(
                     ReaderBottomBar(
                         state = state,
                         showFontDialog = showFontDialog,
-                        snackBarHostState = snackBarHostState,
                         onFontSizeChanged = { viewModel.setFontSize(it) },
                         onLineHeightChanged = { viewModel.setLineHeight(it) },
                         onReaderThemeChanged = { viewModel.setReaderTheme(it) }
@@ -143,7 +155,16 @@ fun ReaderScreen(
                             }
                         }
                     } else {
-                        chaptersContent(paddingValues)
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            chaptersContent(paddingValues)
+                            ReaderProgressLine(
+                                progress = state.chapterScrollPercent,
+                                state = state,
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .windowInsetsPadding(WindowInsets.displayCutout)
+                            )
+                        }
                     }
                 }
             }
@@ -151,11 +172,33 @@ fun ReaderScreen(
     }
 }
 
+/** Discreet chapter progress (DESIGN.md §3.6): a 2 dp line in the reader's ink color. */
+@Composable
+private fun ReaderProgressLine(
+    progress: Float,
+    state: ReaderScreenState,
+    modifier: Modifier = Modifier
+) {
+    LinearProgressIndicator(
+        progress = { progress.coerceIn(0f, 1f) },
+        modifier = modifier
+            .fillMaxWidth()
+            .height(2.dp),
+        color = state.readerTheme.textColor.copy(alpha = 0.45f),
+        trackColor = state.readerTheme.textColor.copy(alpha = 0.08f),
+        strokeCap = StrokeCap.Butt,
+        gapSize = 0.dp,
+        drawStopIndicator = {}
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ReaderTopAppBar(
     state: ReaderScreenState,
     onChapterListClicked: () -> Unit,
+    onPreviousChapter: () -> Unit,
+    onNextChapter: () -> Unit,
 ) {
     AnimatedVisibility(
         visible = state.showReaderMenu,
@@ -183,17 +226,33 @@ private fun ReaderTopAppBar(
 
                     },
                     actions = {
-                        IconButton(onClick = onChapterListClicked) {
-                            Icon(
-                                Icons.Filled.Menu, null,
-                                tint = state.readerTheme.textColor
-                            )
-                        }
+                        val hasPrevious = state.currentChapterIndex > 0
+                        val hasNext = state.currentChapterIndex < state.chapters.size - 1
+                        ReaderBarIcon(
+                            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = stringResource(id = R.string.reader_previous_chapter),
+                            enabled = hasPrevious,
+                            state = state,
+                            onClick = onPreviousChapter
+                        )
+                        ReaderBarIcon(
+                            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = stringResource(id = R.string.reader_next_chapter),
+                            enabled = hasNext,
+                            state = state,
+                            onClick = onNextChapter
+                        )
+                        ReaderBarIcon(
+                            icon = Icons.AutoMirrored.Filled.List,
+                            contentDescription = stringResource(id = R.string.reader_chapter_list_title),
+                            state = state,
+                            onClick = onChapterListClicked
+                        )
                     }
                 )
                 Column(
                     modifier = Modifier
-                        .padding(bottom = 8.dp)
+                        .padding(bottom = 12.dp)
                         .padding(horizontal = 16.dp),
                 ) {
                     Text(
@@ -204,17 +263,40 @@ private fun ReaderTopAppBar(
                         fontFamily = interFont,
                         fontWeight = FontWeight.Medium
                     )
+                    if (state.chapters.isNotEmpty()) {
+                        Text(
+                            text = stringResource(
+                                id = R.string.reader_chapter_progress,
+                                state.currentChapterIndex + 1,
+                                state.chapters.size,
+                                (state.chapterScrollPercent.coerceIn(0f, 1f) * 100).roundToInt()
+                            ),
+                            modifier = Modifier.padding(top = 2.dp),
+                            color = state.readerTheme.textColor.copy(alpha = 0.65f),
+                            fontFamily = interFont,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 12.sp
+                        )
+                    }
                 }
-                val chapterProgressbarState = animateFloatAsState(
-                    targetValue = state.chapterScrollPercent,
-                    label = "chapter progress bar state animation"
-                )
-                LinearProgressIndicator(
-                    progress = { chapterProgressbarState.value },
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary,
-                )
             }
         }
+    }
+}
+
+@Composable
+private fun ReaderBarIcon(
+    icon: ImageVector,
+    contentDescription: String,
+    state: ReaderScreenState,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
+    IconButton(onClick = onClick, enabled = enabled) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = state.readerTheme.textColor.copy(alpha = if (enabled) 1f else 0.3f)
+        )
     }
 }

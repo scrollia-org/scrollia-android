@@ -64,8 +64,6 @@
     <string name="start_reading_button">يبدأ</string>
     <string name="continue_reading_button">استمرار</string>
     <!--Reader Screen -->
-    <string name="reader_max_font_size_reached">آسف، لا يمكن أن تذهب إلى أعلى من ذلك!</string>
-    <string name="reader_min_font_size_reached">آسف، لا يمكن أن تذهب إلى أقل من ذلك!</string>
     <string name="reader_font_style_chooser">تغيير نمط الخط</string>
     <string name="reader_chapter_list_title">الفصول</string>
     <!-- Text selection -->

@@ -28,6 +28,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,7 +38,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +50,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -75,7 +76,8 @@ fun ChaptersContent(
     onToggleReaderMenu: () -> Unit,
     onLoadImage: (String) -> Unit
 ) {
-    val targetFontSize = remember(state.fontSize) { (state.fontSize / 5) * 0.9f }
+    val targetFontSize = remember(state.fontSize) { ReaderLayout.fontSizeSp(state.fontSize) }
+    val maxTextWidth = rememberReaderMeasure(targetFontSize, state.fontFamily.fontFamily)
     val fontSize by animateFloatAsState(
         targetValue = targetFontSize,
         animationSpec = tween(durationMillis = 300),
@@ -108,7 +110,8 @@ fun ChaptersContent(
                         }
                     }
                 },
-            state = lazyListState
+            state = lazyListState,
+            contentPadding = PaddingValues(bottom = 64.dp)
         ) {
             items(
                 count = entries.size,
@@ -133,6 +136,7 @@ fun ChaptersContent(
                             title = chapter.title,
                             isFirstChapter = entry.chapterIndex == 0,
                             fontSize = fontSize,
+                            maxTextWidth = maxTextWidth,
                             state = state
                         )
                     }
@@ -147,6 +151,7 @@ fun ChaptersContent(
                                 state = state,
                                 fontSize = fontSize,
                                 lineHeight = lineHeight,
+                                maxTextWidth = maxTextWidth,
                                 onLoadImage = onLoadImage
                             )
                         }
@@ -236,17 +241,17 @@ private fun ChapterHeader(
     title: String,
     isFirstChapter: Boolean,
     fontSize: Float,
+    maxTextWidth: Dp,
     state: ReaderScreenState
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        if (!isFirstChapter) {
-            HorizontalDivider(
-                thickness = 2.dp,
-                color = state.readerTheme.textColor.copy(alpha = 0.2f)
+    Column(modifier = Modifier.readerColumn(maxTextWidth)) {
+        Spacer(
+            modifier = Modifier.height(
+                if (isFirstChapter) ReaderLayout.FirstChapterTopSpacing
+                else ReaderLayout.ChapterTopSpacing
             )
-        }
+        )
         Text(
-            modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 10.dp),
             text = title,
             fontSize = (fontSize * 1.35f).sp,
             lineHeight = 1.3f.em,
@@ -254,7 +259,7 @@ private fun ChapterHeader(
             fontWeight = FontWeight.Medium,
             color = state.readerTheme.textColor.copy(alpha = 0.88f)
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
@@ -264,6 +269,7 @@ private fun ReaderItemContent(
     state: ReaderScreenState,
     fontSize: Float,
     lineHeight: Float,
+    maxTextWidth: Dp,
     onLoadImage: (String) -> Unit
 ) {
     when (item) {
@@ -275,7 +281,9 @@ private fun ReaderItemContent(
                 lineHeight = lineHeight.em,
                 fontFamily = state.fontFamily.fontFamily,
                 color = state.readerTheme.textColor,
-                modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 8.dp),
+                modifier = Modifier
+                    .readerColumn(maxTextWidth)
+                    .padding(bottom = 8.dp),
             )
         }
 
@@ -288,10 +296,10 @@ private fun ReaderItemContent(
                         .crossfade(true)
                         .build(),
                     contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 6.dp)
+                        .readerColumn(maxTextWidth)
+                        .padding(vertical = 12.dp)
                 )
             } else {
                 LaunchedEffect(item.path) {
@@ -299,7 +307,7 @@ private fun ReaderItemContent(
                 }
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .readerColumn(maxTextWidth)
                         .height(200.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -311,8 +319,8 @@ private fun ReaderItemContent(
         is ReaderItem.CodeBlock -> {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                    .readerColumn(maxTextWidth)
+                    .padding(vertical = 8.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(state.readerTheme.textColor.copy(alpha = 0.1f))
                     .padding(12.dp)
@@ -332,8 +340,8 @@ private fun ReaderItemContent(
         is ReaderItem.Blockquote -> {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                    .readerColumn(maxTextWidth)
+                    .padding(vertical = 8.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(state.readerTheme.textColor.copy(alpha = 0.07f))
                     .padding(16.dp)

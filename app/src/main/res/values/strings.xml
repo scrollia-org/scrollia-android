@@ -85,15 +85,14 @@
     <string name="library_finished">Finished</string>
 
     <!--Reader Screen -->
-    <string name="reader_max_font_size_reached">Max font size reached</string>
-    <string name="reader_min_font_size_reached">Min font size reached</string>
-    <string name="reader_max_line_height_reached">Max line height reached</string>
-    <string name="reader_min_line_height_reached">Min line height reached</string>
     <string name="reader_font_style_chooser">Change FontStyle</string>
     <string name="reader_chapter_list_title">Chapters</string>
     <string name="reader_theme_paper">Paper</string>
     <string name="reader_theme_sepia">Sepia</string>
     <string name="reader_theme_night">Night</string>
+    <string name="reader_previous_chapter">Previous chapter</string>
+    <string name="reader_next_chapter">Next chapter</string>
+    <string name="reader_chapter_progress">Chapter %1$d of %2$d · %3$d%%</string>
 
     <!-- Text selection -->
     <string name="copy">Copy</string>
