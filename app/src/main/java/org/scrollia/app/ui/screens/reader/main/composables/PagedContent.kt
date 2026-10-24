@@ -209,6 +209,14 @@ fun PagedChaptersContent(
                     add(CustomAccessibilityAction(nextLabel) { turnTo(currentPage + 1); true })
                 }
             }
+            // One TalkBack stop for the current page: its visible text (the other pages are
+            // cleared below), where it is, and how to turn it. It sits on the page's own
+            // selection container because that node is focusable, and TalkBack leaves the
+            // text of a focusable child out of any ancestor that would hold these.
+            val pageSemantics = Modifier.semantics(mergeDescendants = true) {
+                stateDescription = pageDescription
+                customActions = pageActions
+            }
 
             HorizontalPager(
                 state = pagerState,
@@ -218,13 +226,6 @@ fun PagedChaptersContent(
                 userScrollEnabled = toolbarHidden,
                 modifier = Modifier
                     .fillMaxSize()
-                    // One node for the current page: its visible text (the other pages are
-                    // cleared below), where it is, and how to turn it. Focus stays here when
-                    // the page turns; the new state description is what gets announced.
-                    .semantics(mergeDescendants = true) {
-                        stateDescription = pageDescription
-                        customActions = pageActions
-                    }
                     .pointerInput(layoutDirection) {
                         // Same tap routing as the scroll reader: never consume, so the selection
                         // container still sees the tap that dismisses its toolbar.
@@ -261,7 +262,7 @@ fun PagedChaptersContent(
                     if (index == currentPage) {
                         // Keyed by content: repagination drops a selection on the old layout.
                         key(entry.page, styles.spec) {
-                            CurrentPageSelection {
+                            CurrentPageSelection(modifier = pageSemantics) {
                                 PageView(
                                     page = entry.page,
                                     state = state,
@@ -284,7 +285,12 @@ fun PagedChaptersContent(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clearAndSetSemantics { },
+                            .clearAndSetSemantics {
+                                if (index == currentPage) {
+                                    stateDescription = pageDescription
+                                    customActions = pageActions
+                                }
+                            },
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(color = state.readerTheme.textColor.copy(alpha = 0.45f))
@@ -310,10 +316,10 @@ fun PagedChaptersContent(
  * change) also closes the toolbar, so it never points at disposed text.
  */
 @Composable
-private fun CurrentPageSelection(content: @Composable () -> Unit) {
+private fun CurrentPageSelection(modifier: Modifier, content: @Composable () -> Unit) {
     val toolbar = LocalTextToolbar.current
     DisposableEffect(toolbar) { onDispose { toolbar.hide() } }
-    SelectionContainer { content() }
+    SelectionContainer(modifier = modifier) { content() }
 }
 
 /**

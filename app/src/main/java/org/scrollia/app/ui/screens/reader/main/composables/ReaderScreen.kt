@@ -67,6 +67,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -192,7 +193,11 @@ fun ReaderScreen(
     }
 }
 
-/** Discreet chapter progress (DESIGN.md §3.6): a 2 dp line in the reader's ink color. */
+/**
+ * Discreet chapter progress (DESIGN.md §3.6): a 2 dp line in the reader's ink color. Silent
+ * for accessibility: the top bar subtitle carries the same percentage, and announcing every
+ * change would interrupt reading (DESIGN.md §19).
+ */
 @Composable
 private fun ReaderProgressLine(
     progress: Float,
@@ -203,7 +208,8 @@ private fun ReaderProgressLine(
         progress = { progress.coerceIn(0f, 1f) },
         modifier = modifier
             .fillMaxWidth()
-            .height(2.dp),
+            .height(2.dp)
+            .clearAndSetSemantics { },
         color = state.readerTheme.textColor.copy(alpha = 0.45f),
         trackColor = state.readerTheme.textColor.copy(alpha = 0.08f),
         strokeCap = StrokeCap.Butt,
