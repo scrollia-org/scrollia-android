@@ -28,11 +28,16 @@ import org.scrollia.app.epub.models.EpubChapter
 import org.scrollia.app.helpers.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -53,10 +58,8 @@ data class ReaderScreenState(
     val loadedChapters: Map<String, EpubParser.ChapterContent> = emptyMap(),
     // Loaded images map: imagePath -> imageData
     val loadedImages: Map<String, ByteArray> = emptyMap(),
-    // Reader data
-    val hasProgressSaved: Boolean = false,
-    val lastChapterIndex: Int = 0,
-    val lastChapterOffset: Int = 0,
+    // Position to restore once its chapter body is loaded; null when nothing is pending.
+    val pendingRestore: ReaderAnchor? = null,
     // Typography
     val fontSize: Int = 100,
     val fontFamily: ReaderFont = ReaderFont.Literata,
@@ -80,7 +83,21 @@ class ReaderViewModel @Inject constructor(
     private val loadingChapterIds = ConcurrentHashMap.newKeySet<String>()
     private val loadingImagePaths = ConcurrentHashMap.newKeySet<String>()
 
+    private data class ProgressUpdate(
+        val libraryItemId: Int,
+        val anchor: ReaderAnchor,
+        val progress: Float,
+        val finished: Boolean
+    )
+
+    // Progress writes go through a single conflated collector so they are applied in order.
+    private val progressUpdates = MutableStateFlow<ProgressUpdate?>(null)
+
     init {
+        viewModelScope.launch {
+            progressUpdates.filterNotNull().conflate().flowOn(Dispatchers.Default)
+                .collect { saveProgress(it) }
+        }
         viewModelScope.launch {
             _state.update {
                 it.copy(
@@ -112,7 +129,11 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
-    fun loadEpubBook(libraryItemId: Int, onLoaded: (ReaderScreenState) -> Unit) {
+    /**
+     * Load a library book. When [startChapterIndex] is given the reader opens at the start of
+     * that chapter; otherwise it restores the saved anchor, if any.
+     */
+    fun loadEpubBook(libraryItemId: Int, startChapterIndex: Int? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             val libraryItem = libraryDao.getItemById(libraryItemId)
             _state.update { it.copy(shouldShowLoader = true) }
@@ -127,18 +148,25 @@ class ReaderViewModel @Inject constructor(
 
             val epubBook = epubParser.createEpubBook(libraryItem.filePath, shouldUseToc)
 
-            val initialChapterIndex = readerData?.lastChapterIndex ?: 0
+            val lastIndex = (epubBook.chapters.size - 1).coerceAtLeast(0)
+            val restoreTarget = when {
+                startChapterIndex != null -> ReaderAnchor(startChapterIndex.coerceIn(0, lastIndex), 0)
+                readerData != null -> ReaderAnchor(
+                    readerData.lastChapterIndex.coerceIn(0, lastIndex),
+                    readerData.lastChapterItemIndex
+                )
+
+                else -> null
+            }
+            val initialChapterIndex = restoreTarget?.chapterIndex ?: 0
             _state.update {
                 it.copy(
                     epubBook = epubBook,
                     chapters = epubBook.chapters,
-                    hasProgressSaved = readerData != null,
-                    lastChapterIndex = readerData?.lastChapterIndex ?: 0,
-                    lastChapterOffset = readerData?.lastChapterOffset ?: 0,
+                    pendingRestore = restoreTarget,
                     currentChapterIndex = initialChapterIndex
                 )
             }
-            onLoaded(state.value)
             // Load the initial chapter
             loadChapterBody(initialChapterIndex)
 
@@ -163,9 +191,7 @@ class ReaderViewModel @Inject constructor(
                     it.copy(
                         epubBook = epubBook,
                         chapters = epubBook.chapters,
-                        hasProgressSaved = false,
-                        lastChapterIndex = 0,
-                        lastChapterOffset = 0,
+                        pendingRestore = null,
                         currentChapterIndex = 0
                     )
                 }
@@ -222,48 +248,57 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
-    fun updateReaderProgress(libraryItemId: Int, chapterIndex: Int, chapterOffset: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val isLastChapter = chapterIndex == state.value.chapters.size - 1
-            val progressData = progressDao.getReaderData(libraryItemId)
-
-            when {
-                // Update progress for existing book
-                progressData != null && !isLastChapter -> {
-                    val updatedProgress = progressData.copy(
-                        lastChapterIndex = chapterIndex,
-                        lastChapterOffset = chapterOffset,
-                        lastReadTime = System.currentTimeMillis()
-                    )
-                    updatedProgress.id = progressData.id
-                    progressDao.update(updatedProgress)
-                    _state.update { it.copy(hasProgressSaved = true) }
-                }
-
-                isLastChapter -> {
-                    // Delete progress for completed book
-                    progressData?.let { it ->
-                        progressDao.delete(it.libraryItemId)
-                        _state.update { it.copy(hasProgressSaved = false) }
-                    }
-                }
-
-                else -> {
-                    // Insert new progress for new book
-                    progressDao.insert(
-                        ProgressData(
-                            libraryItemId = libraryItemId,
-                            lastChapterIndex = chapterIndex,
-                            lastChapterOffset = chapterOffset,
-                            lastReadTime = System.currentTimeMillis()
-                        )
-                    )
-                    _state.update { it.copy(hasProgressSaved = true) }
-                }
-            }
-        }
+    /** Called by the UI once the pending restore position has been scrolled into view. */
+    fun onRestoreComplete() {
+        _state.update { it.copy(pendingRestore = null) }
     }
 
+    /**
+     * Record the reading position. [anchor] is the first visible item, [chapterFraction] how far
+     * into its chapter the reader is, [lastVisible] the last visible item (used to detect the end
+     * of the book). Progress is never deleted, not even at the last chapter.
+     */
+    fun updateReaderProgress(
+        libraryItemId: Int,
+        anchor: ReaderAnchor,
+        chapterFraction: Float,
+        lastVisible: ReaderAnchor?
+    ) {
+        val current = state.value
+        val totalChapters = current.chapters.size
+        val lastChapterItemCount = current.chapters.lastOrNull()
+            ?.let { current.loadedChapters[it.chapterId]?.body?.size } ?: 0
+        val finished = lastVisible != null && ReaderPosition.isFinished(
+            lastVisibleChapter = lastVisible.chapterIndex,
+            lastVisibleItemIndex = lastVisible.itemIndex,
+            totalChapters = totalChapters,
+            lastChapterItemCount = lastChapterItemCount
+        )
+        val progress = if (finished) 1f else ReaderPosition.bookFraction(
+            anchor.chapterIndex, chapterFraction, totalChapters
+        )
+        progressUpdates.value = ProgressUpdate(libraryItemId, anchor, progress, finished)
+    }
+
+    // NonCancellable: a save already in flight must land even if the reader is being closed.
+    private suspend fun saveProgress(update: ProgressUpdate) = withContext(NonCancellable + Dispatchers.IO) {
+        val existing = progressDao.getReaderData(update.libraryItemId)
+        val newData = ProgressData(
+            libraryItemId = update.libraryItemId,
+            lastChapterIndex = update.anchor.chapterIndex,
+            lastChapterOffset = 0,
+            lastReadTime = System.currentTimeMillis(),
+            lastChapterItemIndex = update.anchor.itemIndex,
+            progress = update.progress,
+            finished = update.finished
+        )
+        if (existing != null) {
+            newData.id = existing.id
+            progressDao.update(newData)
+        } else {
+            progressDao.insert(newData)
+        }
+    }
 
     fun setChapterScrollPercent(percent: Float) {
         _state.update { it.copy(chapterScrollPercent = percent) }

@@ -178,7 +178,14 @@ private fun ReaderDetailScaffold(
                 authors = state.authors,
                 imageData = state.coverImage,
                 currentThemeMode = settingsVM.getCurrentTheme(),
-                progressPercent = progressData?.getProgressPercent(state.chapters.size) ?: ""
+                progressText = when {
+                    progressData == null -> null
+                    progressData.finished -> stringResource(id = R.string.library_finished)
+                    else -> stringResource(
+                        id = R.string.progress_percent_read,
+                        progressData.progressPercent()
+                    )
+                }
             )
 
             HorizontalDivider(
@@ -205,7 +212,11 @@ private fun ReaderDetailScaffold(
                             intent.putExtra(
                                 ReaderConstants.EXTRA_LIBRARY_ITEM_ID, libraryItemId.toInt()
                             )
-                            intent.putExtra(ReaderConstants.EXTRA_CHAPTER_IDX, idx)
+                            // Tapping the chapter being read resumes the saved paragraph
+                            // instead of jumping to the chapter start.
+                            if (idx != progressData?.lastChapterIndex) {
+                                intent.putExtra(ReaderConstants.EXTRA_CHAPTER_IDX, idx)
+                            }
                             context.startActivity(intent)
                         },
                     )
@@ -285,7 +296,6 @@ fun EpubDetailScreenPV() {
         progressData = ProgressData(
             libraryItemId = 0,
             lastChapterIndex = 0,
-            lastChapterOffset = 0,
             lastReadTime = 0,
         ),
     )

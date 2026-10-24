@@ -30,7 +30,7 @@ import org.scrollia.app.helpers.Constants
 
 @Database(
     entities = [LibraryItem::class, ProgressData::class],
-    version = 5,
+    version = 6,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -49,6 +49,14 @@ abstract class ScrolliaDatabase : RoomDatabase() {
             database.execSQL("ALTER TABLE reader_table RENAME COLUMN book_id TO library_item_id")
         }
 
+        // Pixel offsets (last_chapter_offset) can't be mapped to a paragraph, so existing rows
+        // resume at the start of their saved chapter. The legacy column is kept but unused.
+        internal val migration5to6 = Migration(5, 6) { database ->
+            database.execSQL("ALTER TABLE reader_table ADD COLUMN last_chapter_item_index INTEGER NOT NULL DEFAULT 0")
+            database.execSQL("ALTER TABLE reader_table ADD COLUMN progress REAL NOT NULL DEFAULT 0")
+            database.execSQL("ALTER TABLE reader_table ADD COLUMN finished INTEGER NOT NULL DEFAULT 0")
+        }
+
         @Volatile
         private var INSTANCE: ScrolliaDatabase? = null
 
@@ -63,7 +71,7 @@ abstract class ScrolliaDatabase : RoomDatabase() {
                     context.applicationContext,
                     ScrolliaDatabase::class.java,
                     Constants.DATABASE_NAME
-                ).addMigrations(migration3to4).build()
+                ).addMigrations(migration3to4, migration5to6).build()
                 INSTANCE = instance
                 // return instance
                 instance

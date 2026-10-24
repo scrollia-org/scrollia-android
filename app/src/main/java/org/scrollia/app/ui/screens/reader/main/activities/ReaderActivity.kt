@@ -28,8 +28,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -40,13 +41,16 @@ import org.scrollia.app.helpers.Constants
 import org.scrollia.app.helpers.toToast
 import org.scrollia.app.ui.screens.reader.main.composables.ChaptersContent
 import org.scrollia.app.ui.screens.reader.main.composables.ReaderScreen
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderAnchor
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderListEntry
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderPosition
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.theme.ScrolliaTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filterNotNull
 import java.io.FileInputStream
 
 @AndroidEntryPoint
@@ -67,76 +71,84 @@ class ReaderActivity : AppCompatActivity() {
         setContent {
             ScrolliaTheme(settingsViewModel = settingsViewModel) {
                 val lazyListState = rememberLazyListState()
-                val coroutineScope = rememberCoroutineScope()
                 // Handle intent and load epub book.
                 val intentData = remember {
                     handleIntent(
                         intent = intent,
                         viewModel = viewModel,
                         contentResolver = contentResolver,
-                        scrollToPosition = { index, offset ->
-                            coroutineScope.launch {
-                                lazyListState.scrollToItem(index, offset)
-                            }
-                        },
                         onError = {
                             getString(R.string.error).toToast(this)
                             finish()
                         })
                 }
 
+                val state by viewModel.state.collectAsState()
+                val entries = remember(state.chapters, state.loadedChapters) {
+                    ReaderPosition.buildEntries(state.chapters.map {
+                        state.loadedChapters[it.chapterId]?.body?.size
+                    })
+                }
+                val entriesByKey = remember(entries) { entries.associateBy { it.key } }
+                val currentEntries by rememberUpdatedState(entries)
+                val currentEntriesByKey by rememberUpdatedState(entriesByKey)
+
                 ReaderScreen(
                     viewModel = viewModel,
-                    onScrollToChapter = { lazyListState.scrollToItem(it) },
+                    onScrollToChapter = { chapterIndex ->
+                        val index = ReaderPosition.chapterStartIndex(currentEntries, chapterIndex)
+                        if (index >= 0) lazyListState.scrollToItem(index)
+                    },
                     chaptersContent = {
-                        LaunchedEffect(lazyListState) {
-                            snapshotFlow { lazyListState.firstVisibleItemIndex }
-                                .distinctUntilChanged()
-                                .collect { visibleChapterIdx ->
-                                    viewModel.setVisibleChapterIndex(visibleChapterIdx)
-                                }
+                        // Restore the saved position only once its chapter body is loaded:
+                        // scrolling earlier would land on placeholder geometry.
+                        LaunchedEffect(state.pendingRestore, entries) {
+                            val target = state.pendingRestore ?: return@LaunchedEffect
+                            val index = ReaderPosition.indexOf(entries, target)
+                                ?: return@LaunchedEffect
+                            lazyListState.scrollToItem(index)
+                            viewModel.onRestoreComplete()
                         }
 
                         LaunchedEffect(lazyListState) {
-                            snapshotFlow {
-                                lazyListState.layoutInfo.visibleItemsInfo.map { it.index }
-                            }.distinctUntilChanged()
-                                .collect { indices ->
-                                    indices.forEach { idx ->
-                                        viewModel.loadChapterBody(idx)
-                                        viewModel.loadChapterBody(idx + 1)
-                                        viewModel.loadChapterBody(idx - 1)
+                            snapshotFlow { readVisiblePosition(lazyListState, currentEntriesByKey, state) }
+                                .filterNotNull()
+                                .collect { position ->
+                                    viewModel.setChapterScrollPercent(position.chapterFraction)
+                                    viewModel.setVisibleChapterIndex(position.firstChapterIndex)
+                                    position.visibleChapters.forEach { chapterIdx ->
+                                        viewModel.loadChapterBody(chapterIdx)
+                                        viewModel.loadChapterBody(chapterIdx + 1)
+                                        viewModel.loadChapterBody(chapterIdx - 1)
                                     }
                                 }
                         }
 
                         LaunchedEffect(lazyListState) {
-                            snapshotFlow {
-                                Pair(
-                                    lazyListState.firstVisibleItemIndex,
-                                    lazyListState.firstVisibleItemScrollOffset
-                                )
-                            }.filter { (idx, _) -> idx >= 0 }
-                                .collect { (visibleChapterIdx, visibleChapterOffset) ->
-                                    viewModel.setChapterScrollPercent(
-                                        calculateChapterPercentage(lazyListState)
-                                    )
+                            snapshotFlow { readVisiblePosition(lazyListState, currentEntriesByKey, state) }
+                                .filterNotNull()
+                                .distinctUntilChanged { old, new ->
+                                    old.anchor == new.anchor && old.lastVisible == new.lastVisible
+                                }
+                                .collect { position ->
                                     // If book was not opened from external epub file, update the
                                     // reading progress into the database.
+                                    val anchor = position.anchor ?: return@collect
                                     if (!intentData.isExternalFile && intentData.libraryItemId != null) {
                                         viewModel.updateReaderProgress(
                                             libraryItemId = intentData.libraryItemId,
-                                            chapterIndex = visibleChapterIdx,
-                                            chapterOffset = visibleChapterOffset
+                                            anchor = anchor,
+                                            chapterFraction = position.chapterFraction,
+                                            lastVisible = position.lastVisible
                                         )
                                     }
                                 }
                         }
 
                         // Reader content lazy column.
-                        val state = viewModel.state.collectAsState().value
                         ChaptersContent(
                             state = state,
+                            entries = entries,
                             lazyListState = lazyListState,
                             onToggleReaderMenu = { viewModel.toggleReaderMenu() },
                             onLoadImage = { viewModel.loadImageData(it) }
@@ -215,7 +227,6 @@ data class IntentData(
  * @param intent Intent to handle.
  * @param viewModel ReaderViewModel to load book.
  * @param contentResolver ContentResolver to open input stream.
- * @param scrollToPosition Function to scroll to specific position.
  * @param onError Function to handle error.
  *
  * @return IntentData object containing book id, chapter index and isExternalBook.
@@ -224,7 +235,6 @@ fun handleIntent(
     intent: Intent,
     viewModel: ReaderViewModel,
     contentResolver: ContentResolver,
-    scrollToPosition: (index: Int, offset: Int) -> Unit,
     onError: () -> Unit
 ): IntentData {
     val libraryItemId = intent.extras?.getInt(
@@ -232,24 +242,14 @@ fun handleIntent(
     )
     val chapterIndex = intent.extras?.getInt(
         ReaderConstants.EXTRA_CHAPTER_IDX, ReaderConstants.DEFAULT_NONE
-    )
+    )?.takeIf { it != ReaderConstants.DEFAULT_NONE }
     val isExternalFile = intent.type == Constants.EPUB_MIME_TYPE
 
     // Internal book
     if (libraryItemId != null && libraryItemId != ReaderConstants.DEFAULT_NONE) {
-        // Load epub book from library.
-        viewModel.loadEpubBook(libraryItemId = libraryItemId, onLoaded = {
-            // if there is saved progress for this book, then scroll to
-            // last page at exact position were used had left.
-            if (it.hasProgressSaved && (chapterIndex == null || chapterIndex == ReaderConstants.DEFAULT_NONE)) {
-                scrollToPosition(it.lastChapterIndex, it.lastChapterOffset)
-            } else if (chapterIndex != null && chapterIndex != ReaderConstants.DEFAULT_NONE) {
-                // if user clicked on specific chapter, then scroll to
-                // that chapter directly.
-                scrollToPosition(chapterIndex, 0)
-            }
-        })
-
+        // Load epub book from library; restores the saved position unless a chapter was
+        // explicitly requested.
+        viewModel.loadEpubBook(libraryItemId = libraryItemId, startChapterIndex = chapterIndex)
     } else if (isExternalFile) {
         // External book from file.
         intent.data?.let {
@@ -265,30 +265,56 @@ fun handleIntent(
 }
 
 /**
- * Calculate the scroll percentage for the first visible item in a LazyColumn.
+ * What is on screen right now, in semantic terms.
  *
- * @param lazyListState The LazyListState of the LazyColumn
- * @return The scroll percentage for the first visible item, or -1 if no item is visible
+ * @param anchor First visible item, or null if it is an unloaded chapter placeholder.
+ * @param lastVisible Last visible item (null for placeholders).
+ * @param firstChapterIndex Chapter of the first visible row.
+ * @param visibleChapters Chapters with at least one visible row.
+ * @param chapterFraction How far (0..1) the reader is into the first visible chapter.
  */
-fun calculateChapterPercentage(lazyListState: LazyListState): Float {
-    val firstVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.firstOrNull() ?: return -1f
-    val listHeight =
-        lazyListState.layoutInfo.viewportEndOffset - lazyListState.layoutInfo.viewportStartOffset
+data class VisiblePosition(
+    val anchor: ReaderAnchor?,
+    val lastVisible: ReaderAnchor?,
+    val firstChapterIndex: Int,
+    val visibleChapters: Set<Int>,
+    val chapterFraction: Float
+)
 
-    // Calculate the scroll percentage for the first visible item
-    val itemTop = firstVisibleItem.offset.toFloat()
-    val itemBottom = itemTop + firstVisibleItem.size.toFloat()
+/**
+ * Read the visible position from the list layout. Returns null while a restore is pending so
+ * the initial (unrestored) layout never overwrites saved progress.
+ */
+private fun readVisiblePosition(
+    lazyListState: LazyListState,
+    byKey: Map<String, ReaderListEntry>,
+    state: ReaderScreenState
+): VisiblePosition? {
+    if (state.pendingRestore != null) return null
+    val layoutInfo = lazyListState.layoutInfo
+    val visible = layoutInfo.visibleItemsInfo
+        .filter { it.offset + it.size > layoutInfo.viewportStartOffset }
+    if (visible.isEmpty()) return null
+    val first = visible.first()
+    val firstEntry = byKey[first.key] ?: return null
+    val lastEntry = byKey[visible.last().key]
 
-    return if (itemTop >= listHeight || itemBottom <= 0f) {
-        1f // Item is completely scrolled out of view
-    } else {
-        // Calculate the visible portion of the item
-        val visiblePortion = if (itemTop < 0f) {
-            itemBottom
-        } else {
-            listHeight - itemTop
-        }
-        // Calculate the scroll percentage based on the visible portion
-        ((1f - visiblePortion / firstVisibleItem.size.toFloat())).coerceIn(0f, 1f)
+    val chapter = state.chapters.getOrNull(firstEntry.chapterIndex)
+    val itemCount = chapter?.let { state.loadedChapters[it.chapterId]?.body?.size } ?: 0
+    val withinItem = if (first.size > 0) {
+        (layoutInfo.viewportStartOffset - first.offset).toFloat() / first.size
+    } else 0f
+    val chapterFraction = when (firstEntry) {
+        is ReaderListEntry.Item ->
+            ReaderPosition.chapterFraction(firstEntry.itemIndex, itemCount, withinItem)
+        else -> 0f
     }
+
+    return VisiblePosition(
+        anchor = ReaderPosition.anchorOf(firstEntry),
+        lastVisible = ReaderPosition.anchorOf(lastEntry),
+        firstChapterIndex = firstEntry.chapterIndex,
+        visibleChapters = visible.mapNotNull { byKey[it.key]?.chapterIndex }.toSet(),
+        chapterFraction = chapterFraction
+    )
 }

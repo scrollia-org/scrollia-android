@@ -60,7 +60,7 @@ fun BookDetailTopUI(
     authors: String,
     imageData: Any?,
     currentThemeMode: ThemeMode,
-    progressPercent: String? = null
+    progressText: String? = null
 ) {
     val context = LocalContext.current
     Box(
@@ -162,9 +162,9 @@ fun BookDetailTopUI(
                     color = MaterialTheme.colorScheme.onBackground,
                 )
 
-                if (!progressPercent.isNullOrBlank()) {
+                if (!progressText.isNullOrBlank()) {
                     Text(
-                        text = "$progressPercent% Completed",
+                        text = progressText,
                         modifier = Modifier.padding(start = 12.dp, end = 8.dp),
                         fontSize = 15.sp,
                         fontFamily = interFont,
