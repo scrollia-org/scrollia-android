@@ -22,6 +22,7 @@ import org.scrollia.app.api.BookAPI
 import org.scrollia.app.database.ScrolliaDatabase
 import org.scrollia.app.epub.EpubParser
 import org.scrollia.app.helpers.PreferenceUtil
+import org.scrollia.app.helpers.book.BookCoverCache
 import org.scrollia.app.helpers.book.BookDownloader
 import org.scrollia.app.ui.screens.welcome.viewmodels.WelcomeDataStore
 import dagger.Module
@@ -72,6 +73,13 @@ class MainModule {
     @Singleton
     @Provides
     fun provideEpubParser() = EpubParser()
+
+    @Singleton
+    @Provides
+    fun provideBookCoverCache(
+        @ApplicationContext context: Context,
+        epubParser: EpubParser
+    ) = BookCoverCache(context, epubParser)
 
     @Provides
     @Singleton

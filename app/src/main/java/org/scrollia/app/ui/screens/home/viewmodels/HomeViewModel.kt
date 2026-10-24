@@ -28,9 +28,16 @@ import org.scrollia.app.helpers.Constants
 import org.scrollia.app.helpers.NetworkObserver
 import org.scrollia.app.helpers.Paginator
 import org.scrollia.app.helpers.PreferenceUtil
+import org.scrollia.app.helpers.book.BookCoverCache
 import org.scrollia.app.helpers.book.BookLanguage
+import org.scrollia.app.database.library.LibraryDao
+import org.scrollia.app.database.progress.ProgressDao
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -75,7 +82,10 @@ enum class SortOption {
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val bookAPI: BookAPI,
-    private val preferenceUtil: PreferenceUtil
+    private val preferenceUtil: PreferenceUtil,
+    libraryDao: LibraryDao,
+    progressDao: ProgressDao,
+    private val bookCoverCache: BookCoverCache,
 ) : ViewModel() {
     var allBooksState by mutableStateOf(AllBooksState())
     var searchBarState by mutableStateOf(SearchBarState())
@@ -97,11 +107,37 @@ class HomeViewModel @Inject constructor(
         get() = language.value != BookLanguage.AllBooks ||
                 genre != null || sortOption != SortOption.POPULARITY
 
+    // Books in progress for the "Continue reading" rail; empty hides the rail.
+    var continueReading by mutableStateOf<List<ContinueReadingItem>>(emptyList())
+        private set
+
     private var searchJob: Job? = null
 
     init {
         viewModelScope.launch {
             genreOptions = bookAPI.getCategories()?.filter { it.count > 0 }
+        }
+        // Room flows re-emit on every progress write, so the rail is current when the user
+        // comes back from the reader.
+        viewModelScope.launch {
+            combine(
+                libraryDao.getAllItemsAsFlow(),
+                progressDao.getAllReaderItemsAsFlow()
+            ) { library, progress -> ContinueReading.inProgress(library, progress) }
+                .map { rows ->
+                    rows.filter { (item, _) -> item.fileExist() }.map { (item, p) ->
+                        ContinueReadingItem(
+                            libraryItemId = item.id,
+                            title = item.title,
+                            authors = item.authors,
+                            coverFile = bookCoverCache.coverFile(item),
+                            progressPercent = p.progressPercent(),
+                            progress = p.progress
+                        )
+                    }
+                }
+                .flowOn(Dispatchers.IO)
+                .collect { continueReading = it }
         }
     }
 

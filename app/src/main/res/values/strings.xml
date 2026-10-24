@@ -82,6 +82,8 @@
     <string name="start_reading_button">Start</string>
     <string name="continue_reading_button">Resume</string>
     <string name="progress_percent_read">%1$d%% read</string>
+    <string name="progress_percent">%1$d%%</string>
+    <string name="home_continue_reading">Continue reading</string>
     <string name="library_finished">Finished</string>
 
     <!--Reader Screen -->

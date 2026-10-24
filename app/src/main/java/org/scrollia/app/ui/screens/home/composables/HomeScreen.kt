@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -256,7 +257,17 @@ fun HomeScreenContents(
                 networkStatus = networkStatus,
                 navController = navController,
                 onRetryClicked = { viewModel.reloadItems() },
-                onLoadNextItems = { viewModel.loadNextItems() }
+                onLoadNextItems = { viewModel.loadNextItems() },
+                header = {
+                    ContinueReadingRail(
+                        items = viewModel.continueReading,
+                        onOpenDetails = { id ->
+                            navController.navigate(
+                                Screens.ReaderDetailScreen.withLibraryItemId(id.toString())
+                            )
+                        }
+                    )
+                }
             )
         } else {
             SearchBookList(searchBarState = topBarState, navController = navController)
@@ -270,14 +281,19 @@ private fun AllBooksList(
     networkStatus: NetworkObserver.Status,
     navController: NavController,
     onRetryClicked: () -> Unit,
-    onLoadNextItems: () -> Unit
+    onLoadNextItems: () -> Unit,
+    header: @Composable () -> Unit
 ) {
+    // The header (Continue reading) stays reachable while the catalog loads or is offline.
     AnimatedVisibility(
         visible = allBooksState.page == 1L && allBooksState.isLoading,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        BookItemShimmerLoader()
+        Column {
+            Box(modifier = Modifier.padding(horizontal = 8.dp)) { header() }
+            BookItemShimmerLoader()
+        }
     }
 
     AnimatedVisibility(
@@ -285,7 +301,10 @@ private fun AllBooksList(
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        NetworkError(onRetryClicked = { onRetryClicked() })
+        Column {
+            Box(modifier = Modifier.padding(horizontal = 8.dp)) { header() }
+            NetworkError(onRetryClicked = { onRetryClicked() })
+        }
     }
 
     AnimatedVisibility(
@@ -300,6 +319,7 @@ private fun AllBooksList(
                 .padding(start = 8.dp, end = 8.dp),
             columns = GridCells.Adaptive(295.dp)
         ) {
+            item(span = { GridItemSpan(maxLineSpan) }) { header() }
             items(allBooksState.items.size) { i ->
                 val item = allBooksState.items[i]
                 if (networkStatus == NetworkObserver.Status.Available
