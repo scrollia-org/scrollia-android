@@ -16,7 +16,6 @@
 
 package org.scrollia.app.ui.screens.library.viewmodels
 
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.MutableState
@@ -29,9 +28,8 @@ import org.scrollia.app.database.library.LibraryDao
 import org.scrollia.app.database.library.LibraryItem
 import org.scrollia.app.database.progress.ProgressDao
 import org.scrollia.app.database.progress.ProgressData
-import org.scrollia.app.epub.EpubParser
 import org.scrollia.app.helpers.PreferenceUtil
-import org.scrollia.app.helpers.book.BookDownloader
+import org.scrollia.app.helpers.book.BookImporter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -39,8 +37,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileInputStream
 import javax.inject.Inject
 
 
@@ -48,7 +44,7 @@ import javax.inject.Inject
 class LibraryViewModel @Inject constructor(
     private val libraryDao: LibraryDao,
     progressDao: ProgressDao,
-    private val epubParser: EpubParser,
+    private val bookImporter: BookImporter,
     private val preferenceUtil: PreferenceUtil
 ) : ViewModel() {
 
@@ -97,39 +93,13 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun importBooks(
-        context: Context,
         fileUris: List<Uri>,
         onComplete: () -> Unit,
         onError: (Throwable) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = runCatching {
-                fileUris.forEach { uri ->
-                    context.contentResolver.openInputStream(uri)?.use { fis ->
-                        if (fis !is FileInputStream) {
-                            throw IllegalArgumentException("File input stream is not valid.")
-                        }
-
-                        val epubBook = epubParser.createEpubBook(fis, false)
-                        fis.channel.position(0)
-
-                        val filePath = copyBookToInternalStorage(
-                            context, fis,
-                            BookDownloader.createImportedFileName(epubBook.title)
-                        )
-
-                        val libraryItem = LibraryItem(
-                            bookId = 0,
-                            title = epubBook.title,
-                            authors = epubBook.author,
-                            filePath = filePath,
-                            createdAt = System.currentTimeMillis(),
-                            isImported = true
-                        )
-
-                        libraryDao.insert(libraryItem)
-                    }
-                }
+                fileUris.forEach { uri -> bookImporter.importUri(uri) }
 
                 // Add delay here so user can see the import progress bar even if
                 // the import is very fast instead of just a flicker, improving UX
@@ -144,25 +114,6 @@ class LibraryViewModel @Inject constructor(
                     onError(exception)
                 }
             }
-        }
-    }
-
-
-    private suspend fun copyBookToInternalStorage(
-        context: Context,
-        fileStream: FileInputStream,
-        filename: String
-    ): String = withContext(Dispatchers.IO) {
-        val booksFolder = File(context.filesDir, BookDownloader.BOOKS_FOLDER)
-        if (!booksFolder.exists() && !booksFolder.mkdirs()) {
-            throw IllegalStateException("Could not create books folder")
-        }
-        val tempFile = File(booksFolder, "$filename.part")
-        try {
-            tempFile.outputStream().use { fileStream.copyTo(it) }
-            BookDownloader.publishDownloadedFile(tempFile, booksFolder, filename).absolutePath
-        } finally {
-            tempFile.delete()
         }
     }
 }

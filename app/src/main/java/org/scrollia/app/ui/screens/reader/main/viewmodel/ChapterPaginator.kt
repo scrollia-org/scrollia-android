@@ -180,15 +180,31 @@ class ChapterPaginator(environment: PaginationEnvironment) {
             )
         }
         val text = PagedStyles.textOf(item) ?: return null
-        val layout = measure(text, styles.styleFor(item)!!, styles.textWidthFor(item))
+        return measureLines(index, item, text, start = 0)
+    }
+
+    /** Lines of [text] from offset [start] to its end, laid out on their own. */
+    private fun measureLines(
+        index: Int,
+        item: ReaderItem,
+        text: AnnotatedString,
+        start: Int
+    ): MeasuredItem.Lines {
+        val layout = measure(
+            TextSlices.layoutText(text, start), styles.styleFor(item)!!, styles.textWidthFor(item)
+        )
         val frame = styles.outerPaddingFor(item) + styles.innerPaddingFor(item)
+        val lineStarts = IntArray(layout.lineCount) { start + layout.getLineStart(it) }
         return MeasuredItem.Lines(
             itemIndex = index,
             lineTops = FloatArray(layout.lineCount) { layout.getLineTop(it) },
             lineBottoms = FloatArray(layout.lineCount) { layout.getLineBottom(it) },
             frameTop = frame,
             frameBottom = frame,
-            gapAfter = if (item is ReaderItem.Text) styles.paragraphGap else 0
+            gapAfter = if (item is ReaderItem.Text) styles.paragraphGap else 0,
+            lineStarts = lineStarts,
+            textEnd = text.length,
+            remeasureFrom = { line -> measureLines(index, item, text, lineStarts[line]) }
         )
     }
 }

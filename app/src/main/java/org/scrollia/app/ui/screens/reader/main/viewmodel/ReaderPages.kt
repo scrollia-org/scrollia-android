@@ -22,9 +22,14 @@ sealed class MeasuredItem {
     abstract val itemIndex: Int
 
     /**
-     * @param lineTops / lineBottoms Line boxes of the full item layout.
+     * @param lineTops / lineBottoms Line boxes of the layout.
      * @param frameTop / frameBottom Space drawn around every slice (block padding).
      * @param gapAfter Space after the item, only when it ends on the page.
+     * @param lineStarts Offset in the item's text where each line starts (empty if unknown).
+     * @param textEnd Offset in the item's text where the last line ends.
+     * @param remeasureFrom The rest of the item from a line on, laid out on its own; this is
+     *   what a continuation slice draws, so pagination measures exactly that. Null: slices
+     *   reuse this layout's lines.
      */
     class Lines(
         override val itemIndex: Int,
@@ -32,7 +37,10 @@ sealed class MeasuredItem {
         val lineBottoms: FloatArray,
         val frameTop: Int = 0,
         val frameBottom: Int = 0,
-        val gapAfter: Int = 0
+        val gapAfter: Int = 0,
+        val lineStarts: IntArray = IntArray(0),
+        val textEnd: Int = 0,
+        val remeasureFrom: ((line: Int) -> Lines)? = null
     ) : MeasuredItem() {
         val lineCount get() = lineTops.size
     }
@@ -60,9 +68,10 @@ sealed class PageBlock {
     }
 
     /**
-     * Lines [fromLine, toLine) of a text item. The full item is laid out and shown through a
-     * window [clipTop, clipTop + clipHeight), so line breaks, justification and hyphenation are
-     * exactly those of the unsplit paragraph.
+     * Lines [fromLine, toLine) of a text item, i.e. its characters [startChar, endChar). The
+     * item's text from [startChar] to its end is laid out (so justification and the hyphen at
+     * the cut are those of the running paragraph) and only these lines are shown, through the
+     * window [clipTop, clipTop + clipHeight) of that layout.
      */
     data class Lines(
         override val itemIndex: Int,
@@ -74,9 +83,12 @@ sealed class PageBlock {
         val frameBottom: Int,
         val gapAfter: Int,
         override val startsItem: Boolean,
-        val endsItem: Boolean
+        val endsItem: Boolean,
+        val startChar: Int = 0,
+        val endChar: Int = 0
     ) : PageBlock() {
         override val height get() = frameTop + clipHeight + frameBottom + gapAfter
+        val lineCount get() = toLine - fromLine
     }
 
     data class Fixed(
@@ -144,14 +156,15 @@ object Paginator {
                 }
 
                 is MeasuredItem.Lines -> {
-                    val lineCount = item.lineCount
+                    var layout: MeasuredItem.Lines = item
                     var from = 0
-                    while (from < lineCount) {
-                        val available = pageHeight - used - item.frameTop - item.frameBottom
-                        val top = floor(item.lineTops[from]).toInt()
+                    while (from < layout.lineCount) {
+                        val lineCount = layout.lineCount
+                        val available = pageHeight - used - layout.frameTop - layout.frameBottom
+                        val top = floor(layout.lineTops[from]).toInt()
                         var to = from
                         while (to < lineCount &&
-                            ceil(item.lineBottoms[to]).toInt() - top <= available
+                            ceil(layout.lineBottoms[to]).toInt() - top <= available
                         ) to++
                         if (to == from) {
                             if (blocks.isNotEmpty()) {
@@ -162,22 +175,31 @@ object Paginator {
                             to = from + 1
                         }
                         val ends = to == lineCount
+                        val chars = TextSlices.charRange(layout.lineStarts, layout.textEnd, from, to)
                         val block = PageBlock.Lines(
                             itemIndex = item.itemIndex,
                             fromLine = from,
                             toLine = to,
                             clipTop = top,
-                            clipHeight = ceil(item.lineBottoms[to - 1]).toInt() - top,
-                            frameTop = item.frameTop,
-                            frameBottom = item.frameBottom,
-                            gapAfter = if (ends) item.gapAfter else 0,
-                            startsItem = from == 0,
-                            endsItem = ends
+                            clipHeight = ceil(layout.lineBottoms[to - 1]).toInt() - top,
+                            frameTop = layout.frameTop,
+                            frameBottom = layout.frameBottom,
+                            gapAfter = if (ends) layout.gapAfter else 0,
+                            startsItem = layout === item && from == 0,
+                            endsItem = ends,
+                            startChar = chars.first,
+                            endChar = chars.last + 1
                         )
                         blocks.add(block)
                         used += block.height
                         from = to
-                        if (!ends) newPage()
+                        if (!ends) {
+                            newPage()
+                            layout.remeasureFrom?.let { remeasure ->
+                                layout = remeasure(to)
+                                from = 0
+                            }
+                        }
                     }
                 }
             }

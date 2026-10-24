@@ -264,6 +264,8 @@ private class ScrolliaSelectionToolbar(
  * @param onCopyRequested Callback for when the copy option is clicked.
  * @param onTranslateRequested Callback for when the translate option is clicked.
  * @param onDictionaryRequested Callback for when the dictionary option is clicked.
+ * @param selectable When false only the toolbar is provided; the content places its own
+ *   [SelectionContainer]s (e.g. one per page, so a selection never spans hidden content).
  * @param content Selection container content.
  */
 @Composable
@@ -273,6 +275,7 @@ fun ScrolliaSelectionContainer(
     onWebSearchRequested: ((String) -> Unit),
     onTranslateRequested: ((String) -> Unit),
     onDictionaryRequested: ((String) -> Unit),
+    selectable: Boolean = true,
     content: @Composable (toolbarHidden: Boolean) -> Unit
 ) {
     val view = LocalView.current
@@ -309,7 +312,11 @@ fun ScrolliaSelectionContainer(
     CompositionLocalProvider(
         LocalTextToolbar provides scrolliaSelectionToolbar
     ) {
-        SelectionContainer(Modifier.fillMaxSize()) {
+        if (selectable) {
+            SelectionContainer(Modifier.fillMaxSize()) {
+                content(isToolbarHidden.value)
+            }
+        } else {
             content(isToolbarHidden.value)
         }
     }

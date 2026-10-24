@@ -84,6 +84,14 @@
     <string name="back">Volver</string>
     <string name="reader_error_title">No pudimos abrir este libro</string>
     <string name="reader_error_message">Es posible que el archivo esté dañado, no esté disponible o ya no tengas acceso a él.</string>
+    <string name="import_external_title">¿Añadir este libro a tu biblioteca?</string>
+    <string name="import_external_message">Scrollia guarda su propia copia: podrás volver a él desde tu biblioteca y seguir donde lo dejaste.</string>
+    <string name="import_external_add">Añadir a mi biblioteca</string>
+    <string name="import_external_importing">Añadiendo a tu biblioteca…</string>
+    <string name="import_external_failed_title">No pudimos añadir este libro</string>
+    <string name="import_error_not_epub">Este archivo no es un libro EPUB que Scrollia pueda abrir.</string>
+    <string name="import_error_unreadable">No se pudo leer el archivo. Comprueba que sigue disponible e inténtalo de nuevo.</string>
+    <string name="import_error_storage">No se pudo guardar el libro. Comprueba el espacio libre del dispositivo e inténtalo de nuevo.</string>
     <string name="reader_chapter_list_title">Capítulos</string>
     <string name="reader_theme_paper">Papel</string>
     <string name="reader_theme_sepia">Sepia</string>
@@ -96,6 +104,9 @@
     <string name="reader_mode_scroll">Desplazamiento</string>
     <string name="reader_mode_paged">Páginas</string>
     <string name="reader_page_indicator">Página %1$d de %2$d</string>
+    <string name="reader_page_previous">Página anterior</string>
+    <string name="reader_page_next">Página siguiente</string>
+    <string name="reader_page_loading">Cargando página</string>
     <string name="reader_settings_font">Fuente</string>
     <string name="reader_settings_size">Tamaño</string>
     <string name="reader_settings_size_value">%1$d\u00A0%%</string>
@@ -103,6 +114,8 @@
     <string name="reader_settings_theme">Tema</string>
     <string name="reader_settings_justify">Justificar texto</string>
     <string name="reader_settings_justify_desc">Márgenes parejos, con separación silábica automática</string>
+    <string name="reader_settings_keep_screen_on">Mantener pantalla encendida</string>
+    <string name="reader_settings_keep_screen_on_desc">La pantalla no se apagará mientras haya un libro abierto</string>
     <string name="reader_settings_sample">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo.</string>
     <string name="reader_font_system">Sistema</string>
     <!-- Text selection -->

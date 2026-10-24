@@ -27,8 +27,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LibraryDao {
 
+    /** Returns the row id, i.e. the new item's [LibraryItem.id]. */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(libraryItem: LibraryItem)
+    fun insert(libraryItem: LibraryItem): Long
 
     @Delete
     fun delete(libraryItem: LibraryItem)
