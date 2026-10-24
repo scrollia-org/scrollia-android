@@ -85,6 +85,13 @@ class ReaderPositionTest {
     }
 
     @Test
+    fun `finished is retained when revisiting earlier pages`() {
+        assertThat(ReaderPosition.retainFinished(wasFinished = true, isFinished = false)).isTrue()
+        assertThat(ReaderPosition.retainFinished(wasFinished = false, isFinished = true)).isTrue()
+        assertThat(ReaderPosition.retainFinished(wasFinished = false, isFinished = false)).isFalse()
+    }
+
+    @Test
     fun `progress percent caps below 100 until finished`() {
         val reading = ProgressData(libraryItemId = 1, lastChapterIndex = 0, progress = 0.999f)
         assertThat(reading.progressPercent()).isEqualTo(99)

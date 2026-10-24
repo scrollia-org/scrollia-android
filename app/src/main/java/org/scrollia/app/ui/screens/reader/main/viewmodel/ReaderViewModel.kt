@@ -440,7 +440,7 @@ class ReaderViewModel @Inject constructor(
             lastReadTime = System.currentTimeMillis(),
             lastChapterItemIndex = update.anchor.itemIndex,
             progress = update.progress,
-            finished = update.finished
+            finished = ReaderPosition.retainFinished(existing?.finished == true, update.finished)
         )
         if (existing != null) {
             newData.id = existing.id
