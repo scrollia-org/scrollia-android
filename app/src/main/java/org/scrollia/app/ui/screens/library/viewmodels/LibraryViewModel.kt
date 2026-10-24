@@ -115,7 +115,7 @@ class LibraryViewModel @Inject constructor(
 
                         val filePath = copyBookToInternalStorage(
                             context, fis,
-                            BookDownloader.createFileName(epubBook.title)
+                            BookDownloader.createImportedFileName(epubBook.title)
                         )
 
                         val libraryItem = LibraryItem(
@@ -154,10 +154,15 @@ class LibraryViewModel @Inject constructor(
         filename: String
     ): String = withContext(Dispatchers.IO) {
         val booksFolder = File(context.filesDir, BookDownloader.BOOKS_FOLDER)
-        if (!booksFolder.exists()) booksFolder.mkdirs()
-        val bookFile = File(booksFolder, filename)
-        // write the file to the internal storage
-        bookFile.outputStream().use { fileStream.copyTo(it) }
-        bookFile.absolutePath
+        if (!booksFolder.exists() && !booksFolder.mkdirs()) {
+            throw IllegalStateException("Could not create books folder")
+        }
+        val tempFile = File(booksFolder, "$filename.part")
+        try {
+            tempFile.outputStream().use { fileStream.copyTo(it) }
+            BookDownloader.publishDownloadedFile(tempFile, booksFolder, filename).absolutePath
+        } finally {
+            tempFile.delete()
+        }
     }
 }

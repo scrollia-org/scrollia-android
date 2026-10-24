@@ -29,6 +29,7 @@ import org.scrollia.app.epub.EpubParser
 import org.scrollia.app.epub.models.EpubChapter
 import org.scrollia.app.helpers.NetworkObserver
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -62,40 +63,42 @@ class ReaderDetailViewModel @Inject constructor(
 
     fun loadEbookData(libraryItemId: String, networkStatus: NetworkObserver.Status) {
         viewModelScope.launch(Dispatchers.IO) {
-            val libraryItem = libraryDao.getItemById(libraryItemId.toInt())
-            // Check if library item exists.
-            if (libraryItem == null) {
-                state = state.copy(isLoading = false, error = "Library item not found.")
-                return@launch
-            }
-            // Get progress data for the current book.
-            progressData = progressDao.getReaderDataAsFlow(libraryItemId.toInt())
-            // Fetch cover image from Google books api if available.
-            val coverImage: String? = try {
-                if (!libraryItem.isImported
-                    && networkStatus == NetworkObserver.Status.Available
-                ) bookAPI.getExtraInfo(libraryItem.title)?.coverImage else null
+            state = state.copy(isLoading = true, error = null)
+            try {
+                val id = libraryItemId.toInt()
+                val libraryItem = libraryDao.getItemById(id)
+                    ?: throw IllegalStateException("Library item not found")
+                progressData = progressDao.getReaderDataAsFlow(id)
+                val coverImage: String? = try {
+                    if (!libraryItem.isImported && networkStatus == NetworkObserver.Status.Available) {
+                        bookAPI.getExtraInfo(libraryItem.title)?.coverImage
+                    } else null
+                } catch (exc: Exception) {
+                    Log.e("ReaderDetailViewModel", "Failed to fetch cover image.", exc)
+                    null
+                }
+                val isInternalChineseBook =
+                    !libraryItem.isImported && epubParser.peekLanguage(libraryItem.filePath) == "zh"
+                val epubBook = epubParser.createEpubBook(
+                    libraryItem.filePath,
+                    shouldUseToc = !isInternalChineseBook
+                )
+                state = state.copy(
+                    title = libraryItem.title,
+                    authors = libraryItem.authors,
+                    coverImage = coverImage ?: epubBook.coverImage,
+                    chapters = epubBook.chapters,
+                )
+                delay(350)
+                state = state.copy(isLoading = false)
             } catch (exc: Exception) {
-                Log.e("ReaderDetailViewModel", "Failed to fetch cover image.", exc)
-                null
+                if (exc is CancellationException) throw exc
+                Log.e("ReaderDetailViewModel", "Could not open ebook details", exc)
+                state = state.copy(
+                    isLoading = false,
+                    error = exc.localizedMessage ?: "Ebook could not be opened"
+                )
             }
-
-            // Gutenberg for some reason don't include proper navMap for chinese books
-            // in toc file, so we need to parse the book based on spine, instead of toc.
-            // This is special case for Chinese books.
-            val isInternalChineseBook =
-                !libraryItem.isImported && epubParser.peekLanguage(libraryItem.filePath) == "zh"
-            val shouldUseToc = !isInternalChineseBook
-            val epubBook = epubParser.createEpubBook(libraryItem.filePath, shouldUseToc)
-
-            state = state.copy(
-                title = libraryItem.title,
-                authors = libraryItem.authors,
-                coverImage = coverImage ?: epubBook.coverImage,
-                chapters = epubBook.chapters,
-            )
-            delay(350) // Small delay for smooth transition.
-            state = state.copy(isLoading = false)
         }
     }
 }

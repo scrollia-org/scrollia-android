@@ -81,6 +81,9 @@
     <string name="library_sort_recent">Leídos recientemente</string>
     <string name="library_sort_title">Título A–Z</string>
     <!--Reader Screen -->
+    <string name="back">Volver</string>
+    <string name="reader_error_title">No pudimos abrir este libro</string>
+    <string name="reader_error_message">Es posible que el archivo esté dañado, no esté disponible o ya no tengas acceso a él.</string>
     <string name="reader_chapter_list_title">Capítulos</string>
     <string name="reader_theme_paper">Papel</string>
     <string name="reader_theme_sepia">Sepia</string>
@@ -147,6 +150,7 @@
     <string name="share_intent_header">Compartir usando…</string>
     <string name="read_book_button">Empezar a leer</string>
     <string name="download_book_button">Descargar</string>
+    <string name="download_retry">Reintentar descarga</string>
     <string name="download_started">¡Descarga iniciada!</string>
     <string name="detail_select_language">Idioma</string>
     <string name="book_synopsis">Sinopsis</string>

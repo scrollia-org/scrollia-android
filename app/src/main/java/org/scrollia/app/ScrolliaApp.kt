@@ -26,12 +26,17 @@ import coil.memory.MemoryCache
 import coil.request.CachePolicy
 import coil.util.DebugLogger
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
+import org.scrollia.app.helpers.book.BookDownloader
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
 
 @HiltAndroidApp
 class ScrolliaApp : Application(), ImageLoaderFactory {
+    @Inject
+    lateinit var bookDownloader: BookDownloader
+
     override fun onCreate() {
         super.onCreate()
         CaocConfig.Builder.create().restartActivity(MainActivity::class.java).apply()

@@ -89,6 +89,9 @@
     <string name="library_sort_title">Title A–Z</string>
 
     <!--Reader Screen -->
+    <string name="back">Back</string>
+    <string name="reader_error_title">We couldn’t open this book</string>
+    <string name="reader_error_message">The file may be damaged, unavailable, or no longer accessible.</string>
     <string name="reader_chapter_list_title">Chapters</string>
     <string name="reader_theme_paper">Paper</string>
     <string name="reader_theme_sepia">Sepia</string>
@@ -160,6 +163,7 @@
     <string name="share_intent_header">Share this using…</string>
     <string name="read_book_button">Start Reading</string>
     <string name="download_book_button">Download</string>
+    <string name="download_retry">Retry download</string>
     <string name="download_started">Download Started!</string>
     <string name="detail_select_language">Language</string>
     <string name="book_synopsis">Synopsis</string>

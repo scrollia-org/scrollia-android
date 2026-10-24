@@ -73,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.scrollia.app.R
 import kotlin.math.roundToInt
+import org.scrollia.app.ui.common.RecoverableError
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderViewModel
 import org.scrollia.app.ui.theme.interFont
@@ -83,6 +84,8 @@ import kotlinx.coroutines.launch
 fun ReaderScreen(
     viewModel: ReaderViewModel,
     onScrollToChapter: suspend (Int) -> Unit,
+    onRetry: () -> Unit,
+    onBack: () -> Unit,
     chaptersContent: @Composable (paddingValues: PaddingValues) -> Unit
 ) {
     val state = viewModel.state.collectAsState().value
@@ -151,6 +154,13 @@ fun ReaderScreen(
                                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             }
                         }
+                    } else if (state.hasError) {
+                        RecoverableError(
+                            onRetry = onRetry,
+                            onBack = onBack,
+                            backgroundColor = state.readerTheme.backgroundColor,
+                            contentColor = state.readerTheme.textColor
+                        )
                     } else {
                         Box(modifier = Modifier.fillMaxSize()) {
                             chaptersContent(paddingValues)
