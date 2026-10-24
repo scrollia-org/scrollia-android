@@ -64,7 +64,6 @@
     <string name="start_reading_button">Začít</string>
     <string name="continue_reading_button">Pokračovat</string>
     <!--Reader Screen -->
-    <string name="reader_font_style_chooser">Change FontStyle</string>
     <string name="reader_chapter_list_title">Kapitoly</string>
     <!-- Text selection -->
     <string name="copy">Kopírovat</string>

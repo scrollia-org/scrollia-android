@@ -77,7 +77,6 @@
     <string name="progress_percent_read">%1$d\u00A0%% leído</string>
     <string name="library_finished">Terminado</string>
     <!--Reader Screen -->
-    <string name="reader_font_style_chooser">Change FontStyle</string>
     <string name="reader_chapter_list_title">Capítulos</string>
     <string name="reader_theme_paper">Papel</string>
     <string name="reader_theme_sepia">Sepia</string>
@@ -85,6 +84,16 @@
     <string name="reader_previous_chapter">Capítulo anterior</string>
     <string name="reader_next_chapter">Capítulo siguiente</string>
     <string name="reader_chapter_progress">Capítulo %1$d de %2$d · %3$d\u00A0%%</string>
+    <string name="reader_settings_title">Ajustes de lectura</string>
+    <string name="reader_settings_font">Fuente</string>
+    <string name="reader_settings_size">Tamaño</string>
+    <string name="reader_settings_size_value">%1$d\u00A0%%</string>
+    <string name="reader_settings_line_height">Interlineado</string>
+    <string name="reader_settings_theme">Tema</string>
+    <string name="reader_settings_justify">Justificar texto</string>
+    <string name="reader_settings_justify_desc">Márgenes parejos, con separación silábica automática</string>
+    <string name="reader_settings_sample">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo.</string>
+    <string name="reader_font_system">Sistema</string>
     <!-- Text selection -->
     <string name="copy">Copiar</string>
     <string name="copied">¡Copiado!</string>

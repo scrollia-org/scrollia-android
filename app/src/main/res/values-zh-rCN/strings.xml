@@ -64,7 +64,6 @@
     <string name="start_reading_button">开始</string>
     <string name="continue_reading_button">继续</string>
     <!--Reader Screen 阅读界面-->
-    <string name="reader_font_style_chooser">改变字体风格</string>
     <string name="reader_chapter_list_title">章节</string>
     <!-- Text selection 文本选择-->
     <string name="copy">复制</string>

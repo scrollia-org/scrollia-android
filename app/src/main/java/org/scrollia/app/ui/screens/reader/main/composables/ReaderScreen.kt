@@ -40,6 +40,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,7 +56,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -87,12 +91,18 @@ fun ReaderScreen(
         viewModel.hideReaderInfo()
     }
 
-    val showFontDialog = remember { mutableStateOf(false) }
-    ReaderFontChooserDialog(
-        showFontDialog = showFontDialog,
-        fontFamily = state.fontFamily,
-        onFontFamilyChanged = { viewModel.setFontFamily(it) }
-    )
+    var showSettingsSheet by rememberSaveable { mutableStateOf(false) }
+    if (showSettingsSheet) {
+        ReaderSettingsSheet(
+            state = state,
+            onDismiss = { showSettingsSheet = false },
+            onFontFamilyChanged = { viewModel.setFontFamily(it) },
+            onFontSizeChanged = { viewModel.setFontSize(it) },
+            onLineHeightChanged = { viewModel.setLineHeight(it) },
+            onReaderThemeChanged = { viewModel.setReaderTheme(it) },
+            onJustifyChanged = { viewModel.setJustifyText(it) },
+        )
+    }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
@@ -120,23 +130,9 @@ fun ReaderScreen(
                     },
                     onNextChapter = {
                         coroutineScope.launch { onScrollToChapter(state.currentChapterIndex + 1) }
-                    }
+                    },
+                    onSettingsClicked = { showSettingsSheet = true }
                 )
-            },
-            bottomBar = {
-                AnimatedVisibility(
-                    visible = state.showReaderMenu,
-                    enter = expandVertically(initialHeight = { 0 }) + fadeIn(),
-                    exit = shrinkVertically(targetHeight = { 0 }) + fadeOut(),
-                ) {
-                    ReaderBottomBar(
-                        state = state,
-                        showFontDialog = showFontDialog,
-                        onFontSizeChanged = { viewModel.setFontSize(it) },
-                        onLineHeightChanged = { viewModel.setLineHeight(it) },
-                        onReaderThemeChanged = { viewModel.setReaderTheme(it) }
-                    )
-                }
             },
             content = { paddingValues ->
                 Crossfade(
@@ -199,6 +195,7 @@ private fun ReaderTopAppBar(
     onChapterListClicked: () -> Unit,
     onPreviousChapter: () -> Unit,
     onNextChapter: () -> Unit,
+    onSettingsClicked: () -> Unit,
 ) {
     AnimatedVisibility(
         visible = state.showReaderMenu,
@@ -247,6 +244,12 @@ private fun ReaderTopAppBar(
                             contentDescription = stringResource(id = R.string.reader_chapter_list_title),
                             state = state,
                             onClick = onChapterListClicked
+                        )
+                        ReaderBarIcon(
+                            icon = Icons.Filled.Settings,
+                            contentDescription = stringResource(id = R.string.reader_settings_title),
+                            state = state,
+                            onClick = onSettingsClicked
                         )
                     }
                 )
