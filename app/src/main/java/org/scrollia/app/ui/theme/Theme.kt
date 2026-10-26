@@ -16,8 +16,6 @@
 
 package org.scrollia.app.ui.theme
 
-import android.content.Context
-import android.os.Build
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -25,14 +23,11 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
 
@@ -115,29 +110,13 @@ private val darkColors = darkColorScheme(
 // Get the color scheme based on the theme settings.
 private fun getColorScheme(
     themeState: ThemeMode,
-    materialYouState: Boolean,
     amoledTheme: Boolean,
-    darkTheme: Boolean,
-    context: Context
+    darkTheme: Boolean
 ): ColorScheme {
     val initialColorScheme = when (themeState) {
-        ThemeMode.Light -> if (materialYouState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            dynamicLightColorScheme(context)
-        } else {
-            lightColors
-        }
-
-        ThemeMode.Dark -> if (materialYouState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            dynamicDarkColorScheme(context)
-        } else {
-            darkColors
-        }
-
-        ThemeMode.Auto -> if (materialYouState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        } else {
-            if (darkTheme) darkColors else lightColors
-        }
+        ThemeMode.Light -> lightColors
+        ThemeMode.Dark -> darkColors
+        ThemeMode.Auto -> if (darkTheme) darkColors else lightColors
     }
 
     return if (amoledTheme && // Check if AMOLED theme is enabled
@@ -187,20 +166,13 @@ fun ScrolliaTheme(
     settingsViewModel: SettingsViewModel,
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
     val themeState = settingsViewModel.theme.observeAsState(initial = ThemeMode.Auto)
     val amoledThemeState = settingsViewModel.amoledTheme.observeAsState(initial = false)
-    // Material You is opt-in: the Scrollia brand palette (docs/DESIGN.md)
-    // must be the default look, not the user's wallpaper colors.
-    val materialYouState = settingsViewModel.materialYou.observeAsState(initial = false)
-
 
     val colorScheme = getColorScheme(
         themeState = themeState.value,
-        materialYouState = materialYouState.value,
         amoledTheme = amoledThemeState.value,
-        darkTheme = darkTheme,
-        context = context
+        darkTheme = darkTheme
     )
 
     MaterialTheme(

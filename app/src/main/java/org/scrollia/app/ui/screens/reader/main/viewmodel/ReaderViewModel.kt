@@ -81,8 +81,8 @@ data class ReaderScreenState(
     val readerTheme: ReaderTheme = ReaderTheme.Paper,
     val justifyText: Boolean = false,
     val readingMode: ReadingMode = ReadingMode.SCROLL,
-    // Off by default: reading respects the system display timeout (DESIGN.md §19).
-    val keepScreenOn: Boolean = false,
+    // On unless the reader explicitly disables it (DESIGN.md §19).
+    val keepScreenOn: Boolean = true,
     // Paged mode: spec the pages below were measured with, and pages per chapter index.
     val pageSpec: PageSpec? = null,
     val pages: Map<Int, List<ReaderPage>> = emptyMap(),
@@ -175,7 +175,7 @@ class ReaderViewModel @Inject constructor(
                         preferenceUtil.getString(PreferenceUtil.READER_MODE_STR, ReadingMode.SCROLL.id)
                     ),
                     keepScreenOn = preferenceUtil.getBoolean(
-                        PreferenceUtil.READER_KEEP_SCREEN_ON_BOOL, false
+                        PreferenceUtil.READER_KEEP_SCREEN_ON_BOOL, true
                     )
                 )
             }

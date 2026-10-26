@@ -92,7 +92,6 @@
     <string name="theme_option_system">Thème du système</string>
     <string name="theme_dialog_apply_button">Appliquer</string>
     <string name="amoled_theme_setting">Thème noir</string>
-    <string name="material_you_setting" translatable="false">Material You</string>
     <string name="license_setting">Licence &amp; Remerciements</string>
     <string name="license_setting_desc">Licences open source.</string>
     <string name="about_setting">Informations sur l’application</string>

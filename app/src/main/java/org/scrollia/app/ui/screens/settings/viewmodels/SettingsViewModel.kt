@@ -36,14 +36,12 @@ class SettingsViewModel @Inject constructor(
 
     private val _theme = MutableLiveData(ThemeMode.Auto)
     private val _amoledTheme = MutableLiveData(false)
-    private val _materialYou = MutableLiveData(false)
     private val _internalReader = MutableLiveData(true)
     private val _useGoogleApi = MutableLiveData(true)
     private val _openLibraryAtStart = MutableLiveData(false)
 
     val theme: LiveData<ThemeMode> = _theme
     val amoledTheme: LiveData<Boolean> = _amoledTheme
-    val materialYou: LiveData<Boolean> = _materialYou
     val internalReader: LiveData<Boolean> = _internalReader
     val useGoogleApi: LiveData<Boolean> = _useGoogleApi
     val openLibraryAtStart: LiveData<Boolean> = _openLibraryAtStart
@@ -51,7 +49,6 @@ class SettingsViewModel @Inject constructor(
     init {
         _theme.value = ThemeMode.entries.toTypedArray()[getThemeValue()]
         _amoledTheme.value = getAmoledThemeValue()
-        _materialYou.value = getMaterialYouValue()
         _internalReader.value = getInternalReaderValue()
         _useGoogleApi.value = getUseGoogleApiValue()
         _openLibraryAtStart.value = getOpenLibraryAtStartValue()
@@ -67,11 +64,6 @@ class SettingsViewModel @Inject constructor(
     fun setAmoledTheme(newValue: Boolean) {
         _amoledTheme.postValue(newValue)
         preferenceUtil.putBoolean(PreferenceUtil.AMOLED_THEME_BOOL, newValue)
-    }
-
-    fun setMaterialYou(newValue: Boolean) {
-        _materialYou.postValue(newValue)
-        preferenceUtil.putBoolean(PreferenceUtil.MATERIAL_YOU_BOOL, newValue)
     }
 
     fun setInternalReaderValue(newValue: Boolean) {
@@ -97,12 +89,6 @@ class SettingsViewModel @Inject constructor(
 
     private fun getAmoledThemeValue() = preferenceUtil.getBoolean(
         PreferenceUtil.AMOLED_THEME_BOOL, false
-    )
-
-    // Material You is opt-in (default false): the brand palette is the
-    // default look, not the user's wallpaper colors (see Theme.kt).
-    private fun getMaterialYouValue() = preferenceUtil.getBoolean(
-        PreferenceUtil.MATERIAL_YOU_BOOL, false
     )
 
     private fun getInternalReaderValue() = preferenceUtil.getBoolean(

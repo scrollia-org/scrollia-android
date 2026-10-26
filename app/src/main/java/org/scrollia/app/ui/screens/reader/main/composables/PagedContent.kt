@@ -1,5 +1,7 @@
 package org.scrollia.app.ui.screens.reader.main.composables
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -158,7 +160,12 @@ fun PagedChaptersContent(
     // Page taps and accessibility actions share this path.
     val turnTo: (Int) -> Unit = { target ->
         if (target in 0 until pagerState.pageCount) {
-            coroutineScope.launch { pagerState.animateScrollToPage(target) }
+            coroutineScope.launch {
+                pagerState.animateScrollToPage(
+                    page = target,
+                    animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing)
+                )
+            }
         }
     }
 

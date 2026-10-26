@@ -156,9 +156,6 @@ private fun AppearanceOptionsUI(viewModel: SettingsViewModel) {
     // Display settings for the amoled theme
     val amoledState = viewModel.amoledTheme.observeAsState(initial = false)
 
-    // Display settings for the Material You theme
-    val materialYouState = viewModel.materialYou.observeAsState(initial = false)
-
     Column(modifier = Modifier.padding(horizontal = 14.dp)) {
         SettingsSectionHeader(titleRes = R.string.settings_section_appearance)
         SettingItem(
@@ -175,15 +172,6 @@ private fun AppearanceOptionsUI(viewModel: SettingsViewModel) {
             onCheckChange = {
                 viewModel.setAmoledTheme(it)
             })
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            SettingItemWIthSwitch(
-                icon = Icons.Filled.Edit,
-                mainText = stringResource(id = R.string.material_you_setting),
-                subText = stringResource(id = R.string.material_you_setting_desc),
-                switchState = materialYouState,
-                onCheckChange = { viewModel.setMaterialYou(it) }
-            )
-        }
     }
 
     if (appThemeDialog.value) {

@@ -206,6 +206,9 @@ private fun BookDetailContents(
     LaunchedEffect(displayBook.id) {
         viewModel.reFetchLibraryItem(displayBook.id) {}
     }
+    LaunchedEffect(displayBook.id, displayBook.title) {
+        viewModel.getExtraInfo(displayBook.id, displayBook.title)
+    }
 
     Column(
         Modifier
@@ -230,12 +233,12 @@ private fun BookDetailContents(
             )
         }
 
-        val pageCount = remember {
-            if (state.extraInfo.pageCount > 0) {
-                state.extraInfo.pageCount.toString()
-            } else {
-                ""
-            }
+        val pageCount = if (state.extraInfoBookId == displayBook.id &&
+            state.extraInfo.pageCount > 0
+        ) {
+            state.extraInfo.pageCount.toString()
+        } else {
+            ""
         }
         var buttonText by remember { mutableStateOf("") }
         var progressState by remember { mutableFloatStateOf(0f) }
@@ -331,7 +334,8 @@ private fun BookDetailContents(
             color = MaterialTheme.colorScheme.onBackground,
         )
 
-        val synopsis = state.extraInfo.description.ifEmpty { null }
+        val synopsis = state.extraInfo.description
+            .takeIf { state.extraInfoBookId == displayBook.id && it.isNotEmpty() }
         if (synopsis != null) {
             Text(
                 text = synopsis,
