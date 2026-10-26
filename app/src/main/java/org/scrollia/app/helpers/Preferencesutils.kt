@@ -38,7 +38,6 @@ class PreferenceUtil(context: Context) {
         // App theme preference keys
         const val APP_THEME_INT = "theme_settings"
         const val AMOLED_THEME_BOOL = "amoled_theme"
-        const val MATERIAL_YOU_BOOL = "material_you"
 
         // Reader preference keys
         const val READER_FONT_SIZE_INT = "reader_font_size"

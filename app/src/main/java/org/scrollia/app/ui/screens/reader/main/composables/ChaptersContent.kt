@@ -168,8 +168,9 @@ fun ChaptersContent(
 }
 
 /**
- * Selection with copy/share/search/translate/dictionary; [content] learns if the toolbar is
- * hidden. With [selectable] false only the toolbar is provided (see ScrolliaSelectionContainer).
+ * Selection with copy/share/translate; web search and dictionary are temporarily disabled.
+ * [content] learns if the toolbar is hidden. With [selectable] false only the toolbar is provided
+ * (see ScrolliaSelectionContainer).
  */
 @Composable
 internal fun ReaderSelectionContainer(

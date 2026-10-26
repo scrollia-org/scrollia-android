@@ -292,15 +292,11 @@ fun ScrolliaSelectionContainer(
             onShareRequest = {
                 onShareRequested(it)
             },
-            onWebSearchRequest = {
-                onWebSearchRequested(it)
-            },
+            onWebSearchRequest = null,
             onTranslateRequest = {
                 onTranslateRequested(it)
             },
-            onDictionaryRequest = {
-                onDictionaryRequested(it)
-            }
+            onDictionaryRequest = null
         )
     }
     val isToolbarHidden = remember(scrolliaSelectionToolbar.status) {

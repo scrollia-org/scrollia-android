@@ -91,7 +91,6 @@
     <string name="theme_option_system">सिस्टम डिफ़ॉल्ट</string>
     <string name="theme_dialog_apply_button">लागू करें</string>
     <string name="amoled_theme_setting">काले-सफेद थीम</string>
-    <string name="material_you_setting" translatable="false">Material You</string>
     <string name="license_setting">लाइसेंस और कृतज्ञता</string>
     <string name="license_setting_desc">ओपन सोर्स लाइसेंस।</string>
     <string name="about_setting">ऐप्लिकेशन जानकारी</string>
