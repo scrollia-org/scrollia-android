@@ -25,7 +25,7 @@ import org.scrollia.app.ui.theme.ReaderSepiaBackground
 import org.scrollia.app.ui.theme.ReaderSepiaText
 
 /**
- * Reading themes (docs/DESIGN.md §3.6). Independent from the app theme:
+ * Reading themes, independent from the app theme:
  * the choice belongs to the reading session, not to the system dark mode.
  */
 enum class ReaderTheme(

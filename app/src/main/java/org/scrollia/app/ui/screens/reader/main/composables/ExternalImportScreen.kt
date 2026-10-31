@@ -36,8 +36,8 @@ import org.scrollia.app.ui.theme.interFont
 import org.scrollia.app.ui.theme.literataFont
 
 /**
- * An EPUB opened from another app (DESIGN.md §19): a calm question, the copy's progress, or a
- * recoverable failure, in the reader's own colors and the §10 typographic style.
+ * An EPUB opened from another app: a calm question, the copy's progress, or a
+ * recoverable failure, in the reader's own colors and typographic style.
  */
 @Composable
 fun ExternalImportScreen(

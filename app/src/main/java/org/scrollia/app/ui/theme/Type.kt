@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 import org.scrollia.app.R
 
-// "Papel y Tinta" type system (docs/DESIGN.md §2-3):
+// "Paper and Ink" type system:
 // Fraunces = display/headlines, Literata = long-form body, Inter = UI.
 
 val frauncesFont = FontFamily(

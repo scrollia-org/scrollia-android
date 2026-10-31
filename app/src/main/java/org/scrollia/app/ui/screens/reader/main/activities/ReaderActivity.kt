@@ -192,7 +192,7 @@ object ReaderConstants {
 
 /**
  * Load the book requested by [intent]: a library item by id, or an EPUB shared by another app
- * through a `content://` URI, which is offered for import first (DESIGN.md §19).
+ * through a `content://` URI, which is offered for import first.
  */
 fun handleIntent(intent: Intent, viewModel: ReaderViewModel, onError: () -> Unit) {
     val libraryItemId = intent.extras?.getInt(

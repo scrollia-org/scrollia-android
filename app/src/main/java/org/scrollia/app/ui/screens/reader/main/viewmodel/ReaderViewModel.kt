@@ -81,7 +81,7 @@ data class ReaderScreenState(
     val readerTheme: ReaderTheme = ReaderTheme.Paper,
     val justifyText: Boolean = false,
     val readingMode: ReadingMode = ReadingMode.SCROLL,
-    // On unless the reader explicitly disables it (DESIGN.md §19).
+    // On unless the reader explicitly disables it.
     val keepScreenOn: Boolean = true,
     // Paged mode: spec the pages below were measured with, and pages per chapter index.
     val pageSpec: PageSpec? = null,

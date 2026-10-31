@@ -117,8 +117,8 @@ fun SettingsScreen(navController: NavController) {
 }
 
 /**
- * Section header following the editorial "caption" style from
- * docs/DESIGN.md: Inter medium, small, uppercase, wide tracking.
+ * Section header using the editorial caption style:
+ * Inter medium, small, uppercase, and wide tracking.
  * Never gold (tertiary) text — it fails contrast on paper.
  */
 @Composable

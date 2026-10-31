@@ -619,7 +619,7 @@ private fun LibraryCard(
     }
 }
 
-/** Sort chips above the list (DESIGN.md §15), same visual language as the Home filter sheet. */
+/** Sort chips above the list, using the same visual language as the Home filter sheet. */
 @Composable
 private fun LibrarySortRow(sort: LibrarySort, onSortSelected: (LibrarySort) -> Unit) {
     val view = LocalView.current
@@ -652,7 +652,7 @@ private fun LibrarySortRow(sort: LibrarySort, onSortSelected: (LibrarySort) -> U
     }
 }
 
-/** Discreet progress: thin line + percent, or a Finished marker (DESIGN.md §15). */
+/** Discreet progress: a thin line with a percentage, or a Finished marker. */
 @Composable
 private fun LibraryProgress(progress: ProgressData, modifier: Modifier = Modifier) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
