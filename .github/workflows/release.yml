@@ -52,7 +52,9 @@ jobs:
         shell: bash
         run: |
           APK_PATH="${{ steps.sign_apk.outputs.signedReleaseFile }}"
-          sha256sum "$APK_PATH" > "$APK_PATH.sha256"
+          APK_NAME="$(basename "$APK_PATH")"
+          cd "$(dirname "$APK_PATH")"
+          sha256sum "$APK_NAME" > "$APK_NAME.sha256"
 
       - name: Make artifact
         uses: actions/upload-artifact@v4
