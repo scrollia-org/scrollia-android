@@ -18,7 +18,7 @@ package org.scrollia.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// "Papel y Tinta" palette (docs/DESIGN.md §2) projected onto M3 roles.
+// "Paper and Ink" palette projected onto Material 3 roles.
 // Token anchors: paper #FAF7F0, ink #1A1A18, ink-soft #5C5A52,
 // library #2D5A3D, gold #B08D3E, border #E5E0D5; dark set dark-*.
 
@@ -96,7 +96,7 @@ val surfaceContainerDark = Color(0xFF23251F)  // dark-paper
 val surfaceContainerHighDark = Color(0xFF2D2F28)
 val surfaceContainerHighestDark = Color(0xFF383A31)
 
-// Reader themes (DESIGN.md §3.6) — independent from the app theme.
+// Reader themes, independent from the app theme.
 val ReaderPaperBackground = Color(0xFFFAF7F0)
 val ReaderPaperText = Color(0xFF1A1A18)
 val ReaderSepiaBackground = Color(0xFFF4ECD8) // sepia-bg

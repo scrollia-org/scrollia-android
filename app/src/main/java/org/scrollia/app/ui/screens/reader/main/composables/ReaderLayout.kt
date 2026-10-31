@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** Reader page geometry (docs/DESIGN.md §3.6 and §12). */
+/** Reader page geometry. */
 object ReaderLayout {
     /** Side margin of the text column on narrow screens. */
     val HorizontalMargin = 24.dp
@@ -39,9 +39,8 @@ object ReaderLayout {
     private val noJustifyLanguages = setOf("zh", "ja", "ko")
 
     /**
-     * Paragraph style for body text. The book language is always applied (font fallback,
-     * hyphenation, DESIGN.md §3.5); justification comes with automatic hyphenation and is
-     * skipped for CJK scripts.
+     * Paragraph style for body text. The book language controls font fallback and
+     * hyphenation; justification comes with automatic hyphenation and is skipped for CJK scripts.
      */
     fun bodyTextStyle(language: String?, justify: Boolean): TextStyle {
         val tag = language?.trim()?.takeIf { it.isNotEmpty() }

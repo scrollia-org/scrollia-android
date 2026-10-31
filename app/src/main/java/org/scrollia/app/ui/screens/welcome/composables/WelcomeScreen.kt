@@ -78,7 +78,7 @@ import org.scrollia.app.ui.theme.frauncesFont
 import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.delay
 
-// "Papel y Tinta" dark tokens (docs/DESIGN.md). This screen is intentionally
+// "Paper and Ink" dark tokens. This screen is intentionally
 // always dark — the cinematic metaphor is darkness (before writing) to light
 // (the printed book) — regardless of the app theme.
 private val DarkBackground = Color(0xFF161815) // dark-bg

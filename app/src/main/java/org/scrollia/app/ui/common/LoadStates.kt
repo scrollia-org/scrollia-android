@@ -28,7 +28,7 @@ import org.scrollia.app.R
 import org.scrollia.app.helpers.LoadFailure
 import org.scrollia.app.ui.theme.interFont
 
-/** Full-content Offline or Error (DESIGN.md §10, §20): a calm sentence and Retry. */
+/** Full-content offline or error state with a calm message and a retry action. */
 @Composable
 fun LoadFailureState(failure: LoadFailure, onRetry: () -> Unit) {
     NetworkError(

@@ -194,9 +194,9 @@ fun ReaderScreen(
 }
 
 /**
- * Discreet chapter progress (DESIGN.md §3.6): a 2 dp line in the reader's ink color. Silent
+ * Discreet chapter progress: a 2 dp line in the reader's ink color. Silent
  * for accessibility: the top bar subtitle carries the same percentage, and announcing every
- * change would interrupt reading (DESIGN.md §19).
+ * change would interrupt reading.
  */
 @Composable
 private fun ReaderProgressLine(

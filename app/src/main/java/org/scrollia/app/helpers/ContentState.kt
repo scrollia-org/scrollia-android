@@ -3,7 +3,7 @@ package org.scrollia.app.helpers
 import java.io.IOException
 
 /**
- * What a discovery screen shows instead of, or as, its content (DESIGN.md §20). Exactly one
+ * What a discovery screen shows instead of, or as, its content. Exactly one
  * applies at a time; a failure while items are already shown is an inline footer instead.
  */
 enum class ContentState {

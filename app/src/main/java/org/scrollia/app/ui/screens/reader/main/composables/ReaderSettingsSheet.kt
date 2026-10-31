@@ -59,7 +59,7 @@ const val READER_LINE_HEIGHT_MAX = 3.0f
 private const val LINE_HEIGHT_STEP = 0.1f
 
 /**
- * Reading settings (docs/DESIGN.md §13). Every control applies live; colors come from the
+ * Reading settings. Every control applies live; colors come from the
  * active reader theme, not the app theme, so the sheet previews what the page will look like.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)

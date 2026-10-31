@@ -53,8 +53,7 @@ import kotlin.coroutines.suspendCoroutine
  */
 class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
 
-    // Scrollia backend (Phase 0 test API with fictional es/en books).
-    //  See docs/BACKEND.md for the planned architecture.
+    // Scrollia backend for the curated public-domain catalog.
     private val baseApiUrl = "https://api.scrollia.org/books"
     private val extraInfoUrl = "https://api.scrollia.org/extra-info"
     private val categoriesApiUrl = "https://api.scrollia.org/categories"

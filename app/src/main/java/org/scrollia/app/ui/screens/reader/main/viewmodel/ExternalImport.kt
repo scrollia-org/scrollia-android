@@ -3,7 +3,7 @@ package org.scrollia.app.ui.screens.reader.main.viewmodel
 import org.scrollia.app.helpers.book.BookImporter
 
 /**
- * An EPUB opened from another app becomes a library book before it is read (DESIGN.md §19):
+ * An EPUB opened from another app becomes a library book before it is read:
  * the reader asks first, shows the copy's progress, and offers retry on failure.
  */
 sealed class ExternalImport {

@@ -84,7 +84,7 @@ private val PageTopMargin = 40.dp
 private val PageBottomMargin = 32.dp
 
 /**
- * Paged reading mode (docs/DESIGN.md §16): chapters laid out in viewport-sized pages, turned by
+ * Paged reading mode: chapters laid out in viewport-sized pages, turned by
  * swiping or by tapping the outer thirds of the screen; the center third toggles the menu.
  *
  * Only the current page is selectable and visible to accessibility services: it gets its own

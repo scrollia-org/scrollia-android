@@ -49,7 +49,7 @@ import org.scrollia.app.ui.theme.interFont
 private val CardWidth = 116.dp
 
 /**
- * "Continue reading" rail (docs/DESIGN.md §14). Tap resumes in the reader at the saved
+ * "Continue reading" rail. Tap resumes in the reader at the saved
  * position; long press opens the reader detail screen.
  */
 @Composable
@@ -126,7 +126,7 @@ private fun ContinueReadingCard(
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
-                // Typographic stand-in, never stock art (DESIGN.md §10).
+                // Typographic stand-in, never stock art.
                 Text(
                     text = item.title,
                     fontFamily = frauncesFont,
