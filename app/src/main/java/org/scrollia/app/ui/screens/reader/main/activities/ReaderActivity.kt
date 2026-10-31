@@ -70,7 +70,7 @@ class ReaderActivity : AppCompatActivity() {
         setContent {
             ScrolliaTheme(settingsViewModel = settingsViewModel) {
                 // Handle intent and load epub book.
-                remember {
+                LaunchedEffect(Unit) {
                     handleIntent(intent = intent, viewModel = viewModel) {
                         viewModel.showLoadError()
                     }

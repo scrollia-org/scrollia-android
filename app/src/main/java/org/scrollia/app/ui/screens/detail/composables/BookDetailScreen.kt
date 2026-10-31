@@ -68,6 +68,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -186,7 +187,7 @@ private fun BookDetailContents(
     val editions = book.editions
     var selectedEditionId by rememberSaveable { mutableStateOf<Int?>(null) }
     if (selectedEditionId == null && editions.isNotEmpty()) {
-        val deviceLang = Locale.getDefault().language
+        val deviceLang = LocalLocale.current.platformLocale.language
         selectedEditionId =
             editions.firstOrNull { deviceLang in it.languages }?.id ?: book.id
     }
