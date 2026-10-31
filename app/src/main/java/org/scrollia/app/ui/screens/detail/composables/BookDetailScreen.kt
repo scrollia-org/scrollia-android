@@ -1,0 +1,611 @@
+/**
+ * Copyright (c) [2022 - Present] Stɑrry Shivɑm
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.scrollia.app.ui.screens.detail.composables
+
+import android.app.DownloadManager
+import android.content.Intent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavController
+import org.scrollia.app.MainActivity
+import org.scrollia.app.R
+import org.scrollia.app.api.models.Edition
+import org.scrollia.app.helpers.Utils
+import org.scrollia.app.helpers.book.BookUtils
+import org.scrollia.app.helpers.getActivity
+import org.scrollia.app.helpers.weakHapticFeedback
+import org.scrollia.app.ui.common.BookDetailTopUI
+import org.scrollia.app.ui.common.NetworkError
+import org.scrollia.app.ui.common.ProgressDots
+import org.scrollia.app.ui.screens.detail.viewmodels.BookDetailViewModel
+import org.scrollia.app.ui.theme.frauncesFont
+import org.scrollia.app.ui.theme.interFont
+import org.scrollia.app.ui.theme.literataFont
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import java.util.Locale
+
+
+@Composable
+fun BookDetailScreen(
+    bookId: String, navController: NavController
+) {
+    val context = LocalContext.current
+    val viewModel: BookDetailViewModel = hiltViewModel()
+    val state = viewModel.state
+
+    val snackBarHostState = remember { SnackbarHostState() }
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState) },
+        content = { paddingValues ->
+            LaunchedEffect(key1 = true, block = {
+                if (state.isLoading) viewModel.getBookDetails(bookId)
+            })
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                BookDetailTopBar(onBackClicked = {
+                    navController.navigateUp()
+                }, onShareClicked = {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.type = "text/plain"
+                    intent.putExtra(
+                        Intent.EXTRA_TEXT, "https://www.gutenberg.org/ebooks/$bookId"
+                    )
+                    val chooser = Intent.createChooser(
+                        intent, context.getString(R.string.share_intent_header)
+                    )
+                    context.startActivity(chooser)
+                })
+
+                Crossfade(
+                    targetState = state.isLoading,
+                    label = "BookDetailLoadingCrossFade"
+                ) { isLoading ->
+                    if (isLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(bottom = 65.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ProgressDots()
+                        }
+                    } else {
+                        if (state.error != null) {
+                            NetworkError(onRetryClicked = {
+                                viewModel.getBookDetails(bookId)
+                            })
+                        } else {
+                            BookDetailContents(
+                                viewModel = viewModel,
+                                navController = navController,
+                                snackBarHostState = snackBarHostState
+                            )
+                        }
+                    }
+
+                }
+            }
+        })
+}
+
+@Composable
+private fun BookDetailContents(
+    viewModel: BookDetailViewModel,
+    navController: NavController,
+    snackBarHostState: SnackbarHostState
+) {
+    val view = LocalView.current
+    val context = LocalContext.current
+    val settingsVM = (context.getActivity() as MainActivity).settingsViewModel
+
+    val state = viewModel.state
+    val coroutineScope = rememberCoroutineScope()
+    // Get book details for this bookId.
+    val book = remember { state.bookSet.books.first() }
+
+    // A catalog entry is a WORK; its language editions come in book.editions.
+    // The selected edition decides what gets downloaded and opened.
+    val editions = book.editions
+    var selectedEditionId by rememberSaveable { mutableStateOf<Int?>(null) }
+    if (selectedEditionId == null && editions.isNotEmpty()) {
+        val deviceLang = LocalLocale.current.platformLocale.language
+        selectedEditionId =
+            editions.firstOrNull { deviceLang in it.languages }?.id ?: book.id
+    }
+    val displayBook = remember(book, selectedEditionId) {
+        val edition = editions.firstOrNull { it.id == selectedEditionId }
+        if (edition == null || edition.id == book.id) book
+        else book.copy(
+            id = edition.id,
+            title = edition.title,
+            languages = edition.languages,
+            downloadCount = edition.downloadCount,
+            formats = edition.formats
+        )
+    }
+    // The library stores edition ids; refresh the item when the selected
+    // edition changes so the button reflects that edition's download state.
+    LaunchedEffect(displayBook.id) {
+        viewModel.reFetchLibraryItem(displayBook.id) {}
+    }
+    LaunchedEffect(displayBook.id, displayBook.title) {
+        viewModel.getExtraInfo(displayBook.id, displayBook.title)
+    }
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+    ) {
+        val authors = remember { BookUtils.getAuthorsAsString(book.authors) }
+
+        BookDetailTopUI(
+            title = displayBook.title,
+            authors = authors,
+            imageData = state.extraInfo.coverImage.ifEmpty { displayBook.formats.imagejpeg },
+            currentThemeMode = settingsVM.getCurrentTheme()
+        )
+
+        if (editions.size > 1) {
+            EditionSelector(
+                editions = editions,
+                selectedEditionId = selectedEditionId ?: book.id,
+                onEditionSelected = { selectedEditionId = it }
+            )
+        }
+
+        val pageCount = if (state.extraInfoBookId == displayBook.id &&
+            state.extraInfo.pageCount > 0
+        ) {
+            state.extraInfo.pageCount.toString()
+        } else {
+            ""
+        }
+        var buttonText by remember { mutableStateOf("") }
+        var progressState by remember { mutableFloatStateOf(0f) }
+        var showProgressBar by remember { mutableStateOf(false) }
+        val downloads by viewModel.bookDownloader.downloads.collectAsState()
+        val downloadInfo = downloads[displayBook.id]
+
+        LaunchedEffect(displayBook.id, downloadInfo?.status) {
+            viewModel.reFetchLibraryItem(displayBook.id) {}
+        }
+
+        LaunchedEffect(state.bookLibraryItem, displayBook.id, downloadInfo) {
+            val active = downloadInfo?.status in listOf(
+                DownloadManager.STATUS_PENDING,
+                DownloadManager.STATUS_RUNNING,
+                DownloadManager.STATUS_PAUSED
+            )
+            showProgressBar = active
+            progressState = downloadInfo?.progress ?: 0f
+            buttonText = when {
+                active -> context.getString(R.string.cancel)
+                downloadInfo?.status == DownloadManager.STATUS_FAILED ->
+                    context.getString(R.string.download_retry)
+                state.bookLibraryItem != null -> context.getString(R.string.read_book_button)
+                else -> context.getString(R.string.download_book_button)
+            }
+        }
+
+        MiddleBar(
+            bookLang = BookUtils.getLanguagesAsString(displayBook.languages),
+            pageCount = pageCount,
+            downloadCount = Utils.prettyCount(displayBook.downloadCount),
+            progressValue = progressState,
+            buttonText = buttonText,
+            showProgressBar = showProgressBar
+        ) {
+            when (buttonText) {
+                context.getString(R.string.read_book_button) -> {
+                    /**
+                     *  Library item could be null if we reload the screen
+                     *  while some download was running, in that case we'll
+                     *  de-attach from our old state where download function
+                     *  will update library item and our new state will have
+                     *  no library item, i.e. null.
+                     */
+                    if (state.bookLibraryItem == null) {
+                        viewModel.reFetchLibraryItem(
+                            bookId = displayBook.id,
+                            onComplete = { libraryItem ->
+                                BookUtils.openBookFile(
+                                    context = context,
+                                    internalReader = viewModel.getInternalReaderSetting(),
+                                    libraryItem = libraryItem,
+                                    navController = navController
+                                )
+                            }
+                        )
+                    } else {
+                        BookUtils.openBookFile(
+                            context = context,
+                            internalReader = viewModel.getInternalReaderSetting(),
+                            libraryItem = state.bookLibraryItem,
+                            navController = navController
+                        )
+                    }
+                }
+
+                context.getString(R.string.download_book_button),
+                context.getString(R.string.download_retry) -> {
+                    view.weakHapticFeedback()
+                    viewModel.downloadBook(displayBook)
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(
+                            message = context.getString(R.string.download_started),
+                        )
+                    }
+                }
+
+                context.getString(R.string.cancel) -> {
+                    viewModel.bookDownloader.cancelDownload(
+                        viewModel.bookDownloader.getRunningDownload(displayBook.id)?.downloadId
+                    )
+                }
+            }
+        }
+
+        Text(
+            text = stringResource(id = R.string.book_synopsis),
+            modifier = Modifier.padding(start = 13.dp, end = 8.dp),
+            fontSize = 18.sp,
+            fontFamily = frauncesFont,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+
+        val synopsis = state.extraInfo.description
+            .takeIf { state.extraInfoBookId == displayBook.id && it.isNotEmpty() }
+        if (synopsis != null) {
+            Text(
+                text = synopsis,
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                fontFamily = literataFont,
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        } else {
+            NoSynopsisUI()
+        }
+    }
+}
+
+@Composable
+private fun EditionSelector(
+    editions: List<Edition>,
+    selectedEditionId: Int,
+    onEditionSelected: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.detail_select_language).uppercase(),
+            fontFamily = interFont,
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp,
+            letterSpacing = 1.2.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            editions.forEach { edition ->
+                FilterChip(
+                    selected = edition.id == selectedEditionId,
+                    onClick = { onEditionSelected(edition.id) },
+                    label = {
+                        Text(
+                            text = languageEndonym(edition.languages.firstOrNull() ?: ""),
+                            fontFamily = interFont
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
+
+/** Language name in its own language (endonym), e.g. "Español"/"English". */
+private fun languageEndonym(code: String): String = when (code.lowercase()) {
+    "es" -> "Español"
+    "en" -> "English"
+    else -> Locale.forLanguageTag(code)
+        .getDisplayLanguage(Locale.forLanguageTag(code))
+        .replaceFirstChar { it.uppercase() }
+}
+
+@Composable
+private fun MiddleBar(
+    bookLang: String,
+    pageCount: String,
+    downloadCount: String,
+    progressValue: Float,
+    buttonText: String,
+    showProgressBar: Boolean,
+    onButtonClick: () -> Unit
+) {
+    val progress by animateFloatAsState(
+        targetValue = progressValue,
+        label = "download progress bar"
+    )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        AnimatedVisibility(visible = showProgressBar) {
+            if (progressValue > 0f) {
+                // Determinate progress bar.
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(16.dp)
+                        .padding(start = 14.dp, end = 14.dp, top = 6.dp)
+                        .clip(RoundedCornerShape(40.dp)),
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+            } else {
+                // Indeterminate progress bar.
+                LinearProgressIndicator(
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(16.dp)
+                        .padding(start = 14.dp, end = 14.dp, top = 6.dp)
+                        .clip(RoundedCornerShape(40.dp))
+                )
+            }
+        }
+
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .heightIn(min = 75.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val chips = buildList {
+                    if (bookLang.isNotEmpty()) add(R.drawable.ic_book_language to bookLang)
+                    if (pageCount.isNotEmpty()) add(R.drawable.ic_book_pages to pageCount)
+                    if (downloadCount.isNotEmpty()) add(R.drawable.ic_book_downloads to downloadCount)
+                }
+                chips.forEachIndexed { index, (iconRes, text) ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = iconRes),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(end = 4.dp)
+                            )
+                            Text(
+                                text = text,
+                                fontSize = 16.sp,
+                                fontFamily = interFont,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
+                    }
+                    if (index < chips.lastIndex) {
+                        VerticalDivider(
+                            modifier = Modifier
+                                .fillMaxHeight(0.6f)
+                                .width(1.dp),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                        )
+                    }
+                }
+            }
+        }
+
+        Card(
+            onClick = { onButtonClick() },
+            modifier = Modifier
+                .height(75.dp)
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = buttonText,
+                    fontSize = 17.sp,
+                    fontFamily = interFont,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BookDetailTopBar(
+    onBackClicked: () -> Unit, onShareClicked: () -> Unit
+) {
+    val view = LocalView.current
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .padding(horizontal = 22.dp, vertical = 16.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp))
+                .clickable {
+                    view.weakHapticFeedback()
+                    onBackClicked()
+                }
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                contentDescription = stringResource(id = R.string.back_button_desc),
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(14.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Text(
+            text = stringResource(id = R.string.book_detail_header),
+            modifier = Modifier.padding(bottom = 2.dp),
+            color = MaterialTheme.colorScheme.onBackground,
+            fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
+            fontFamily = frauncesFont,
+            fontSize = 22.sp
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Box(
+            modifier = Modifier
+                .padding(22.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp))
+                .clickable {
+                    view.weakHapticFeedback()
+                    onShareClicked()
+                }) {
+            Icon(
+                imageVector = Icons.Outlined.Share,
+                contentDescription = stringResource(id = R.string.back_button_desc),
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(14.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun NoSynopsisUI() {
+    Text(
+        text = stringResource(id = R.string.book_synopsis_not_found),
+        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+        fontFamily = literataFont,
+        fontStyle = FontStyle.Italic,
+        fontWeight = FontWeight.Normal,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+
+@Composable
+@Preview
+fun MiddleBarPreview(modifier: Modifier = Modifier) {
+    MiddleBar(
+        bookLang = "English",
+        pageCount = "256",
+        downloadCount = "1.2K",
+        progressValue = 0.5f,
+        buttonText = "Download",
+        showProgressBar = true,
+        onButtonClick = {}
+    )
+}
+
+/*
+@Composable
+@Preview(showBackground = true)
+fun BookDetailScreenPreview() {
+    BookDetailScreen(
+        bookId = "0",
+        navController = rememberNavController(),
+    )
+}*/

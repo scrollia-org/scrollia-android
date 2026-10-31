@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Others Strings -->
-    <string name="not_applicable">N/A</string>
-    <string name="woops">"¡Ups!"</string>
     <string name="confirm">Confirmar</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">OK</string>
     <string name="got_it">Got it</string>
     <string name="no_app_to_handle_epub">No se ha podido encontrar ninguna aplicación para abrir el fichero epub.</string>
-    <string name="network_error">Oops! Failed to connect with the server.</string>
-    <string name="network_error_retry">Try Again</string>
+    <string name="network_error">No se pudo conectar con el servidor.</string>
+    <string name="network_error_retry">Reintentar</string>
     <string name="error">¡Ups! Algo ha ido mal.</string>
     <string name="no_app_to_handle_content">No se puede encontrar ninguna aplicación para abrir este contenido.</string>
     <!-- Navigation titles -->
@@ -20,14 +18,30 @@
     <!-- ToolTips -->
     <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">¡Gracias por instalar Myne!</string>
-    <string name="welcome_screen_desc">Elige tu lector de libros electrónicos preferido para embarcarte en tu viaje de lectura.</string>
-    <string name="welcome_screen_button">Get Started</string>
     <!-- Home screen. -->
     <string name="home_header">Todos los libros</string>
-    <string name="home_language_icon_desc">Sort by language</string>
     <string name="home_search_icon_desc">Buscar libros</string>
-    <string name="language_menu_title">Browse by language</string>
+    <string name="state_offline">Sin conexión. Conéctate a internet e inténtalo de nuevo.</string>
+    <string name="state_error">Algo falló al cargar. Inténtalo de nuevo.</string>
+    <string name="append_failed_offline">No se pudieron cargar más libros: sin conexión.</string>
+    <string name="append_failed_error">No se pudieron cargar más libros.</string>
+    <string name="catalog_empty">Ningún libro coincide con estos filtros.</string>
+    <string name="search_empty">No se encontraron libros para «%1$s».</string>
+    <string name="categories_empty">Todavía no hay categorías.</string>
+    <string name="home_search_placeholder">Buscar…</string>
+    <string name="home_search_close_desc">Borrar o cerrar la búsqueda</string>
+    <string name="language_menu_title">Buscar por idioma</string>
+    <string name="filter_icon_desc">Filtrar libros</string>
+    <string name="filter_sheet_title">Filtros</string>
+    <string name="filter_section_language">Idioma</string>
+    <string name="filter_section_genre">Género</string>
+    <string name="filter_section_sort">Ordenar por</string>
+    <string name="filter_option_all">Todos</string>
+    <string name="filter_sort_popularity">Popularidad</string>
+    <string name="filter_sort_title">Título A–Z</string>
+    <string name="filter_sort_author">Autor A–Z</string>
+    <string name="filter_apply">Aplicar</string>
+    <string name="filter_clear">Limpiar filtros</string>
     <!-- Categories screen. -->
     <string name="categories_header">Categorías</string>
     <string name="no_books_found_for_lang_and_cat">No books available in %s language for this category.</string>
@@ -52,15 +66,14 @@
     <string name="category_science">Ciencia</string>
     <!-- Library screen. -->
     <string name="library_header">Biblioteca</string>
-    <string name="empty_library">¡Nada por aquí!</string>
+    <string name="empty_library">Tu biblioteca está vacía</string>
     <string name="import_button_text">Importar</string>
     <string name="import_button_onboarding">¡Importa tus propios libros!</string>
-    <string name="import_button_onboarding_desc">Ahora puedes importar tus propios libros en formato EPUB y leerlos en Myne.</string>
+    <string name="import_button_onboarding_desc">Ahora puedes importar tus propios libros en formato EPUB y leerlos en Scrollia.</string>
     <string name="import_button_desc">Importar libro EPUB</string>
     <string name="external_book_info_unavailable">Solo disponible para libros internos.</string>
     <string name="epub_importing">Importando… Por favor, espere.</string>
     <string name="epub_imported">¡Importado con éxito!</string>
-    <string name="epub_import_error">¡Error al importar!</string>
     <string name="open_app_chooser">Abrir con…</string>
     <string name="share_app_chooser">Compartir con…</string>
     <string name="library_read_button">Leer</string>
@@ -70,12 +83,50 @@
     <string name="reader_detail_header">Lector de Ebook</string>
     <string name="start_reading_button">Comenzar</string>
     <string name="continue_reading_button">Continuar</string>
-    <string name="reader_chapters_list">Capítulos</string>
+    <string name="progress_percent_read">%1$d\u00A0%% leído</string>
+    <string name="progress_percent">%1$d\u00A0%%</string>
+    <string name="home_continue_reading">Seguir leyendo</string>
+    <string name="library_finished">Terminado</string>
+    <string name="library_sort_recent">Leídos recientemente</string>
+    <string name="library_sort_title">Título A–Z</string>
     <!--Reader Screen -->
-    <string name="reader_max_font_size_reached">Lo sentimos, no puede subir más</string>
-    <string name="reader_min_font_size_reached">Lo sentimos, no puede bajar más</string>
-    <string name="reader_font_style_chooser">Change FontStyle</string>
+    <string name="back">Volver</string>
+    <string name="reader_error_title">No pudimos abrir este libro</string>
+    <string name="reader_error_message">Es posible que el archivo esté dañado, no esté disponible o ya no tengas acceso a él.</string>
+    <string name="import_external_title">¿Añadir este libro a tu biblioteca?</string>
+    <string name="import_external_message">Scrollia guarda su propia copia: podrás volver a él desde tu biblioteca y seguir donde lo dejaste.</string>
+    <string name="import_external_add">Añadir a mi biblioteca</string>
+    <string name="import_external_importing">Añadiendo a tu biblioteca…</string>
+    <string name="import_external_failed_title">No pudimos añadir este libro</string>
+    <string name="import_error_not_epub">Este archivo no es un libro EPUB que Scrollia pueda abrir.</string>
+    <string name="import_error_unreadable">No se pudo leer el archivo. Comprueba que sigue disponible e inténtalo de nuevo.</string>
+    <string name="import_error_storage">No se pudo guardar el libro. Comprueba el espacio libre del dispositivo e inténtalo de nuevo.</string>
     <string name="reader_chapter_list_title">Capítulos</string>
+    <string name="reader_theme_paper">Papel</string>
+    <string name="reader_theme_sepia">Sepia</string>
+    <string name="reader_theme_night">Nocturno</string>
+    <string name="reader_previous_chapter">Capítulo anterior</string>
+    <string name="reader_next_chapter">Capítulo siguiente</string>
+    <string name="reader_chapter_progress">Capítulo %1$d de %2$d · %3$d\u00A0%%</string>
+    <string name="reader_settings_title">Ajustes de lectura</string>
+    <string name="reader_settings_mode">Modo de lectura</string>
+    <string name="reader_mode_scroll">Desplazamiento</string>
+    <string name="reader_mode_paged">Páginas</string>
+    <string name="reader_page_indicator">Página %1$d de %2$d</string>
+    <string name="reader_page_previous">Página anterior</string>
+    <string name="reader_page_next">Página siguiente</string>
+    <string name="reader_page_loading">Cargando página</string>
+    <string name="reader_settings_font">Fuente</string>
+    <string name="reader_settings_size">Tamaño</string>
+    <string name="reader_settings_size_value">%1$d\u00A0%%</string>
+    <string name="reader_settings_line_height">Interlineado</string>
+    <string name="reader_settings_theme">Tema</string>
+    <string name="reader_settings_justify">Justificar texto</string>
+    <string name="reader_settings_justify_desc">Márgenes parejos, con separación silábica automática</string>
+    <string name="reader_settings_keep_screen_on">Mantener pantalla encendida</string>
+    <string name="reader_settings_keep_screen_on_desc">La pantalla no se apagará mientras haya un libro abierto</string>
+    <string name="reader_settings_sample">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo.</string>
+    <string name="reader_font_system">Sistema</string>
     <!-- Text selection -->
     <string name="copy">Copiar</string>
     <string name="copied">¡Copiado!</string>
@@ -85,32 +136,29 @@
     <string name="dictionary">Significado</string>
     <!-- Settings screen. -->
     <string name="settings_header">Ajustes</string>
-    <string name="app_desc">Descargador de Ebooks</string>
-    <string name="made_by">Hecho con ❤ por Shivam</string>
     <string name="general_settings_header">General</string>
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_section_reader">Lector</string>
+    <string name="settings_section_about">Acerca de</string>
     <string name="default_reader_setting">Lector por defecto</string>
     <string name="default_reader_dialog_title">Abrir ebooks con…</string>
     <string name="reader_option_inbuilt">Lector incorporado</string>
     <string name="reader_option_external">Lector externo</string>
-    <string name="default_locale_setting">Configuración de idioma predeterminado</string>
+    <string name="default_locale_setting">Idioma de la aplicación</string>
     <string name="default_locale_setting_desc">Selecciona tu idioma preferido.</string>
     <string name="locale_setting_not_found">¡Lo siento! Esta función aún no está soportada por tu sistema operativo.</string>
+    <string name="extra_info_setting">Metadatos adicionales</string>
+    <string name="extra_info_setting_desc">Descargar portadas y descripciones del servidor de Scrollia.</string>
     <string name="open_library_at_start_setting">Abrir la biblioteca al iniciar</string>
     <string name="open_library_at_start_setting_desc">Abrir la pantalla de la biblioteca al iniciar la aplicación.</string>
-    <string name="display_setting_header">Mostrar</string>
-    <string name="theme_setting">Tema por defecto</string>
+    <string name="theme_setting">Tema</string>
     <string name="theme_dialog_title">Cambiar tema</string>
     <string name="theme_option_light">Claro</string>
     <string name="theme_option_dark">Oscuro</string>
     <string name="theme_option_system">Predeterminado del sistema</string>
     <string name="theme_dialog_apply_button">Aplicar</string>
-    <string name="amoled_theme_setting">Tema oscuro</string>
-    <string name="amoled_theme_setting_disabled_desc">Activar tema oscuro AMOLED</string>
-    <string name="amoled_theme_setting_enabled_desc">Desactivar tema oscuro AMOLED</string>
-    <string name="material_you_setting_disabled_desc">Habilitar Material You</string>
-    <string name="material_you_setting_enabled_desc">Deshabilitar Material You</string>
-    <string name="material_you_error">Esta función es sólo para dispositivos con Android 12 o superior.</string>
-    <string name="miscellaneous_setting_header">Varios</string>
+    <string name="amoled_theme_setting">Tema negro AMOLED</string>
+    <string name="amoled_theme_setting_desc">Fondo negro puro en la app con tema oscuro; el lector tiene sus propios temas</string>
     <string name="license_setting">Licencia y agradecimientos</string>
     <string name="license_setting_desc">Licencias de código abierto.</string>
     <string name="about_setting">Información de la aplicación</string>
@@ -120,32 +168,45 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Detalles del libro</string>
     <string name="back_button_desc">Atrás.</string>
-    <string name="share_button_desc">Compartir este libro.</string>
     <string name="share_intent_header">Compartir usando…</string>
     <string name="read_book_button">Empezar a leer</string>
     <string name="download_book_button">Descargar</string>
+    <string name="download_retry">Reintentar descarga</string>
     <string name="download_started">¡Descarga iniciada!</string>
+    <string name="detail_select_language">Idioma</string>
     <string name="book_synopsis">Sinopsis</string>
-    <string name="book_synopsis_not_found">No disponible</string>
+    <string name="book_synopsis_not_found">Sin sinopsis disponible</string>
     <!-- About Screen -->
-    <string name="about_header">A cerca de</string>
+    <string name="about_header">Acerca de</string>
     <string name="about_desc">Una aplicación Android gratuita y de código abierto para descargar libros electrónicos del Proyecto GutenBerg.</string>
     <string name="developed_by">Desarrollado por</string>
-    <string name="project_contributors">Projektmitwirkende</string>
-    <string name="project_contributors_desc">Lernen Sie unsere wunderbaren Mitwirkenden kennen.</string>
-    <string name="useful_links">Nützliche Links</string>
-    <string name="link_readme">README</string>
-    <string name="link_readme_desc">Schauen Sie sich das README der App auf Github an.</string>
+    <string name="useful_links">Enlaces útiles</string>
     <string name="link_website">Sitio web</string>
     <string name="link_website_desc">Visite nuestro sitio web para más información.</string>
-    <string name="link_privacy_policy">Datenschutzrichtlinie</string>
-    <string name="link_privacy_policy_desc">Lesen Sie unsere neueste Datenschutzrichtlinie.</string>
-    <string name="link_gh_issue">Github-Probleme</string>
-    <string name="link_gh_issue_desc">Erstellen Sie ein Problem auf Github.</string>
-    <string name="link_telegram">Telegram Gruppe</string>
-    <string name="link_telegram_desc">Hängen Sie bei uns auf Telegram ab!</string>
-    <string name="link_support">Entwicklung unterstützen</string>
-    <string name="link_support_desc">Denken Sie, ich verdiene Kekse? Klicken Sie hier!</string>
+    <string name="link_privacy_policy">Política de privacidad</string>
+    <string name="link_privacy_policy_desc">Lee nuestra política de privacidad más reciente.</string>
+    <string name="about_credits">Créditos</string>
+    <string name="about_based_on_myne">Basada en Myne (github.com/Pool-Of-Tears/Myne), licencia Apache-2.0</string>
+    <string name="about_based_on_myne_desc">Scrollia es un fork de Myne, de Stɑrry Shivɑm. Toca para ver el proyecto original.</string>
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Licencias</string>
+
+    <!-- Welcome screen -->
+    <string name="welcome_start_button">Empezar a leer</string>
+    <string name="welcome_tagline">5.400 años de lectura</string>
+    <string name="welcome_est">Desde 1455</string>
+    <string name="welcome_era_cuneiform">Cuneiforme</string>
+    <string name="welcome_era_cuneiform_year">3.400 a. C.</string>
+    <string name="welcome_era_hieroglyphics">Jeroglíficos</string>
+    <string name="welcome_era_hieroglyphics_year">3.200 a. C.</string>
+    <string name="welcome_era_phoenician">Fenicio</string>
+    <string name="welcome_era_phoenician_year">1.050 a. C.</string>
+    <string name="welcome_era_greek">Griego</string>
+    <string name="welcome_era_greek_year">750 a. C.</string>
+    <string name="welcome_era_latin">Latín</string>
+    <string name="welcome_era_latin_year">600 a. C.</string>
+    <string name="welcome_era_movable_type">Tipos móviles</string>
+    <string name="welcome_era_movable_type_year">1.040 d. C.</string>
+    <string name="welcome_era_printing_press">Imprenta</string>
+    <string name="welcome_era_printing_press_year">1.455 d. C.</string>
 </resources>

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Others Strings -->
-    <string name="not_applicable">Неизвестно</string>
-    <string name="woops">Упс!!</string>
     <string name="confirm">Подтвердить</string>
     <string name="cancel">Отменить</string>
     <string name="ok">Ладно</string>
@@ -20,12 +18,8 @@
     <!-- ToolTips -->
     <string name="library_tooltip">СОВЕТ! Проведите пальцем по элементам библиотеки влево или вправо, чтобы поделиться или просмотреть подробную информацию о книге.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Спасибо за установку Myne!</string>
-    <string name="welcome_screen_desc">Выберите предпочтительную читалку электронных книг.</string>
-    <string name="welcome_screen_button">Приступим</string>
     <!-- Home screen. -->
     <string name="home_header">Все книги</string>
-    <string name="home_language_icon_desc">Сортировать по языку</string>
     <string name="home_search_icon_desc">Поиск книг</string>
     <string name="language_menu_title">Отобразить по языку</string>
     <!-- Categories screen. -->
@@ -55,12 +49,11 @@
     <string name="empty_library">Здесь пусто!</string>
     <string name="import_button_text">Импорт</string>
     <string name="import_button_onboarding">Импортируйте свои собственные книги!</string>
-    <string name="import_button_onboarding_desc">Теперь вы можете импортировать свои собственные книги в формате EPUB и читать их в Myne.</string>
+    <string name="import_button_onboarding_desc">Теперь вы можете импортировать свои собственные книги в формате EPUB и читать их в Scrollia.</string>
     <string name="import_button_desc">Импорт книги EPUB</string>
     <string name="external_book_info_unavailable">Доступно только для внутренних книг.</string>
     <string name="epub_importing">Импортирование…\nПожалуйста, подождите.</string>
     <string name="epub_imported">Успешно импортировано!</string>
-    <string name="epub_import_error">Ошибка импорта!</string>
     <string name="open_app_chooser">Читать в…</string>
     <string name="share_app_chooser">Поделиться через…</string>
     <string name="library_read_button">Читать</string>
@@ -70,11 +63,7 @@
     <string name="reader_detail_header">Читалка книг</string>
     <string name="start_reading_button">Начать читать</string>
     <string name="continue_reading_button">Продолжить</string>
-    <string name="reader_chapters_list">Главы</string>
     <!--Reader Screen -->
-    <string name="reader_max_font_size_reached">Извините, достигнут максимальный размер шрифта!</string>
-    <string name="reader_min_font_size_reached">Извините, достигнут минимальный размер шрифта!</string>
-    <string name="reader_font_style_chooser">Стиль шрифта</string>
     <string name="reader_chapter_list_title">Главы</string>
     <!-- Text selection -->
     <string name="copy">Копировать</string>
@@ -85,8 +74,6 @@
     <string name="dictionary">Значение</string>
     <!-- Settings screen. -->
     <string name="settings_header">Настройки</string>
-    <string name="app_desc">Скачиватель книг</string>
-    <string name="made_by">"Сделано Shivam, с любовью ❤"</string>
     <string name="general_settings_header">Общие</string>
     <string name="default_reader_setting">Читалка по умолчанию</string>
     <string name="default_reader_dialog_title">Открыть с помощью…</string>
@@ -97,7 +84,6 @@
     <string name="locale_setting_not_found">Извините! Эта функция пока не поддерживается вашей операционной системой.</string>
     <string name="open_library_at_start_setting">Открыть библиотеку при запуске</string>
     <string name="open_library_at_start_setting_desc">Открыть экран библиотеки при запуске приложения.</string>
-    <string name="display_setting_header">Дисплей</string>
     <string name="theme_setting">Тема по умолчанию</string>
     <string name="theme_dialog_title">Изменить тему</string>
     <string name="theme_option_light">Светлая</string>
@@ -105,12 +91,6 @@
     <string name="theme_option_system">Как в системе</string>
     <string name="theme_dialog_apply_button">Применить</string>
     <string name="amoled_theme_setting">Тёмная тема</string>
-    <string name="amoled_theme_setting_disabled_desc">Включить полностью тёмную тему</string>
-    <string name="amoled_theme_setting_enabled_desc">Отключить полностью тёмную тему</string>
-    <string name="material_you_setting_disabled_desc">Включить Material You</string>
-    <string name="material_you_setting_enabled_desc">Отключить Material You</string>
-    <string name="material_you_error">Эта функция доступна только для устройств под управлением Android 12 или выше.</string>
-    <string name="miscellaneous_setting_header">Разное</string>
     <string name="license_setting">Лицензия и благодарности</string>
     <string name="license_setting_desc">Лицензии с открытым исходным кодом.</string>
     <string name="about_setting">Информация о приложении</string>
@@ -120,7 +100,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Информация о книге</string>
     <string name="back_button_desc">Назад.</string>
-    <string name="share_button_desc">Поделиться книгой.</string>
     <string name="share_intent_header">Поделиться через…</string>
     <string name="read_book_button">Начать чтение</string>
     <string name="download_book_button">Скачать</string>
@@ -131,21 +110,11 @@
     <string name="about_header">Описание</string>
     <string name="about_desc">Бесплатное приложение с открытым исходным кодом для загрузки электронных книг из проекта GutenBerg.</string>
     <string name="developed_by">Разработано</string>
-    <string name="project_contributors">Участники</string>
-    <string name="project_contributors_desc">Познакомьтесь с нашими замечательными участниками.</string>
     <string name="useful_links">Полезные ссылки</string>
-    <string name="link_readme">ПРОЧТИ МЕНЯ</string>
-    <string name="link_readme_desc">Информация о проекте на Github.</string>
     <string name="link_website">Веб-сайт</string>
     <string name="link_website_desc">Посетите наш веб-сайт для получения дополнительной информации.</string>
     <string name="link_privacy_policy">Политика Конфиденциальности</string>
     <string name="link_privacy_policy_desc">Прочтите нашу последнюю политику конфиденциальности.</string>
-    <string name="link_gh_issue">Список задач на Github</string>
-    <string name="link_gh_issue_desc">Напишите отчёт об ошибке или предложение на Гитхабе.</string>
-    <string name="link_telegram">Группа в Telegram</string>
-    <string name="link_telegram_desc">Общайтесь с нами в Telegram!</string>
-    <string name="link_support">Поддержать разработку</string>
-    <string name="link_support_desc">На кофе с печеньками:)</string>
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Лицензии</string>
 </resources>

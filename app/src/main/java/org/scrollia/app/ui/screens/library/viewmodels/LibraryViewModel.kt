@@ -1,0 +1,119 @@
+/**
+ * Copyright (c) [2022 - Present] Stɑrry Shivɑm
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.scrollia.app.ui.screens.library.viewmodels
+
+import android.net.Uri
+import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import org.scrollia.app.database.library.LibraryDao
+import org.scrollia.app.database.library.LibraryItem
+import org.scrollia.app.database.progress.ProgressDao
+import org.scrollia.app.database.progress.ProgressData
+import org.scrollia.app.helpers.PreferenceUtil
+import org.scrollia.app.helpers.book.BookImporter
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
+
+
+@HiltViewModel
+class LibraryViewModel @Inject constructor(
+    private val libraryDao: LibraryDao,
+    progressDao: ProgressDao,
+    private val bookImporter: BookImporter,
+    private val preferenceUtil: PreferenceUtil
+) : ViewModel() {
+
+    val allItems: LiveData<List<LibraryItem>> = libraryDao.getAllItems()
+
+    /** Reading progress keyed by library item id; books never opened are absent. */
+    val progress: Flow<Map<Int, ProgressData>> = progressDao.getAllReaderItemsAsFlow()
+        .map { rows -> rows.associateBy { it.libraryItemId } }
+
+    private val _sort: MutableState<LibrarySort> = mutableStateOf(
+        LibrarySort.getById(preferenceUtil.getString(PreferenceUtil.LIBRARY_SORT_STR, ""))
+    )
+    val sort: State<LibrarySort> = _sort
+
+    fun setSort(sort: LibrarySort) {
+        preferenceUtil.putString(PreferenceUtil.LIBRARY_SORT_STR, sort.id)
+        _sort.value = sort
+    }
+
+    private val _showOnboardingTapTargets: MutableState<Boolean> = mutableStateOf(
+        value = preferenceUtil.getBoolean(PreferenceUtil.LIBRARY_ONBOARDING_BOOL, true)
+    )
+    val showOnboardingTapTargets: State<Boolean> = _showOnboardingTapTargets
+
+    fun deleteItemFromDB(item: LibraryItem) {
+        viewModelScope.launch(Dispatchers.IO) { libraryDao.delete(item) }
+    }
+
+    fun getInternalReaderSetting() = preferenceUtil.getBoolean(
+        PreferenceUtil.INTERNAL_READER_BOOL, true
+    )
+
+    fun shouldShowLibraryTooltip(): Boolean {
+        return preferenceUtil.getBoolean(PreferenceUtil.LIBRARY_SWIPE_TOOLTIP_BOOL, true)
+                && allItems.value?.isNotEmpty() == true
+                && allItems.value?.any { !it.isImported } == true
+    }
+
+    fun libraryTooltipDismissed() = preferenceUtil.putBoolean(
+        PreferenceUtil.LIBRARY_SWIPE_TOOLTIP_BOOL, false
+    )
+
+    fun onboardingComplete() {
+        preferenceUtil.putBoolean(PreferenceUtil.LIBRARY_ONBOARDING_BOOL, false)
+        _showOnboardingTapTargets.value = false
+    }
+
+    fun importBooks(
+        fileUris: List<Uri>,
+        onComplete: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = runCatching {
+                fileUris.forEach { uri -> bookImporter.importUri(uri) }
+
+                // Add delay here so user can see the import progress bar even if
+                // the import is very fast instead of just a flicker, improving UX
+                delay(800)
+            }
+
+            withContext(Dispatchers.Main) {
+                result.onSuccess {
+                    onComplete()
+                }.onFailure { exception ->
+                    Log.e("LibraryViewModel", "Error importing book", exception)
+                    onError(exception)
+                }
+            }
+        }
+    }
+}

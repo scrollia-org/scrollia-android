@@ -1,0 +1,8 @@
+# Template for local.properties.
+# Copy this file to local.properties and fill in your real values.
+# local.properties is gitignored — do not commit your real values.
+
+# Path to your Android SDK installation.
+# Linux/macOS: typically /home/<user>/Android/Sdk or /Users/<user>/Library/Android/sdk
+# Windows: typically C:\\Users\\<user>\\AppData\\Local\\Android\\Sdk
+sdk.dir=/path/to/Android/Sdk

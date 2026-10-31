@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Myne</string>
+    <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
-    <string name="not_applicable">N/A</string>
-    <string name="woops">"Ups!"</string>
     <string name="confirm">Confirmă</string>
     <string name="cancel">Anulează</string>
     <string name="ok">OK</string>
@@ -21,12 +19,8 @@
     <!-- ToolTips -->
     <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Mulțumim pentru instalarea Myne!</string>
-    <string name="welcome_screen_desc">Alegeți cititorul preferat de cărți electronice pentru a vă începe călătoria de citire.</string>
-    <string name="welcome_screen_button">Începeți</string>
     <!-- Home screen. -->
     <string name="home_header">Toate Cărțile</string>
-    <string name="home_language_icon_desc">Sortează după limbă</string>
     <string name="home_search_icon_desc">Caută cărți</string>
     <string name="language_menu_title">Răsfoiește după limbă</string>
     <!-- Categories screen. -->
@@ -56,12 +50,11 @@
     <string name="empty_library">Nimic aici!</string>
     <string name="import_button_text">Importă</string>
     <string name="import_button_onboarding">Importați propriile cărți!</string>
-    <string name="import_button_onboarding_desc">Acum puteți importa propriile cărți în format EPUB și să le citiți în Myne.</string>
+    <string name="import_button_onboarding_desc">Acum puteți importa propriile cărți în format EPUB și să le citiți în Scrollia.</string>
     <string name="import_button_desc">Importează carte EPUB</string>
     <string name="external_book_info_unavailable">Disponibil doar pentru cărți interne.</string>
     <string name="epub_importing">Se importă… Vă rugăm să așteptați.</string>
     <string name="epub_imported">Importat cu succes!</string>
-    <string name="epub_import_error">Import eșuat!</string>
     <string name="open_app_chooser">Deschide cu…</string>
     <string name="share_app_chooser">Împărtășiți cu…</string>
     <string name="library_read_button">Citește</string>
@@ -71,11 +64,7 @@
     <string name="reader_detail_header">Ebook Reader</string>
     <string name="start_reading_button">Începe</string>
     <string name="continue_reading_button">Rezumă</string>
-    <string name="reader_chapters_list">Capitole</string>
     <!--Reader Screen -->
-    <string name="reader_max_font_size_reached">Îmi pare rău, nu pot merge mai sus de atât!</string>
-    <string name="reader_min_font_size_reached">Îmi pare rău, nu pot merge mai jos de atât!</string>
-    <string name="reader_font_style_chooser">Schimbați FontStyle</string>
     <string name="reader_chapter_list_title">Capitole</string>
     <!-- Text selection -->
     <string name="copy">Copiază</string>
@@ -86,8 +75,6 @@
     <string name="dictionary">Semnificație</string>
     <!-- Settings screen. -->
     <string name="settings_header">Setări</string>
-    <string name="app_desc">Descărcător de Ebook</string>
-    <string name="made_by">Făcut cu ❤ de Shivam</string>
     <string name="general_settings_header">General</string>
     <string name="default_reader_setting">Cititor implicit</string>
     <string name="default_reader_dialog_title">Deschideți ebook-uri cu…</string>
@@ -98,7 +85,6 @@
     <string name="locale_setting_not_found">Ne pare rău! Această funcție nu este încă suportată de sistemul dvs. de operare.</string>
     <string name="open_library_at_start_setting">Deschide librăria la pornire</string>
     <string name="open_library_at_start_setting_desc">Deschide ecranul bibliotecii la pornirea aplicației.</string>
-    <string name="display_setting_header">Afișare</string>
     <string name="theme_setting">Tema implicită</string>
     <string name="theme_dialog_title">Tema implicită</string>
     <string name="theme_option_light">Lumină</string>
@@ -106,13 +92,6 @@
     <string name="theme_option_system">Implicit în sistem</string>
     <string name="theme_dialog_apply_button">Aplicați</string>
     <string name="amoled_theme_setting">Tema întunecată</string>
-    <string name="amoled_theme_setting_disabled_desc">Activare temă neagră AMOLED</string>
-    <string name="amoled_theme_setting_enabled_desc">Dezactivare temă neagră AMOLED</string>
-    <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_setting_disabled_desc">Activați Material You</string>
-    <string name="material_you_setting_enabled_desc">Dezactivați Material You</string>
-    <string name="material_you_error">Această funcție este disponibilă numai pentru dispozitivele care rulează Android 12 sau o versiune ulterioară.</string>
-    <string name="miscellaneous_setting_header">Diverse</string>
     <string name="license_setting">Licență &amp; Recunoștințe</string>
     <string name="license_setting_desc">Licențe de sursă deschisă.</string>
     <string name="about_setting">Informații despre aplicație</string>
@@ -122,7 +101,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Detalii despre carte</string>
     <string name="back_button_desc">Înapoi.</string>
-    <string name="share_button_desc">Împărtășiți această carte.</string>
     <string name="share_intent_header">Împărtășiți asta folosind…</string>
     <string name="read_book_button">Începeți să citiți</string>
     <string name="download_book_button">Descarcă</string>
@@ -133,21 +111,11 @@
     <string name="about_header">Despre</string>
     <string name="about_desc">O aplicație Android gratuită &amp; sursă deschisă pentru a descărca ebook-uri de la Project GutenBerg.</string>
     <string name="developed_by">Dezvoltat de</string>
-    <string name="project_contributors">Contribuitori la Proiect</string>
-    <string name="project_contributors_desc">Întâlnește-i pe contribuitorii noștri minunați.</string>
     <string name="useful_links">Link-uri Utile</string>
-    <string name="link_readme">README</string>
-    <string name="link_readme_desc">Consultă README-ul aplicației pe Github.</string>
     <string name="link_website">Site web</string>
     <string name="link_website_desc">Vizitați site-ul nostru pentru mai multe informații.</string>
     <string name="link_privacy_policy">Politica de Confidențialitate</string>
     <string name="link_privacy_policy_desc">Citește ultima noastră politică de confidențialitate.</string>
-    <string name="link_gh_issue">Probleme Github</string>
-    <string name="link_gh_issue_desc">Creează o problemă pe Github.</string>
-    <string name="link_telegram">Grup Telegram</string>
-    <string name="link_telegram_desc">Petrece timp cu noi pe Telegram!</string>
-    <string name="link_support">Susține Dezvoltarea</string>
-    <string name="link_support_desc">Crezi că merit biscuiți? Dă clic aici!</string>
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Licențe</string>
 </resources>
