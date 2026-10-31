@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Myne</string>
+    <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
-    <string name="not_applicable">Geçersiz</string>
-    <string name="woops">"Hay aksi!!"</string>
     <string name="confirm">Onayla</string>
     <string name="cancel">İptal</string>
     <string name="ok">Tamam</string>
@@ -21,12 +19,8 @@
     <!-- ToolTips -->
     <string name="library_tooltip">İPUCU! Kitap detaylarını görüntülemek veya paylaşmak için kütüphane öğelerini sola veya sağa kaydırın.</string>
     <!-- Welcome Screen -->
-    <string name="welcome_screen_title">Myne\'ı yüklediğiniz için teşekkürler!</string>
-    <string name="welcome_screen_desc">Okuma yolculuğunuza başlamak için tercih ettiğiniz e-kitap okuyucuyu seçin.</string>
-    <string name="welcome_screen_button">Başlayın</string>
     <!-- Home screen. -->
     <string name="home_header">Tüm Kitaplar</string>
-    <string name="home_language_icon_desc">Dile göre sırala</string>
     <string name="home_search_icon_desc">Kitapları ara</string>
     <string name="language_menu_title">Dile göre gözat</string>
     <!-- Home screen. -->
@@ -56,12 +50,11 @@
     <string name="empty_library">Burada bir şey yok!</string>
     <string name="import_button_text">İçe Aktar</string>
     <string name="import_button_onboarding">Kendi kitaplarınızı içe aktarın!</string>
-    <string name="import_button_onboarding_desc">Artık kendi EPUB kitaplarınızı içe aktarabilir ve Myne\'de okuyabilirsiniz.</string>
+    <string name="import_button_onboarding_desc">Artık kendi EPUB kitaplarınızı içe aktarabilir ve Scrollia\'de okuyabilirsiniz.</string>
     <string name="import_button_desc">Epub kitabını içe aktar</string>
     <string name="external_book_info_unavailable">Yalnızca dahili kitaplar için geçerlidir.</string>
     <string name="epub_importing">İçe aktarılıyor…\nLütfen bekleyin.</string>
     <string name="epub_imported">Başarıyla içe aktarıldı!</string>
-    <string name="epub_import_error">İçe aktarma başarısız oldu!</string>
     <string name="open_app_chooser">Şununla aç…</string>
     <string name="share_app_chooser">Şununla paylaş…</string>
     <string name="library_read_button">Oku</string>
@@ -71,11 +64,7 @@
     <string name="reader_detail_header">E-kitap Okuyucu</string>
     <string name="start_reading_button">Başlat</string>
     <string name="continue_reading_button">Devam Et</string>
-    <string name="reader_chapters_list">Bölümler</string>
     <!--Reader Screen -->
-    <string name="reader_max_font_size_reached">Üzgünüz, daha büyük bir boyuta çıkılamaz!</string>
-    <string name="reader_min_font_size_reached">Üzgünüz, daha küçük bir boyuta inilemez!</string>
-    <string name="reader_font_style_chooser">Yazı Tipini Değiştir</string>
     <string name="reader_chapter_list_title">Bölümler</string>
     <!-- Text selection -->
     <string name="copy">Kopyala</string>
@@ -86,8 +75,6 @@
     <string name="dictionary">Anlam</string>
     <!-- Settings screen. -->
     <string name="settings_header">Ayarlar</string>
-    <string name="app_desc">E-kitap İndirici</string>
-    <string name="made_by">Şivam tarafından ❤ ile yapıldı</string>
     <string name="general_settings_header">Genel</string>
     <string name="default_reader_setting">Varsayılan Okuyucu</string>
     <string name="default_reader_dialog_title">E-kitapları şununla aç…</string>
@@ -98,7 +85,6 @@
     <string name="locale_setting_not_found">Üzgünüz! Bu özellik işletim sisteminiz tarafından henüz desteklenmiyor.</string>
     <string name="open_library_at_start_setting">Başlangıçta Kütüphaneyi Aç</string>
     <string name="open_library_at_start_setting_desc">Uygulama başlatıldığında kütüphane ekranını açın.</string>
-    <string name="display_setting_header">Görünüm</string>
     <string name="theme_setting">Varsayılan Tema</string>
     <string name="theme_dialog_title">Temayı Değiştir</string>
     <string name="theme_option_light">Açık</string>
@@ -106,13 +92,6 @@
     <string name="theme_option_system">Sistem Varsayılanı</string>
     <string name="theme_dialog_apply_button">Uygula</string>
     <string name="amoled_theme_setting">Siyah Tema</string>
-    <string name="amoled_theme_setting_disabled_desc">Amoled Siyah Temayı Etkinleştir</string>
-    <string name="amoled_theme_setting_enabled_desc">Amoled Siyah Temayı Devre Dışı Bırak</string>
-    <string name="material_you_setting" translatable="false">Material You</string>
-    <string name="material_you_setting_disabled_desc">Material You\'yu Etkinleştir</string>
-    <string name="material_you_setting_enabled_desc">Material You\'yu Devre Dışı Bırak</string>
-    <string name="material_you_error">Bu özellik sadece Android 12 veya üzeri cihazlar için geçerlidir.</string>
-    <string name="miscellaneous_setting_header">Çeşitli</string>
     <string name="license_setting">Lisanslar &amp; Teşekkürler</string>
     <string name="license_setting_desc">Açık kaynak lisansları.</string>
     <string name="about_setting">Uygulama Bilgisi</string>
@@ -122,7 +101,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Kitap Detayları</string>
     <string name="back_button_desc">Geri dön.</string>
-    <string name="share_button_desc">Bu kitabı paylaş.</string>
     <string name="share_intent_header">Şununla paylaş…</string>
     <string name="read_book_button">Okumaya Başla</string>
     <string name="download_book_button">İndir</string>
@@ -134,21 +112,11 @@
     <string name="about_desc">Project Gutenberg\'den e-kitap indirmek için ücretsiz ve açık kaynaklı bir Android uygulaması.</string>
     <string name="developed_by">Geliştiren</string>
     <string name="dev_name" translatable="false">Starry Shivam</string>
-    <string name="project_contributors">Proje Katkıda Bulunanlar</string>
-    <string name="project_contributors_desc">Harika katkıda bulunanlarla tanışın.</string>
     <string name="useful_links">Yararlı Bağlantılar</string>
-    <string name="link_readme">README</string>
-    <string name="link_readme_desc">Github\'daki uygulamanın README dosyasına göz atın.</string>
     <string name="link_website">Web Sitesi</string>
     <string name="link_website_desc">Daha fazla bilgi için web sitemizi ziyaret edin.</string>
     <string name="link_privacy_policy">Gizlilik Politikası</string>
     <string name="link_privacy_policy_desc">En son gizlilik politikamızı okuyun.</string>
-    <string name="link_gh_issue">Github Sorunları</string>
-    <string name="link_gh_issue_desc">Github\'da bir sorun oluşturun.</string>
-    <string name="link_telegram">Telegram Grubu</string>
-    <string name="link_telegram_desc">Telegram\'da bizimle takılın!</string>
-    <string name="link_support">Geliştirmeyi Destekleyin</string>
-    <string name="link_support_desc">Kurabiyeleri hak ettiğimi mi düşünüyorsun? Buraya tıklayın!</string>
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Lisanslar</string>
 </resources>

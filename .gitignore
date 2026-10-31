@@ -2,10 +2,19 @@
 .gradle
 .kotlin
 /local.properties
+local.properties
 /.idea/
 .DS_Store
 /build
+/app/build
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+
+# Secrets
+*.jks
+*.keystore
+google-services.json
+
+# AI scratchpad
+.claude/

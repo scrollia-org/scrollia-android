@@ -51,7 +51,7 @@ body:
       required: true
   - type: input
     attributes:
-      label: Myne version
+      label: Scrollia version
       description: You can find this information in Settings -> About -> Version.
       placeholder: 1.0.0
     validations:

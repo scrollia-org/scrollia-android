@@ -1,4 +1,4 @@
-Myne este o aplicație FOSS de Android pentru a descărca ebooks din Project GutenBerg, care folosește GutenDex API pentru a prelua metadatele ebook-urilor în backend.
+Scrollia este o aplicație FOSS de Android pentru a descărca ebooks din Project GutenBerg, care folosește GutenDex API pentru a prelua metadatele ebook-urilor în backend.
 
 Aspecte importante:
 
