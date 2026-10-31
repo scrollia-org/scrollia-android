@@ -60,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
@@ -79,7 +80,6 @@ import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
 import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,7 +124,7 @@ fun SettingsScreen(navController: NavController) {
 @Composable
 private fun SettingsSectionHeader(titleRes: Int) {
     Text(
-        text = stringResource(id = titleRes).uppercase(Locale.getDefault()),
+        text = stringResource(id = titleRes).uppercase(LocalLocale.current.platformLocale),
         fontFamily = interFont,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 12.sp,
