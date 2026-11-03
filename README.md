@@ -6,12 +6,12 @@ Named for the **scroll** — the form that carried the written word for millenni
 
 ## Features
 
-- Browse and download 70,000+ free ebooks from Project Gutenberg
+- Browse and download a curated catalog of public-domain classics
 - Built-in EPUB reader with customizable typography
 - Import your own EPUB books
-- Material You design with light/dark themes
+- Paper, sepia, night, and AMOLED reading themes
 - Reading progress tracking
-- Multi-language support
+- English and Spanish interface and catalog
 
 ## Tech Stack
 
@@ -30,6 +30,22 @@ cd scrollia-android
 echo "sdk.dir=/path/to/Android/Sdk" > local.properties
 ./gradlew assembleDebug
 ```
+
+## Release signing
+
+Keep the upload keystore and `keystore.properties` in the repository root but
+out of version control; both are gitignored. Back them up securely. The
+properties file uses this format:
+
+```properties
+storeFile=scrollia-upload.keystore
+storePassword=<upload-store-password>
+keyAlias=upload
+keyPassword=<upload-key-password>
+```
+
+Build the Play App Bundle with `./gradlew bundleRelease`. Never use the Android
+debug certificate for a Play release.
 
 ## Credits
 
