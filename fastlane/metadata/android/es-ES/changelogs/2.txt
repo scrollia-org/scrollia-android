@@ -1,0 +1,2 @@
+- Se corrigieron las miniaturas de portada que faltaban al abrir la lista de capítulos de un libro descargado.
+- La lista de capítulos ahora reutiliza la portada guardada en el dispositivo y funciona sin conexión.
