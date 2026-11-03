@@ -1,1 +1,1 @@
- Android application to download & read ebooks from the Project GutenBerg.
+Read public-domain classics, free and without ads.

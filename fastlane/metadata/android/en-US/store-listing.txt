@@ -1,0 +1,12 @@
+APP NAME
+Scrollia
+
+SHORT DESCRIPTION
+Read public-domain classics, free and without ads.
+
+FULL DESCRIPTION
+Scrollia is a library for discovering and reading public-domain classics in English and Spanish.
+
+Download books for offline reading, keep track of your progress, and customize your reading experience with themes, font sizes, and typography options. You can also import your own compatible books.
+
+No mandatory accounts, no ads, and no advertising profiles. Your library, reading progress, and preferences stay on your device.
