@@ -10,6 +10,12 @@ plugins {
     id "com.mikepenz.aboutlibraries.plugin.android" version "14.0.1"
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
 android {
     namespace 'org.scrollia.app'
     compileSdk = 36
@@ -32,13 +38,24 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile = rootProject.file(keystoreProperties["storeFile"])
+                storePassword = keystoreProperties["storePassword"]
+                keyAlias = keystoreProperties["keyAlias"]
+                keyPassword = keystoreProperties["keyPassword"]
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
-            // Signed with the debug key for size measurement only; real Play
-            // signing comes later.
-            signingConfig = signingConfigs.debug
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // Rename the output apk file automatically.
             applicationVariants.all { variant ->

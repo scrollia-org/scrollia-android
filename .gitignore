@@ -14,6 +14,7 @@ local.properties
 # Secrets
 *.jks
 *.keystore
+/keystore.properties
 google-services.json
 
 # AI scratchpad
