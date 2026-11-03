@@ -76,6 +76,7 @@ import org.scrollia.app.R
 import kotlin.math.roundToInt
 import org.scrollia.app.ui.common.RecoverableError
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderTheme
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderViewModel
 import org.scrollia.app.ui.theme.interFont
 import kotlinx.coroutines.launch
@@ -87,6 +88,7 @@ fun ReaderScreen(
     onScrollToChapter: suspend (Int) -> Unit,
     onRetry: () -> Unit,
     onBack: () -> Unit,
+    onReaderThemeChanged: (ReaderTheme) -> Unit,
     chaptersContent: @Composable (paddingValues: PaddingValues) -> Unit
 ) {
     val state = viewModel.state.collectAsState().value
@@ -115,7 +117,7 @@ fun ReaderScreen(
             onFontFamilyChanged = { viewModel.setFontFamily(it) },
             onFontSizeChanged = { viewModel.setFontSize(it) },
             onLineHeightChanged = { viewModel.setLineHeight(it) },
-            onReaderThemeChanged = { viewModel.setReaderTheme(it) },
+            onReaderThemeChanged = onReaderThemeChanged,
             onJustifyChanged = { viewModel.setJustifyText(it) },
             onKeepScreenOnChanged = { viewModel.setKeepScreenOn(it) },
             onReadingModeChanged = { viewModel.setReadingMode(it) },

@@ -54,9 +54,4 @@ sealed class ReaderFont(val id: String, val name: String, val fontFamily: FontFa
         )
     )
 
-    @Keep
-    data object System : ReaderFont("system", "System Default", FontFamily.Default)
-
-    @Keep
-    data object Serif : ReaderFont("serif", "Serif", FontFamily.Serif)
 }

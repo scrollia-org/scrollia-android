@@ -20,6 +20,7 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -108,8 +109,7 @@ fun SettingsScreen(navController: NavController) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 // Ordered by frequency of use: appearance first, legal/about last.
                 AppearanceOptionsUI(viewModel = viewModel)
-                ReaderOptionsUI(viewModel = viewModel)
-                GeneralOptionsUI(viewModel = viewModel, snackBarHostState = snackBarHostState)
+                GeneralOptionsUI(snackBarHostState = snackBarHostState)
                 AboutUI(navController = navController)
             }
         }
@@ -137,41 +137,35 @@ private fun SettingsSectionHeader(titleRes: Int) {
 @Composable
 private fun AppearanceOptionsUI(viewModel: SettingsViewModel) {
     val context = LocalContext.current
+    val systemDark = isSystemInDarkTheme()
 
     // Display settings for the theme
     val appThemeState = viewModel.theme.observeAsState(initial = ThemeMode.Auto)
     val selectedAppTheme = when (appThemeState.value) {
         ThemeMode.Light -> stringResource(id = R.string.theme_option_light)
         ThemeMode.Dark -> stringResource(id = R.string.theme_option_dark)
+        ThemeMode.Amoled -> stringResource(id = R.string.theme_option_amoled)
         else -> stringResource(id = R.string.theme_option_system)
     }
     val appThemeDialog = remember { mutableStateOf(false) }
     val appThemeRadioOpts = listOf(
         stringResource(id = R.string.theme_option_light),
         stringResource(id = R.string.theme_option_dark),
+        stringResource(id = R.string.theme_option_amoled),
         stringResource(id = R.string.theme_option_system)
     )
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(selectedAppTheme) }
-
-    // Display settings for the amoled theme
-    val amoledState = viewModel.amoledTheme.observeAsState(initial = false)
+    val (selectedOption, onOptionSelected) = remember(selectedAppTheme) {
+        mutableStateOf(selectedAppTheme)
+    }
 
     Column(modifier = Modifier.padding(horizontal = 14.dp)) {
         SettingsSectionHeader(titleRes = R.string.settings_section_appearance)
         SettingItem(
-            icon = Icons.Filled.Build,
+            icon = ImageVector.vectorResource(id = R.drawable.ic_theme_palette),
             mainText = stringResource(id = R.string.theme_setting),
             subText = selectedAppTheme,
             onClick = { appThemeDialog.value = true }
         )
-        SettingItemWIthSwitch(
-            icon = Icons.Filled.Settings,
-            mainText = stringResource(id = R.string.amoled_theme_setting),
-            subText = stringResource(id = R.string.amoled_theme_setting_desc),
-            switchState = amoledState,
-            onCheckChange = {
-                viewModel.setAmoledTheme(it)
-            })
     }
 
     if (appThemeDialog.value) {
@@ -225,15 +219,19 @@ private fun AppearanceOptionsUI(viewModel: SettingsViewModel) {
 
                     when (selectedOption) {
                         context.getString(R.string.theme_option_light) -> {
-                            viewModel.setTheme(ThemeMode.Light)
+                            viewModel.setTheme(ThemeMode.Light, systemDark)
                         }
 
                         context.getString(R.string.theme_option_dark) -> {
-                            viewModel.setTheme(ThemeMode.Dark)
+                            viewModel.setTheme(ThemeMode.Dark, systemDark)
+                        }
+
+                        context.getString(R.string.theme_option_amoled) -> {
+                            viewModel.setTheme(ThemeMode.Amoled, systemDark)
                         }
 
                         context.getString(R.string.theme_option_system) -> {
-                            viewModel.setTheme(ThemeMode.Auto)
+                            viewModel.setTheme(ThemeMode.Auto, systemDark)
                         }
                     }
                 }, colors = ButtonDefaults.filledTonalButtonColors(
@@ -255,123 +253,14 @@ private fun AppearanceOptionsUI(viewModel: SettingsViewModel) {
 
 
 @Composable
-private fun ReaderOptionsUI(viewModel: SettingsViewModel) {
-    val context = LocalContext.current
-
-    val internalReaderState = viewModel.internalReader.observeAsState(initial = true)
-
-    val internalReaderValue = when (internalReaderState.value) {
-        true -> stringResource(id = R.string.reader_option_inbuilt)
-        false -> stringResource(id = R.string.reader_option_external)
-    }
-    val showReaderDialog = remember { mutableStateOf(false) }
-    val radioOptions = listOf(
-        stringResource(id = R.string.reader_option_inbuilt),
-        stringResource(id = R.string.reader_option_external)
-    )
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(internalReaderValue) }
-
-    Column(modifier = Modifier.padding(horizontal = 14.dp)) {
-        SettingsSectionHeader(titleRes = R.string.settings_section_reader)
-        SettingItem(
-            icon = ImageVector.vectorResource(id = R.drawable.ic_settings_reader),
-            mainText = stringResource(id = R.string.default_reader_setting),
-            subText = internalReaderValue,
-            onClick = { showReaderDialog.value = true }
-        )
-    }
-
-    if (showReaderDialog.value) {
-        AlertDialog(onDismissRequest = {
-            showReaderDialog.value = false
-        }, title = {
-            Text(
-                text = stringResource(id = R.string.default_reader_dialog_title),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }, text = {
-            Column(
-                modifier = Modifier.selectableGroup(),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                radioOptions.forEach { text ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(46.dp)
-                            .selectable(
-                                selected = (text == selectedOption),
-                                onClick = { onOptionSelected(text) },
-                                role = Role.RadioButton,
-                            ),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(
-                            selected = (text == selectedOption),
-                            onClick = null,
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = MaterialTheme.colorScheme.primary,
-                                unselectedColor = MaterialTheme.colorScheme.inversePrimary,
-                                disabledSelectedColor = Color.Black,
-                                disabledUnselectedColor = Color.Black
-                            ),
-                        )
-                        Text(
-                            text = text,
-                            modifier = Modifier.padding(start = 16.dp),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = interFont
-                        )
-                    }
-                }
-            }
-        }, confirmButton = {
-            FilledTonalButton(
-                onClick = {
-                    showReaderDialog.value = false
-
-                    when (selectedOption) {
-                        context.getString(R.string.reader_option_inbuilt) -> {
-                            viewModel.setInternalReaderValue(true)
-                        }
-
-                        context.getString(R.string.reader_option_external) -> {
-                            viewModel.setInternalReaderValue(false)
-                        }
-                    }
-                }, colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Text(stringResource(id = R.string.confirm))
-            }
-        }, dismissButton = {
-            TextButton(onClick = {
-                showReaderDialog.value = false
-            }) {
-                Text(stringResource(id = R.string.cancel))
-            }
-        })
-    }
-}
-
-
-@Composable
-private fun GeneralOptionsUI(
-    viewModel: SettingsViewModel,
-    snackBarHostState: SnackbarHostState
-) {
+private fun GeneralOptionsUI(snackBarHostState: SnackbarHostState) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-
-    val googleBooksApiSwitchState = viewModel.useGoogleApi.observeAsState(initial = true)
-    val openLibraryAtStartState = viewModel.openLibraryAtStart.observeAsState(initial = false)
 
     Column(modifier = Modifier.padding(horizontal = 14.dp)) {
         SettingsSectionHeader(titleRes = R.string.general_settings_header)
         SettingItem(
-            icon = Icons.Filled.Place,
+            icon = ImageVector.vectorResource(id = R.drawable.ic_book_language),
             mainText = stringResource(id = R.string.default_locale_setting),
             subText = stringResource(id = R.string.default_locale_setting_desc),
             onClick = {
@@ -391,24 +280,6 @@ private fun GeneralOptionsUI(
                         )
                     }
                 }
-            }
-        )
-        SettingItemWIthSwitch(
-            icon = ImageVector.vectorResource(id = R.drawable.ic_settings_library_start),
-            mainText = stringResource(id = R.string.open_library_at_start_setting),
-            subText = stringResource(id = R.string.open_library_at_start_setting_desc),
-            switchState = openLibraryAtStartState,
-            onCheckChange = {
-                viewModel.setOpenLibraryAtStartValue(it)
-            }
-        )
-        SettingItemWIthSwitch(
-            icon = ImageVector.vectorResource(id = R.drawable.ic_settings_google_api),
-            mainText = stringResource(id = R.string.extra_info_setting),
-            subText = stringResource(id = R.string.extra_info_setting_desc),
-            switchState = googleBooksApiSwitchState,
-            onCheckChange = {
-                viewModel.setUseGoogleApiValue(it)
             }
         )
     }

@@ -6,14 +6,11 @@
     <string name="cancel">İptal</string>
     <string name="ok">Tamam</string>
     <string name="got_it">Anladım</string>
-    <string name="no_app_to_handle_epub">Epub dosyasını açacak bir uygulama bulunamadı.</string>
     <string name="network_error">Hata! Sunucuya bağlanılamadı.</string>
     <string name="network_error_retry">Tekrar Dene</string>
     <string name="error">Hata! Bir şeyler ters gitti.</string>
     <string name="no_app_to_handle_content">Bu içeriği açmak için uygulama bulunamadı.</string>
     <!-- Navigation titles -->
-    <string name="navigation_home">Anasayfa</string>
-    <string name="navigation_categories">Kategoriler</string>
     <string name="navigation_library">Kütüphane</string>
     <string name="navigation_settings">Ayarlar</string>
     <!-- ToolTips -->
@@ -55,8 +52,6 @@
     <string name="external_book_info_unavailable">Yalnızca dahili kitaplar için geçerlidir.</string>
     <string name="epub_importing">İçe aktarılıyor…\nLütfen bekleyin.</string>
     <string name="epub_imported">Başarıyla içe aktarıldı!</string>
-    <string name="open_app_chooser">Şununla aç…</string>
-    <string name="share_app_chooser">Şununla paylaş…</string>
     <string name="library_read_button">Oku</string>
     <string name="library_delete_button">Sil</string>
     <string name="library_delete_dialog_title">Bundan emin misiniz?</string>
@@ -76,22 +71,15 @@
     <!-- Settings screen. -->
     <string name="settings_header">Ayarlar</string>
     <string name="general_settings_header">Genel</string>
-    <string name="default_reader_setting">Varsayılan Okuyucu</string>
-    <string name="default_reader_dialog_title">E-kitapları şununla aç…</string>
-    <string name="reader_option_inbuilt">Dahili Okuyucu</string>
-    <string name="reader_option_external">Harici Okuyucu</string>
     <string name="default_locale_setting">Varsayılan Bölge</string>
     <string name="default_locale_setting_desc">Tercih ettiğiniz bölgeyi seçin.</string>
     <string name="locale_setting_not_found">Üzgünüz! Bu özellik işletim sisteminiz tarafından henüz desteklenmiyor.</string>
-    <string name="open_library_at_start_setting">Başlangıçta Kütüphaneyi Aç</string>
-    <string name="open_library_at_start_setting_desc">Uygulama başlatıldığında kütüphane ekranını açın.</string>
     <string name="theme_setting">Varsayılan Tema</string>
     <string name="theme_dialog_title">Temayı Değiştir</string>
     <string name="theme_option_light">Açık</string>
     <string name="theme_option_dark">Koyu</string>
     <string name="theme_option_system">Sistem Varsayılanı</string>
     <string name="theme_dialog_apply_button">Uygula</string>
-    <string name="amoled_theme_setting">Siyah Tema</string>
     <string name="license_setting">Lisanslar &amp; Teşekkürler</string>
     <string name="license_setting_desc">Açık kaynak lisansları.</string>
     <string name="about_setting">Uygulama Bilgisi</string>
@@ -101,7 +89,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Kitap Detayları</string>
     <string name="back_button_desc">Geri dön.</string>
-    <string name="share_intent_header">Şununla paylaş…</string>
     <string name="read_book_button">Okumaya Başla</string>
     <string name="download_book_button">İndir</string>
     <string name="download_started">İndirme Başladı!</string>

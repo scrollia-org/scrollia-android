@@ -4,19 +4,17 @@
     <string name="confirm">Confirmar</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">OK</string>
-    <string name="got_it">Got it</string>
-    <string name="no_app_to_handle_epub">No se ha podido encontrar ninguna aplicación para abrir el fichero epub.</string>
+    <string name="got_it">Entendido</string>
     <string name="network_error">No se pudo conectar con el servidor.</string>
     <string name="network_error_retry">Reintentar</string>
     <string name="error">¡Ups! Algo ha ido mal.</string>
-    <string name="no_app_to_handle_content">No se puede encontrar ninguna aplicación para abrir este contenido.</string>
+    <string name="no_app_to_handle_content">No hay ninguna aplicación disponible para abrir este contenido.</string>
     <!-- Navigation titles -->
-    <string name="navigation_home">Inicio</string>
-    <string name="navigation_categories">Categorías</string>
-    <string name="navigation_library">Biblioteca</string>
+    <string name="navigation_explore">Explorar</string>
+    <string name="navigation_library">Mis libros</string>
     <string name="navigation_settings">Ajustes</string>
     <!-- ToolTips -->
-    <string name="library_tooltip">TIP! Swipe library items left or right to share or view book details.</string>
+    <string name="library_tooltip">Consejo: desliza un libro para ver sus detalles.</string>
     <!-- Welcome Screen -->
     <!-- Home screen. -->
     <string name="home_header">Todos los libros</string>
@@ -44,7 +42,7 @@
     <string name="filter_clear">Limpiar filtros</string>
     <!-- Categories screen. -->
     <string name="categories_header">Categorías</string>
-    <string name="no_books_found_for_lang_and_cat">No books available in %s language for this category.</string>
+    <string name="no_books_found_for_lang_and_cat">No hay libros disponibles en %s para esta categoría.</string>
     <!-- Categories -->
     <string name="category_animal">Animales</string>
     <string name="category_children">Niños</string>
@@ -56,7 +54,7 @@
     <string name="category_geography">Geografía</string>
     <string name="category_history">Historia</string>
     <string name="category_literature">Literatura</string>
-    <string name="category_law">Ley</string>
+    <string name="category_law">Derecho</string>
     <string name="category_music">Música</string>
     <string name="category_periodicals">Publicaciones periódicas</string>
     <string name="category_psychology">Psicología</string>
@@ -67,27 +65,28 @@
     <!-- Library screen. -->
     <string name="library_header">Biblioteca</string>
     <string name="empty_library">Tu biblioteca está vacía</string>
+    <string name="empty_library_description">Descarga un clásico o importa tus propios libros.</string>
+    <string name="empty_library_action">Explorar clásicos</string>
+    <string name="empty_library_import">Importar libros</string>
     <string name="import_button_text">Importar</string>
     <string name="import_button_onboarding">¡Importa tus propios libros!</string>
     <string name="import_button_onboarding_desc">Ahora puedes importar tus propios libros en formato EPUB y leerlos en Scrollia.</string>
     <string name="import_button_desc">Importar libro EPUB</string>
-    <string name="external_book_info_unavailable">Solo disponible para libros internos.</string>
+    <string name="external_book_info_unavailable">La información solo está disponible para libros del catálogo.</string>
     <string name="epub_importing">Importando… Por favor, espere.</string>
     <string name="epub_imported">¡Importado con éxito!</string>
-    <string name="open_app_chooser">Abrir con…</string>
-    <string name="share_app_chooser">Compartir con…</string>
     <string name="library_read_button">Leer</string>
     <string name="library_delete_button">Eliminar</string>
-    <string name="library_delete_dialog_title">¿Está seguro de eso?</string>
+    <string name="library_delete_dialog_title">¿Eliminar este libro?</string>
     <!-- Reader Detail Screen -->
-    <string name="reader_detail_header">Lector de Ebook</string>
+    <string name="reader_detail_header">Lector</string>
     <string name="start_reading_button">Comenzar</string>
     <string name="continue_reading_button">Continuar</string>
     <string name="progress_percent_read">%1$d\u00A0%% leído</string>
     <string name="progress_percent">%1$d\u00A0%%</string>
     <string name="home_continue_reading">Seguir leyendo</string>
     <string name="library_finished">Terminado</string>
-    <string name="library_sort_recent">Leídos recientemente</string>
+    <string name="library_sort_recent">Lectura reciente</string>
     <string name="library_sort_title">Título A–Z</string>
     <!--Reader Screen -->
     <string name="back">Volver</string>
@@ -105,6 +104,7 @@
     <string name="reader_theme_paper">Papel</string>
     <string name="reader_theme_sepia">Sepia</string>
     <string name="reader_theme_night">Nocturno</string>
+    <string name="reader_theme_amoled">AMOLED</string>
     <string name="reader_previous_chapter">Capítulo anterior</string>
     <string name="reader_next_chapter">Capítulo siguiente</string>
     <string name="reader_chapter_progress">Capítulo %1$d de %2$d · %3$d\u00A0%%</string>
@@ -126,7 +126,6 @@
     <string name="reader_settings_keep_screen_on">Mantener pantalla encendida</string>
     <string name="reader_settings_keep_screen_on_desc">La pantalla no se apagará mientras haya un libro abierto</string>
     <string name="reader_settings_sample">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo.</string>
-    <string name="reader_font_system">Sistema</string>
     <!-- Text selection -->
     <string name="copy">Copiar</string>
     <string name="copied">¡Copiado!</string>
@@ -138,28 +137,18 @@
     <string name="settings_header">Ajustes</string>
     <string name="general_settings_header">General</string>
     <string name="settings_section_appearance">Apariencia</string>
-    <string name="settings_section_reader">Lector</string>
     <string name="settings_section_about">Acerca de</string>
-    <string name="default_reader_setting">Lector por defecto</string>
-    <string name="default_reader_dialog_title">Abrir ebooks con…</string>
-    <string name="reader_option_inbuilt">Lector incorporado</string>
-    <string name="reader_option_external">Lector externo</string>
     <string name="default_locale_setting">Idioma de la aplicación</string>
     <string name="default_locale_setting_desc">Selecciona tu idioma preferido.</string>
-    <string name="locale_setting_not_found">¡Lo siento! Esta función aún no está soportada por tu sistema operativo.</string>
-    <string name="extra_info_setting">Metadatos adicionales</string>
-    <string name="extra_info_setting_desc">Descargar portadas y descripciones del servidor de Scrollia.</string>
-    <string name="open_library_at_start_setting">Abrir la biblioteca al iniciar</string>
-    <string name="open_library_at_start_setting_desc">Abrir la pantalla de la biblioteca al iniciar la aplicación.</string>
+    <string name="locale_setting_not_found">Tu dispositivo no permite cambiar el idioma de la aplicación desde Ajustes.</string>
     <string name="theme_setting">Tema</string>
     <string name="theme_dialog_title">Cambiar tema</string>
     <string name="theme_option_light">Claro</string>
     <string name="theme_option_dark">Oscuro</string>
+    <string name="theme_option_amoled">Negro AMOLED</string>
     <string name="theme_option_system">Predeterminado del sistema</string>
     <string name="theme_dialog_apply_button">Aplicar</string>
-    <string name="amoled_theme_setting">Tema negro AMOLED</string>
-    <string name="amoled_theme_setting_desc">Fondo negro puro en la app con tema oscuro; el lector tiene sus propios temas</string>
-    <string name="license_setting">Licencia y agradecimientos</string>
+    <string name="license_setting">Licencias y agradecimientos</string>
     <string name="license_setting_desc">Licencias de código abierto.</string>
     <string name="about_setting">Información de la aplicación</string>
     <string name="about_setting_desc">Mostrar información sobre la aplicación y enlaces útiles</string>
@@ -168,7 +157,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Detalles del libro</string>
     <string name="back_button_desc">Atrás.</string>
-    <string name="share_intent_header">Compartir usando…</string>
     <string name="read_book_button">Empezar a leer</string>
     <string name="download_book_button">Descargar</string>
     <string name="download_retry">Reintentar descarga</string>
@@ -176,18 +164,19 @@
     <string name="detail_select_language">Idioma</string>
     <string name="book_synopsis">Sinopsis</string>
     <string name="book_synopsis_not_found">Sin sinopsis disponible</string>
+    <string name="attribution_source">Fuente</string>
     <!-- About Screen -->
     <string name="about_header">Acerca de</string>
-    <string name="about_desc">Una aplicación Android gratuita y de código abierto para descargar libros electrónicos del Proyecto GutenBerg.</string>
+    <string name="about_desc">Una aplicación Android gratuita y de código abierto para descargar libros electrónicos del Proyecto Gutenberg.</string>
     <string name="developed_by">Desarrollado por</string>
     <string name="useful_links">Enlaces útiles</string>
     <string name="link_website">Sitio web</string>
-    <string name="link_website_desc">Visite nuestro sitio web para más información.</string>
+    <string name="link_website_desc">Visita nuestro sitio web para más información.</string>
     <string name="link_privacy_policy">Política de privacidad</string>
     <string name="link_privacy_policy_desc">Lee nuestra política de privacidad más reciente.</string>
     <string name="about_credits">Créditos</string>
     <string name="about_based_on_myne">Basada en Myne (github.com/Pool-Of-Tears/Myne), licencia Apache-2.0</string>
-    <string name="about_based_on_myne_desc">Scrollia es un fork de Myne, de Stɑrry Shivɑm. Toca para ver el proyecto original.</string>
+    <string name="about_based_on_myne_desc">Scrollia nace del código de Myne, de Stɑrry Shivɑm. Toca para ver el proyecto original.</string>
     <!-- Open source libraries screen -->
     <string name="open_source_licenses_header">Licencias</string>
 

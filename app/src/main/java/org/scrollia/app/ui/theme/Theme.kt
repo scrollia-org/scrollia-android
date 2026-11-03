@@ -108,23 +108,12 @@ private val darkColors = darkColorScheme(
 )
 
 // Get the color scheme based on the theme settings.
-private fun getColorScheme(
-    themeState: ThemeMode,
-    amoledTheme: Boolean,
-    darkTheme: Boolean
-): ColorScheme {
-    val initialColorScheme = when (themeState) {
+private fun getColorScheme(themeState: ThemeMode, darkTheme: Boolean): ColorScheme {
+    return when (themeState) {
         ThemeMode.Light -> lightColors
         ThemeMode.Dark -> darkColors
         ThemeMode.Auto -> if (darkTheme) darkColors else lightColors
-    }
-
-    return if (amoledTheme && // Check if AMOLED theme is enabled
-        (themeState == ThemeMode.Dark || themeState == ThemeMode.Auto && darkTheme)
-    ) {
-        initialColorScheme.copy(surface = Color.Black, background = Color.Black)
-    } else {
-        initialColorScheme
+        ThemeMode.Amoled -> darkColors.copy(surface = Color.Black, background = Color.Black)
     }
 }
 
@@ -167,11 +156,9 @@ fun ScrolliaTheme(
     content: @Composable () -> Unit
 ) {
     val themeState = settingsViewModel.theme.observeAsState(initial = ThemeMode.Auto)
-    val amoledThemeState = settingsViewModel.amoledTheme.observeAsState(initial = false)
 
     val colorScheme = getColorScheme(
         themeState = themeState.value,
-        amoledTheme = amoledThemeState.value,
         darkTheme = darkTheme
     )
 

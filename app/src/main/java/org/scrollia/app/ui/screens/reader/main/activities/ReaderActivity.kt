@@ -24,6 +24,7 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
@@ -43,10 +44,12 @@ import org.scrollia.app.ui.screens.reader.main.composables.ReaderScreen
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderListEntry
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderPosition
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderTheme
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderViewModel
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReadingMode
 import org.scrollia.app.ui.screens.reader.main.viewmodel.VisiblePosition
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
+import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
 import org.scrollia.app.ui.theme.ScrolliaTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -77,7 +80,26 @@ class ReaderActivity : AppCompatActivity() {
                 }
 
                 val state by viewModel.state.collectAsState()
+                val systemDark = isSystemInDarkTheme()
                 LaunchedEffect(state.keepScreenOn) { applyKeepScreenOn(state.keepScreenOn) }
+                val appTheme = settingsViewModel.theme.value
+                LaunchedEffect(systemDark, appTheme, state.readerTheme) {
+                    val synchronizedTheme = when (appTheme) {
+                        ThemeMode.Auto -> if (systemDark) ReaderTheme.Night else ReaderTheme.Paper
+                        ThemeMode.Light -> if (state.readerTheme in setOf(
+                                ReaderTheme.Paper, ReaderTheme.Sepia
+                            )
+                        ) null else ReaderTheme.Paper
+                        ThemeMode.Dark -> if (state.readerTheme == ReaderTheme.Night) {
+                            null
+                        } else ReaderTheme.Night
+                        ThemeMode.Amoled -> if (state.readerTheme == ReaderTheme.Amoled) {
+                            null
+                        } else ReaderTheme.Amoled
+                        null -> null
+                    }
+                    synchronizedTheme?.let(viewModel::setReaderTheme)
+                }
 
                 val onPositionChanged: (VisiblePosition) -> Unit = remember {
                     { position ->
@@ -106,6 +128,15 @@ class ReaderActivity : AppCompatActivity() {
                     onScrollToChapter = { chapterIndex -> viewModel.jumpToChapter(chapterIndex) },
                     onRetry = { recreate() },
                     onBack = { finish() },
+                    onReaderThemeChanged = { theme ->
+                        val selectedAppTheme = when (theme) {
+                            ReaderTheme.Paper, ReaderTheme.Sepia -> ThemeMode.Light
+                            ReaderTheme.Night -> ThemeMode.Dark
+                            ReaderTheme.Amoled -> ThemeMode.Amoled
+                        }
+                        settingsViewModel.setTheme(selectedAppTheme, systemDark, updateReader = false)
+                        viewModel.setReaderTheme(theme)
+                    },
                     chaptersContent = {
                         when (state.readingMode) {
                             ReadingMode.SCROLL -> ScrollReaderContent(

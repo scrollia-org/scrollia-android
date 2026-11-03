@@ -5,14 +5,11 @@
     <string name="cancel">Zrušit</string>
     <string name="ok">OK</string>
     <string name="got_it">Got it</string>
-    <string name="no_app_to_handle_epub">Nepodařilo se najít aplikaci, která by dokázala otevřít soubor epub.</string>
     <string name="network_error">Oops! Failed to connect with the server.</string>
     <string name="network_error_retry">Try Again</string>
     <string name="error">Jejda! Něco se pokazilo.</string>
     <string name="no_app_to_handle_content">Nelze najít aplikaci pro otevření tohoto obsahu.</string>
     <!-- Navigation titles -->
-    <string name="navigation_home">Domů</string>
-    <string name="navigation_categories">Kategorie</string>
     <string name="navigation_library">Knihovna</string>
     <string name="navigation_settings">Nastavení</string>
     <!-- ToolTips -->
@@ -54,8 +51,6 @@
     <string name="external_book_info_unavailable">Dostupné pouze pro interní knihy.</string>
     <string name="epub_importing">Probíhá importování… Prosím čekejte.</string>
     <string name="epub_imported">Úspěšně importováno!</string>
-    <string name="open_app_chooser">Otevřít pomocí…</string>
-    <string name="share_app_chooser">Sdílet s…</string>
     <string name="library_read_button">Číst</string>
     <string name="library_delete_button">Odstranit</string>
     <string name="library_delete_dialog_title">Opravdu?</string>
@@ -75,22 +70,15 @@
     <!-- Settings screen. -->
     <string name="settings_header">Nastavení</string>
     <string name="general_settings_header">Obecné</string>
-    <string name="default_reader_setting">Výchozí čtečka</string>
-    <string name="default_reader_dialog_title">Otevírat e-knihy pomocí…</string>
-    <string name="reader_option_inbuilt">Vestavěný čtečka</string>
-    <string name="reader_option_external">Externí čtečka</string>
     <string name="default_locale_setting">Výchozí lokalizace</string>
     <string name="default_locale_setting_desc">Vyberte svůj preferovaný jazyk.</string>
     <string name="locale_setting_not_found">Omlouváme se! Tato funkce zatím není podporována vaším operačním systémem.</string>
-    <string name="open_library_at_start_setting">Otevřít knihovnu při spuštění</string>
-    <string name="open_library_at_start_setting_desc">Pokud je povoleno, otevře se při spuštění aplikace obrazovka knihovny.</string>
     <string name="theme_setting">Výchozí motiv</string>
     <string name="theme_dialog_title">Změnit motiv</string>
     <string name="theme_option_light">Světlé</string>
     <string name="theme_option_dark">Temné</string>
     <string name="theme_option_system">Systémová výchozí</string>
     <string name="theme_dialog_apply_button">Použít</string>
-    <string name="amoled_theme_setting">Černé téma</string>
     <string name="license_setting">Licence a poděkování</string>
     <string name="license_setting_desc">Licence open source.</string>
     <string name="about_setting">Informace o aplikaci</string>
@@ -100,7 +88,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Podrobnosti o knize</string>
     <string name="back_button_desc">Vrátit se.</string>
-    <string name="share_intent_header">Sdílet pomocí…</string>
     <string name="read_book_button">Začít číst</string>
     <string name="download_book_button">Stáhnout</string>
     <string name="download_started">Stahování spuštěno!</string>

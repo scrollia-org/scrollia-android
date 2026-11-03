@@ -101,8 +101,7 @@ fun MainScreen(
 @Composable
 private fun BottomBar(navController: NavHostController) {
     val screens = listOf(
-        BottomBarScreen.Home,
-        BottomBarScreen.Categories,
+        BottomBarScreen.Explore,
         BottomBarScreen.Library,
         BottomBarScreen.Settings,
     )
@@ -165,15 +164,13 @@ private fun CustomBottomNavigationItem(
                 tint = contentColor
             )
 
-            AnimatedVisibility(visible = isSelected) {
-                Text(
-                    text = stringResource(id = screen.title),
-                    color = contentColor,
-                    fontFamily = interFont,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(start = 4.dp)
-                )
-            }
+            Text(
+                text = stringResource(id = screen.title),
+                color = contentColor,
+                fontFamily = interFont,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 4.dp)
+            )
         }
     }
 }
@@ -196,7 +193,7 @@ private fun HandleShortcutIntent(intent: Intent, navController: NavController) {
 /**
  * Standard bottom-tab navigation: one copy of each tab above the start tab, each tab's state
  * (screen, view model, scroll, inner back stack) saved when leaving and restored on return.
- * Back from another tab's root therefore returns to the start tab (Home or Library).
+ * Back from another tab's root therefore returns to Library, the start tab.
  */
 fun NavController.navigateToTab(route: String) {
     navigate(route) {

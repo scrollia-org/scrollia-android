@@ -5,14 +5,11 @@
     <string name="cancel">বাদ দিন</string>
     <string name="ok">ঠিক আছে</string>
     <string name="got_it">বুঝেছি</string>
-    <string name="no_app_to_handle_epub">epub ফাইল খোলার জন্য কোনো অ্যাপ খুঁজে পাওয়া যাচ্ছে না।</string>
     <string name="network_error">উপ্স! সার্ভারের সাথে কানেক্ট করা যায়নি৷</string>
     <string name="network_error_retry">আবার চেষ্টা করুন</string>
     <string name="error">উফফ! কোন ভুল হয়েছে।</string>
     <string name="no_app_to_handle_content">এই কন্টেন্ট খোলার জন্য কোনো অ্যাপ খুঁজে পাওয়া যায়নি।</string>
     <!-- Navigation titles -->
-    <string name="navigation_home">হোম</string>
-    <string name="navigation_categories">ক্যাটাগরি</string>
     <string name="navigation_library">লাইব্রেরি</string>
     <string name="navigation_settings">সেটিংস</string>
     <!-- ToolTips -->
@@ -54,8 +51,6 @@
     <string name="external_book_info_unavailable">শুধুমাত্র অভ্যন্তরীণ বইয়ের জন্য প্রযোজ্য।</string>
     <string name="epub_importing">ইমপোর্ট করা হচ্ছে... \nঅনুগ্রহ করে অপেক্ষা করুন।</string>
     <string name="epub_imported">ইমপোর্ট হয়েছে!</string>
-    <string name="open_app_chooser">এর মাধ্যমে খুলুন…</string>
-    <string name="share_app_chooser">এর মাধ্যমে শেয়ার করুন…</string>
     <string name="library_read_button">পড়ুন</string>
     <string name="library_delete_button">ডিলিট</string>
     <string name="library_delete_dialog_title">আপনি কি নিশ্চিত?</string>
@@ -75,22 +70,15 @@
     <!-- Settings screen. -->
     <string name="settings_header">সেটিংস</string>
     <string name="general_settings_header">জেনারেল</string>
-    <string name="default_reader_setting">ডিফল্ট রিডার</string>
-    <string name="default_reader_dialog_title">এর মাধ্যমে ইবুক খুলুন...</string>
-    <string name="reader_option_inbuilt">ইনবিল্ট রিডার</string>
-    <string name="reader_option_external">এক্সটারনাল রিডার</string>
     <string name="default_locale_setting">ডিফল্ট Locale</string>
     <string name="default_locale_setting_desc">আপনার পছন্দের Locale নির্বাচন করুন।</string>
     <string name="locale_setting_not_found">দুঃখিত! এই ফিচার এখনও আপনার ওএস এর জন্য আসেনি৷</string>
-    <string name="open_library_at_start_setting">স্টার্টে লাইব্রেরি খুলুন</string>
-    <string name="open_library_at_start_setting_desc">অ্যাপ শুরু হলে লাইব্রেরি স্ক্রিন খুলুন।</string>
     <string name="theme_setting">ডিফল্ট থিম</string>
     <string name="theme_dialog_title">থিম বদলান</string>
     <string name="theme_option_light">লাইট</string>
     <string name="theme_option_dark">ডার্ক</string>
     <string name="theme_option_system">সিস্টেম ডিফল্ট</string>
     <string name="theme_dialog_apply_button">অ্যাপ্লাই</string>
-    <string name="amoled_theme_setting">ব্ল্যাক থিম</string>
     <string name="license_setting">লাইসেন্স &amp; স্বীকৃতি</string>
     <string name="license_setting_desc">ওপেন সোর্স লাইসেন্স।</string>
     <string name="about_setting">অ্যাপ সম্পর্কে</string>
@@ -100,7 +88,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">বইয়ের বিস্তারিত</string>
     <string name="back_button_desc">ফিরে যান।</string>
-    <string name="share_intent_header">এটি ব্যবহার করে শেয়ার করুন…</string>
     <string name="read_book_button">পড়া শুরু করুন</string>
     <string name="download_book_button">ডাউনলোড</string>
     <string name="download_started">ডাউনলোড শুরু হয়েছে!</string>

@@ -17,7 +17,6 @@
 package org.scrollia.app.ui.screens.detail.composables
 
 import android.app.DownloadManager
-import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
@@ -123,16 +122,6 @@ fun BookDetailScreen(
             ) {
                 BookDetailTopBar(onBackClicked = {
                     navController.navigateUp()
-                }, onShareClicked = {
-                    val intent = Intent(Intent.ACTION_SEND)
-                    intent.type = "text/plain"
-                    intent.putExtra(
-                        Intent.EXTRA_TEXT, "https://www.gutenberg.org/ebooks/$bookId"
-                    )
-                    val chooser = Intent.createChooser(
-                        intent, context.getString(R.string.share_intent_header)
-                    )
-                    context.startActivity(chooser)
                 })
 
                 Crossfade(
@@ -290,8 +279,6 @@ private fun BookDetailContents(
                             bookId = displayBook.id,
                             onComplete = { libraryItem ->
                                 BookUtils.openBookFile(
-                                    context = context,
-                                    internalReader = viewModel.getInternalReaderSetting(),
                                     libraryItem = libraryItem,
                                     navController = navController
                                 )
@@ -299,8 +286,6 @@ private fun BookDetailContents(
                         )
                     } else {
                         BookUtils.openBookFile(
-                            context = context,
-                            internalReader = viewModel.getInternalReaderSetting(),
                             libraryItem = state.bookLibraryItem,
                             navController = navController
                         )
@@ -337,6 +322,10 @@ private fun BookDetailContents(
 
         val synopsis = state.extraInfo.description
             .takeIf { state.extraInfoBookId == displayBook.id && it.isNotEmpty() }
+            ?.replace(
+                Regex("(?m)^Source:"),
+                stringResource(id = R.string.attribution_source)
+            )
         if (synopsis != null) {
             Text(
                 text = synopsis,
@@ -518,9 +507,7 @@ private fun MiddleBar(
 }
 
 @Composable
-private fun BookDetailTopBar(
-    onBackClicked: () -> Unit, onShareClicked: () -> Unit
-) {
+private fun BookDetailTopBar(onBackClicked: () -> Unit) {
     val view = LocalView.current
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -553,23 +540,6 @@ private fun BookDetailTopBar(
         )
 
         Spacer(modifier = Modifier.weight(1f))
-
-        Box(
-            modifier = Modifier
-                .padding(22.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp))
-                .clickable {
-                    view.weakHapticFeedback()
-                    onShareClicked()
-                }) {
-            Icon(
-                imageVector = Icons.Outlined.Share,
-                contentDescription = stringResource(id = R.string.back_button_desc),
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(14.dp)
-            )
-        }
     }
 }
 

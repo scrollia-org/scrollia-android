@@ -22,11 +22,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.scrollia.app.helpers.PreferenceUtil
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 enum class ThemeMode {
-    Light, Dark, Auto
+    Light, Dark, Auto, Amoled
 }
 
 @HiltViewModel
@@ -35,78 +36,50 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _theme = MutableLiveData(ThemeMode.Auto)
-    private val _amoledTheme = MutableLiveData(false)
-    private val _internalReader = MutableLiveData(true)
-    private val _useGoogleApi = MutableLiveData(true)
-    private val _openLibraryAtStart = MutableLiveData(false)
 
     val theme: LiveData<ThemeMode> = _theme
-    val amoledTheme: LiveData<Boolean> = _amoledTheme
-    val internalReader: LiveData<Boolean> = _internalReader
-    val useGoogleApi: LiveData<Boolean> = _useGoogleApi
-    val openLibraryAtStart: LiveData<Boolean> = _openLibraryAtStart
 
     init {
         _theme.value = ThemeMode.entries.toTypedArray()[getThemeValue()]
-        _amoledTheme.value = getAmoledThemeValue()
-        _internalReader.value = getInternalReaderValue()
-        _useGoogleApi.value = getUseGoogleApiValue()
-        _openLibraryAtStart.value = getOpenLibraryAtStartValue()
     }
 
     // Getters =============================================================================
 
-    fun setTheme(newTheme: ThemeMode) {
+    fun setTheme(newTheme: ThemeMode, systemDark: Boolean, updateReader: Boolean = true) {
         _theme.postValue(newTheme)
         preferenceUtil.putInt(PreferenceUtil.APP_THEME_INT, newTheme.ordinal)
+        if (updateReader) {
+            val readerTheme = when (newTheme) {
+                ThemeMode.Light -> ReaderTheme.Paper
+                ThemeMode.Dark -> ReaderTheme.Night
+                ThemeMode.Amoled -> ReaderTheme.Amoled
+                ThemeMode.Auto -> if (systemDark) ReaderTheme.Night else ReaderTheme.Paper
+            }
+            preferenceUtil.putString(PreferenceUtil.READER_THEME_STR, readerTheme.id)
+        }
     }
 
-    fun setAmoledTheme(newValue: Boolean) {
-        _amoledTheme.postValue(newValue)
-        preferenceUtil.putBoolean(PreferenceUtil.AMOLED_THEME_BOOL, newValue)
-    }
-
-    fun setInternalReaderValue(newValue: Boolean) {
-        _internalReader.postValue(newValue)
-        preferenceUtil.putBoolean(PreferenceUtil.INTERNAL_READER_BOOL, newValue)
-    }
-
-    fun setUseGoogleApiValue(newValue: Boolean) {
-        _useGoogleApi.postValue(newValue)
-        preferenceUtil.putBoolean(PreferenceUtil.USE_GOOGLE_API_BOOL, newValue)
-    }
-
-    fun setOpenLibraryAtStartValue(newValue: Boolean) {
-        _openLibraryAtStart.postValue(newValue)
-        preferenceUtil.putBoolean(PreferenceUtil.OPEN_LIBRARY_AT_START_BOOL, newValue)
+    fun refreshTheme() {
+        _theme.value = ThemeMode.entries.toTypedArray()[getThemeValue()]
     }
 
     // Getters ============================================================================
     // Used only during initialization except getCurrentTheme()
-    private fun getThemeValue() = preferenceUtil.getInt(
-        PreferenceUtil.APP_THEME_INT, ThemeMode.Auto.ordinal
-    )
-
-    private fun getAmoledThemeValue() = preferenceUtil.getBoolean(
-        PreferenceUtil.AMOLED_THEME_BOOL, false
-    )
-
-    private fun getInternalReaderValue() = preferenceUtil.getBoolean(
-        PreferenceUtil.INTERNAL_READER_BOOL, true
-    )
-
-    private fun getUseGoogleApiValue() = preferenceUtil.getBoolean(
-        PreferenceUtil.USE_GOOGLE_API_BOOL, true
-    )
-
-    private fun getOpenLibraryAtStartValue() = preferenceUtil.getBoolean(
-        PreferenceUtil.OPEN_LIBRARY_AT_START_BOOL, false
-    )
+    private fun getThemeValue(): Int {
+        if (preferenceUtil.getBoolean(PreferenceUtil.AMOLED_THEME_BOOL, false)) {
+            preferenceUtil.putBoolean(PreferenceUtil.AMOLED_THEME_BOOL, false)
+            preferenceUtil.putInt(PreferenceUtil.APP_THEME_INT, ThemeMode.Amoled.ordinal)
+            return ThemeMode.Amoled.ordinal
+        }
+        return preferenceUtil.getInt(PreferenceUtil.APP_THEME_INT, ThemeMode.Auto.ordinal)
+    }
 
     @Composable
     fun getCurrentTheme(): ThemeMode {
-        return if (theme.value == ThemeMode.Auto) {
-            if (isSystemInDarkTheme()) ThemeMode.Dark else ThemeMode.Light
-        } else theme.value!!
+        return when (theme.value) {
+            ThemeMode.Auto -> if (isSystemInDarkTheme()) ThemeMode.Dark else ThemeMode.Light
+            ThemeMode.Amoled -> ThemeMode.Dark
+            else -> theme.value!!
+        }
     }
 }

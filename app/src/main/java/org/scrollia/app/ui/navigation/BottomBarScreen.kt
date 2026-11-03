@@ -23,16 +23,10 @@ sealed class BottomBarScreen(
     val title: Int,
     val icon: Int
 ) {
-    data object Home : BottomBarScreen(
-        route = "home",
-        title = R.string.navigation_home,
-        icon = R.drawable.ic_nav_home
-    )
-
-    data object Categories : BottomBarScreen(
-        route = "categories",
-        title = R.string.navigation_categories,
-        icon = R.drawable.ic_nav_categories
+    data object Explore : BottomBarScreen(
+        route = "explore",
+        title = R.string.navigation_explore,
+        icon = R.drawable.ic_search
     )
 
     data object Library : BottomBarScreen(
