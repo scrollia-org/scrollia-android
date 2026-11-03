@@ -143,26 +143,28 @@ private fun ContinueReadingCard(
                 )
             }
         }
-        LinearProgressIndicator(
-            progress = { item.progress.coerceIn(0f, 1f) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                .height(2.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            trackColor = MaterialTheme.colorScheme.outlineVariant,
-            strokeCap = StrokeCap.Butt,
-            gapSize = 0.dp,
-            drawStopIndicator = {}
-        )
-        Row(modifier = Modifier.padding(top = 4.dp)) {
-            Text(
-                text = stringResource(id = R.string.progress_percent, item.progressPercent),
-                fontFamily = interFont,
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        if (item.progressPercent > 0) {
+            LinearProgressIndicator(
+                progress = { item.progress.coerceIn(0f, 1f) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+                    .height(2.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                trackColor = MaterialTheme.colorScheme.outlineVariant,
+                strokeCap = StrokeCap.Butt,
+                gapSize = 0.dp,
+                drawStopIndicator = {}
             )
+            Row(modifier = Modifier.padding(top = 4.dp)) {
+                Text(
+                    text = stringResource(id = R.string.progress_percent, item.progressPercent),
+                    fontFamily = interFont,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
         Text(
             text = item.title,

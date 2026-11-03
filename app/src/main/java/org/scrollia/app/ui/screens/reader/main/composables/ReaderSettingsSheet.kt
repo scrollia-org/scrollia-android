@@ -269,11 +269,7 @@ private fun SwitchRow(
     }
 }
 
-@Composable
-private fun fontLabel(font: ReaderFont): String = when (font) {
-    ReaderFont.System -> stringResource(id = R.string.reader_font_system)
-    else -> font.name
-}
+private fun fontLabel(font: ReaderFont): String = font.name
 
 @Composable
 private fun SheetSectionHeader(titleRes: Int, ink: Color) {
@@ -335,6 +331,7 @@ private fun ThemeSwatch(
         ReaderTheme.Paper -> stringResource(id = R.string.reader_theme_paper)
         ReaderTheme.Sepia -> stringResource(id = R.string.reader_theme_sepia)
         ReaderTheme.Night -> stringResource(id = R.string.reader_theme_night)
+        ReaderTheme.Amoled -> stringResource(id = R.string.reader_theme_amoled)
     }
     Surface(
         onClick = onClick,

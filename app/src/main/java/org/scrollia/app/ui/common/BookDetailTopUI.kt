@@ -37,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -49,7 +48,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.scrollia.app.R
-import org.scrollia.app.helpers.BlurTransformation
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
 import org.scrollia.app.ui.theme.frauncesFont
 import org.scrollia.app.ui.theme.interFont
@@ -73,29 +71,6 @@ fun BookDetailTopUI(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
         )
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(imageData)
-                .transformations(BlurTransformation())
-                .crossfade(true).build(),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.75f),
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.60f),
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.90f)
-                        ), startY = 8f
-                    )
-                )
-        )
-
         Row(modifier = Modifier.fillMaxSize()) {
 
             Box(
@@ -120,7 +95,7 @@ fun BookDetailTopUI(
                         model = ImageRequest.Builder(context)
                             .data(imageData)
                             .crossfade(true).build(),
-                        placeholder = painterResource(id = R.drawable.placeholder_cat),
+                        placeholder = painterResource(id = R.drawable.placeholder_book),
                         contentDescription = null,
                         modifier = Modifier
                             .width(118.dp)

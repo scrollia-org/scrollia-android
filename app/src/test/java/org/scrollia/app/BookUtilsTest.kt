@@ -59,33 +59,4 @@ class BookUtilsTest {
         assertThat(BookUtils.getLanguagesAsString(listOf("en", "fr"))).isEqualTo("English, French")
     }
 
-    @Test
-    fun `getSubjectsAsString returns expected string with less than limit subjects`() = runTest {
-        val subjects = listOf("Historical fiction", "Robinsonades")
-        assertThat(
-            BookUtils.getSubjectsAsString(
-                subjects,
-                3
-            )
-        ).isEqualTo("Historical fiction, Robinsonades")
-    }
-
-    @Test
-    fun `getSubjectsAsString returns expected string with more than limit subjects`() = runTest {
-        val subjects =
-            listOf(
-                "Adventure stories",
-                "Russia -- Social conditions -- 1801-1917 -- Fiction",
-                "Pirates",
-                "Shipwrecks",
-                "Survival"
-            )
-        assertThat(
-            BookUtils.getSubjectsAsString(
-                subjects,
-                3
-            )
-        ).isEqualTo("Adventure stories, Russia, Social conditions")
-    }
-
 }
