@@ -28,6 +28,7 @@ import org.scrollia.app.database.progress.ProgressData
 import org.scrollia.app.epub.EpubParser
 import org.scrollia.app.epub.models.EpubChapter
 import org.scrollia.app.helpers.NetworkObserver
+import org.scrollia.app.helpers.book.BookCoverCache
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +54,8 @@ class ReaderDetailViewModel @Inject constructor(
     private val bookAPI: BookAPI,
     private val libraryDao: LibraryDao,
     private val progressDao: ProgressDao,
-    private val epubParser: EpubParser
+    private val epubParser: EpubParser,
+    private val bookCoverCache: BookCoverCache
 ) : ViewModel() {
 
     var state by mutableStateOf(ReaderDetailScreenState())
@@ -69,14 +71,15 @@ class ReaderDetailViewModel @Inject constructor(
                 val libraryItem = libraryDao.getItemById(id)
                     ?: throw IllegalStateException("Library item not found")
                 progressData = progressDao.getReaderDataAsFlow(id)
-                val coverImage: String? = try {
+                val cachedCover = bookCoverCache.coverFile(libraryItem)
+                val coverImage: String? = if (cachedCover == null) try {
                     if (!libraryItem.isImported && networkStatus == NetworkObserver.Status.Available) {
                         bookAPI.getExtraInfo(libraryItem.title)?.coverImage
                     } else null
                 } catch (exc: Exception) {
                     Log.e("ReaderDetailViewModel", "Failed to fetch cover image.", exc)
                     null
-                }
+                } else null
                 val isInternalChineseBook =
                     !libraryItem.isImported && epubParser.peekLanguage(libraryItem.filePath) == "zh"
                 val epubBook = epubParser.createEpubBook(
@@ -86,7 +89,7 @@ class ReaderDetailViewModel @Inject constructor(
                 state = state.copy(
                     title = libraryItem.title,
                     authors = libraryItem.authors,
-                    coverImage = coverImage ?: epubBook.coverImage,
+                    coverImage = cachedCover ?: coverImage ?: epubBook.coverImage,
                     chapters = epubBook.chapters,
                 )
                 delay(350)
