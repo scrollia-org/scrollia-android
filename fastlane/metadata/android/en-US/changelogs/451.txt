@@ -1,3 +1,0 @@
-- Fix one edge case in ebook reader.
-- Added French translation.
-- Minor fixes and performance improvements.
