@@ -30,15 +30,13 @@ object Constants {
     const val DEV_EMAIL = "contact@scrollia.org"
     const val WEBSITE = "https://scrollia.org"
     const val PRIVACY_POLICY = "https://scrollia.org/privacy"
+    const val GITHUB_REPO = "https://github.com/scrollia-org/scrollia-android"
+    const val PROJECT_CONTRIBUTORS = "$GITHUB_REPO/graphs/contributors"
+    const val GITHUB_ISSUES = "$GITHUB_REPO/issues"
 
     /** Upstream project Scrollia is forked from (Apache-2.0). */
     const val MYNE_REPO = "https://github.com/Pool-Of-Tears/Myne"
 
-    // TODO: Restore these once the resources exist publicly. The GitHub org
-    //  (github.com/scrollia-org) is private for now, and there is no Telegram
-    //  community or sponsorship page yet. The matching entries in AboutScreen
-    //  are hidden until then.
-    //  - DEV_GITHUB_URL / GITHUB_REPO / PROJECT_CONTRIBUTORS / GITHUB_ISSUE
-    //  - DEV_TELEGRAM_URL / TELEGRAM_GROUP
-    //  - SUPPORT (sponsorship)
+    // TODO: Add Telegram and sponsorship links to AboutScreen once those
+    //  resources exist.
 }

@@ -170,6 +170,12 @@
     <string name="link_website_desc">Visita nuestro sitio web para más información.</string>
     <string name="link_privacy_policy">Política de privacidad</string>
     <string name="link_privacy_policy_desc">Lee nuestra política de privacidad más reciente.</string>
+    <string name="link_source_code">Código fuente</string>
+    <string name="link_source_code_desc">Scrollia es de código abierto. Consulta el código en GitHub.</string>
+    <string name="link_contributors">Colaboradores</string>
+    <string name="link_contributors_desc">Las personas que hacen Scrollia.</string>
+    <string name="link_issues">Informar de un problema</string>
+    <string name="link_issues_desc">Informa de un error o propón una mejora en GitHub.</string>
     <string name="about_credits">Créditos</string>
     <string name="about_based_on_myne">Basada en Myne (github.com/Pool-Of-Tears/Myne), licencia Apache-2.0</string>
     <string name="about_based_on_myne_desc">Scrollia nace del código de Myne, de Stɑrry Shivɑm. Toca para ver el proyecto original.</string>
