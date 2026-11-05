@@ -1,0 +1,5 @@
+Scrollia es una biblioteca para descubrir y leer clásicos de dominio público en español e inglés.
+
+Descarga libros para leer sin conexión, sigue tu progreso y personaliza la lectura con temas, tamaños de letra y opciones tipográficas. También puedes importar tus propios libros compatibles.
+
+Sin cuentas obligatorias, sin anuncios y sin perfiles publicitarios. Tu biblioteca, tu progreso y tus preferencias se quedan en tu dispositivo.

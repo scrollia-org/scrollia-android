@@ -1,0 +1,4 @@
+- Navegación más sencilla: descubre libros desde Inicio y la búsqueda.
+- Biblioteca y fichas de libro rediseñadas.
+- Ajustes más simples, con selector de tema.
+- Fuente OpenDyslexic completa en el lector.
