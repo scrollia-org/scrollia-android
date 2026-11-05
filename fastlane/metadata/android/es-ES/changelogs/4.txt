@@ -1,0 +1,2 @@
+- Mejor visualización en Android 15 y posteriores: iconos de la barra de estado legibles en todos los temas de lectura.
+- App más ligera, sin código ni recursos sin uso.
