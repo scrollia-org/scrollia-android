@@ -18,10 +18,7 @@
     <!-- Home screen. -->
     <string name="home_header">সব বই</string>
     <string name="home_search_icon_desc">বই খুজুন</string>
-    <string name="language_menu_title">ভাষা দ্বারা ব্রাউজ</string>
     <!-- Categories screen. -->
-    <string name="categories_header">ক্যাটাগরি</string>
-    <string name="no_books_found_for_lang_and_cat">এই ক্যাটাগরির জন্য %s ভাষায় কোনো বই পাওয়া যায়নি।</string>
     <!-- Categories -->
     <string name="category_animal">প্রাণী</string>
     <string name="category_children">শিশু</string>
@@ -97,7 +94,6 @@
     <string name="about_header">অ্যাপ সম্পর্কে</string>
     <string name="about_desc">একটি ফ্রি &amp; ওপেন সোর্স অ্যান্ড্রয়েড অ্যাপ্লিকেশন যা প্রজেক্ট গুটেনবার্গ থেকে ইবুক ডাউনলোড করে।</string>
     <string name="developed_by">ডেভেলপড বাই</string>
-    <string name="dev_name" translatable="false">Starry Shivam</string>
     <string name="useful_links">দরকারি লিঙ্কস</string>
     <string name="link_website">ওয়েবসাইট</string>
     <string name="link_website_desc">আরো তথ্যের জন্য আমাদের ওয়েবসাইটে দেখুন।</string>

@@ -5,7 +5,6 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="got_it">Got it</string>
-    <string name="no_app_to_handle_epub">Cannot find any app to open epub file.</string>
     <string name="network_error">Oops! The server is temporarily unavailable. Please try again later.</string>
     <string name="network_error_retry">Try Again</string>
     <string name="error">Oops! Something went wrong.</string>
@@ -30,10 +29,8 @@
     <string name="append_failed_error">Couldn’t load more books.</string>
     <string name="catalog_empty">No books match these filters.</string>
     <string name="search_empty">No books found for “%1$s”.</string>
-    <string name="categories_empty">There are no categories yet.</string>
     <string name="home_search_placeholder">Search…</string>
     <string name="home_search_close_desc">Clear or close search</string>
-    <string name="language_menu_title">Browse by language</string>
     <string name="filter_icon_desc">Filter books</string>
     <string name="filter_sheet_title">Filters</string>
     <string name="filter_section_language">Language</string>
@@ -47,8 +44,6 @@
     <string name="filter_clear">Clear filters</string>
 
     <!-- Categories screen. -->
-    <string name="categories_header">Categories</string>
-    <string name="no_books_found_for_lang_and_cat">No books available in %s language for this category.</string>
     <!-- Categories -->
     <string name="category_animal">Animals</string>
     <string name="category_children">Children</string>

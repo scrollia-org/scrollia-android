@@ -25,10 +25,8 @@
     <string name="append_failed_error">No se pudieron cargar más libros.</string>
     <string name="catalog_empty">Ningún libro coincide con estos filtros.</string>
     <string name="search_empty">No se encontraron libros para «%1$s».</string>
-    <string name="categories_empty">Todavía no hay categorías.</string>
     <string name="home_search_placeholder">Buscar…</string>
     <string name="home_search_close_desc">Borrar o cerrar la búsqueda</string>
-    <string name="language_menu_title">Buscar por idioma</string>
     <string name="filter_icon_desc">Filtrar libros</string>
     <string name="filter_sheet_title">Filtros</string>
     <string name="filter_section_language">Idioma</string>
@@ -41,8 +39,6 @@
     <string name="filter_apply">Aplicar</string>
     <string name="filter_clear">Limpiar filtros</string>
     <!-- Categories screen. -->
-    <string name="categories_header">Categorías</string>
-    <string name="no_books_found_for_lang_and_cat">No hay libros disponibles en %s para esta categoría.</string>
     <!-- Categories -->
     <string name="category_animal">Animales</string>
     <string name="category_children">Niños</string>

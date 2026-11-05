@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
     <string name="confirm">Confirmă</string>
     <string name="cancel">Anulează</string>
@@ -19,10 +18,7 @@
     <!-- Home screen. -->
     <string name="home_header">Toate Cărțile</string>
     <string name="home_search_icon_desc">Caută cărți</string>
-    <string name="language_menu_title">Răsfoiește după limbă</string>
     <!-- Categories screen. -->
-    <string name="categories_header">Categorii</string>
-    <string name="no_books_found_for_lang_and_cat">Nu există cărți disponibile în limba %s pentru această categorie.</string>
     <!-- Categories -->
     <string name="category_animal">Animais</string>
     <string name="category_children">Crianças</string>
