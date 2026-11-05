@@ -29,6 +29,7 @@ import org.scrollia.app.database.library.LibraryItem
 import org.scrollia.app.database.progress.ProgressDao
 import org.scrollia.app.database.progress.ProgressData
 import org.scrollia.app.helpers.PreferenceUtil
+import org.scrollia.app.helpers.book.BookCoverCache
 import org.scrollia.app.helpers.book.BookImporter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 
@@ -45,7 +47,8 @@ class LibraryViewModel @Inject constructor(
     private val libraryDao: LibraryDao,
     progressDao: ProgressDao,
     private val bookImporter: BookImporter,
-    private val preferenceUtil: PreferenceUtil
+    private val preferenceUtil: PreferenceUtil,
+    private val bookCoverCache: BookCoverCache
 ) : ViewModel() {
 
     val allItems: LiveData<List<LibraryItem>> = libraryDao.getAllItems()
@@ -73,9 +76,7 @@ class LibraryViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) { libraryDao.delete(item) }
     }
 
-    fun getInternalReaderSetting() = preferenceUtil.getBoolean(
-        PreferenceUtil.INTERNAL_READER_BOOL, true
-    )
+    suspend fun coverFile(item: LibraryItem): File? = bookCoverCache.coverFile(item)
 
     fun shouldShowLibraryTooltip(): Boolean {
         return preferenceUtil.getBoolean(PreferenceUtil.LIBRARY_SWIPE_TOOLTIP_BOOL, true)

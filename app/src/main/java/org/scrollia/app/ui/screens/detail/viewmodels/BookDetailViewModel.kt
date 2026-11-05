@@ -26,7 +26,6 @@ import org.scrollia.app.api.models.ExtraInfo
 import org.scrollia.app.database.library.LibraryDao
 import org.scrollia.app.database.library.LibraryItem
 import org.scrollia.app.helpers.Constants
-import org.scrollia.app.helpers.PreferenceUtil
 import org.scrollia.app.helpers.book.BookDownloader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -51,15 +50,10 @@ data class BookDetailScreenState(
 class BookDetailViewModel @Inject constructor(
     private val bookAPI: BookAPI,
     val libraryDao: LibraryDao,
-    val bookDownloader: BookDownloader,
-    private val preferenceUtil: PreferenceUtil
+    val bookDownloader: BookDownloader
 ) : ViewModel() {
     var state by mutableStateOf(BookDetailScreenState())
         private set
-
-    fun getInternalReaderSetting() = preferenceUtil.getBoolean(
-        PreferenceUtil.INTERNAL_READER_BOOL, true
-    )
 
     fun getBookDetails(bookId: String) {
         viewModelScope.launch(Dispatchers.IO) {

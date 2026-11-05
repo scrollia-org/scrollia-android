@@ -5,14 +5,11 @@
     <string name="cancel">الغاء</string>
     <string name="ok">OK</string>
     <string name="got_it">Got it</string>
-    <string name="no_app_to_handle_epub">لا يوجد اى تطبيق لفتح ملف epub</string>
     <string name="network_error">أُووبس! فشل الاتصال بالخادم.</string>
     <string name="network_error_retry">حاول ثانية</string>
     <string name="error">حدث خطأ ما</string>
     <string name="no_app_to_handle_content">لا يمكن العثور على تطبيق لفتح هذا المحتوى.</string>
     <!-- Navigation titles -->
-    <string name="navigation_home">الرئيسية</string>
-    <string name="navigation_categories">الفئات</string>
     <string name="navigation_library">المكتبة</string>
     <string name="navigation_settings">الاعدادات</string>
     <!-- ToolTips -->
@@ -54,8 +51,6 @@
     <string name="external_book_info_unavailable">متاح فقط للكتب الداخلية.</string>
     <string name="epub_importing">جاري الاستيراد… يرجى الانتظار.</string>
     <string name="epub_imported">تم الاستيراد بنجاح!</string>
-    <string name="open_app_chooser">افتح بواسطة</string>
-    <string name="share_app_chooser">مشاركة من خلال</string>
     <string name="library_read_button">اقرأ</string>
     <string name="library_delete_button">امسح</string>
     <string name="library_delete_dialog_title">هل انت متأكد ؟</string>
@@ -75,22 +70,15 @@
     <!-- Settings screen. -->
     <string name="settings_header">الاعدادات</string>
     <string name="general_settings_header">عام</string>
-    <string name="default_reader_setting">القارئ الافتراضي</string>
-    <string name="default_reader_dialog_title">فتح الكتب الإلكترونية مع …</string>
-    <string name="reader_option_inbuilt">القارئ المدمج</string>
-    <string name="reader_option_external">القارئ الخارجي</string>
     <string name="default_locale_setting">اللغة الافتراضية</string>
     <string name="default_locale_setting_desc">حدد لغتك المفضلة.</string>
     <string name="locale_setting_not_found">عذرا! هذه الميزة ليست مدعومة حاليا من قبل نظام التشغيل الخاص بك.</string>
-    <string name="open_library_at_start_setting">افتح المكتبة عند البدء</string>
-    <string name="open_library_at_start_setting_desc">افتح شاشة المكتبة عند بدء التطبيق.</string>
     <string name="theme_setting">المظهر الافتراضى</string>
     <string name="theme_dialog_title">تغيير المظهر</string>
     <string name="theme_option_light">فاتح</string>
     <string name="theme_option_dark">داكن</string>
     <string name="theme_option_system">الافتراضي للنظام</string>
     <string name="theme_dialog_apply_button">تطبيق</string>
-    <string name="amoled_theme_setting">سمة اللون الأسود</string>
     <string name="license_setting">التراخيص</string>
     <string name="license_setting_desc">التراخيص مفتوحة المصدر</string>
     <string name="about_setting">معلومات التطبيق</string>
@@ -100,7 +88,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">تفاصيل الكتاب</string>
     <string name="back_button_desc">ارجع للخلف</string>
-    <string name="share_intent_header">مشاركة من خلال</string>
     <string name="read_book_button">ابدأ القراءه</string>
     <string name="download_book_button">تحميل</string>
     <string name="download_started">تم بدأ التحميل</string>

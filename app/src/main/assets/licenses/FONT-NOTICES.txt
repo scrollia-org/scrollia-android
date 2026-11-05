@@ -1,0 +1,24 @@
+Bundled font copyright notices
+
+Fraunces
+Copyright 2020 The Fraunces Project Authors
+(https://github.com/undercasetype/Fraunces)
+Licensed under SIL Open Font License 1.1. See OFL-1.1.txt.
+
+Inter
+Copyright 2016 The Inter Project Authors
+(https://github.com/rsms/inter)
+Licensed under SIL Open Font License 1.1. See OFL-1.1.txt.
+
+Literata
+Copyright 2017 The Literata Project Authors
+(https://github.com/googlefonts/literata)
+Licensed under SIL Open Font License 1.1. See OFL-1.1.txt.
+
+OpenDyslexic
+Copyright (c) 2019-07-29 Abbie Gonzalez
+(https://abbiecod.es | support@abbiecod.es)
+Copyright (c) 12/2012 - 2019
+Reserved Font Name: OpenDyslexic.
+Licensed under SIL Open Font License 1.1. See OFL-1.1.txt.
+Source: https://github.com/antijingoist/opendyslexic

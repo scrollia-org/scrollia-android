@@ -21,7 +21,6 @@ import org.scrollia.app.BuildConfig
 import org.scrollia.app.api.models.BookSet
 import org.scrollia.app.api.models.CategoryInfo
 import org.scrollia.app.api.models.ExtraInfo
-import org.scrollia.app.helpers.PreferenceUtil
 import org.scrollia.app.helpers.book.BookLanguage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -51,7 +50,7 @@ import kotlin.coroutines.suspendCoroutine
  *
  * Do not use this class directly. Use the [BookAPI] instance from dependency injection.
  */
-class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
+class BookAPI(context: Context) {
 
     // Scrollia backend for the curated public-domain catalog.
     private val baseApiUrl = "https://api.scrollia.org/books"
@@ -199,13 +198,6 @@ class BookAPI(context: Context, private val preferenceUtil: PreferenceUtil) {
     // from the Scrollia backend, which proxies/enriches metadata server-side
     // so no third-party API key ships inside the APK.
     suspend fun getExtraInfo(bookName: String): ExtraInfo? = suspendCoroutine { continuation ->
-        // Return null without any network call if the user disabled
-        // extra metadata in settings.
-        if (!preferenceUtil.getBoolean(PreferenceUtil.USE_GOOGLE_API_BOOL, true)) {
-            continuation.resume(null)
-            return@suspendCoroutine
-        }
-
         val encodedName = URLEncoder.encode(bookName, "UTF-8")
         val request = Request.Builder().get().url("$extraInfoUrl?title=$encodedName").build()
         okHttpClient.newCall(request).enqueue(object : Callback {

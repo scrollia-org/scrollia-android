@@ -382,7 +382,6 @@ private fun BookGrid(
                     title = item.title,
                     author = BookUtils.getAuthorsAsString(item.authors),
                     language = BookUtils.getLanguagesAsString(item.languages),
-                    subjects = BookUtils.getSubjectsAsString(item.subjects, 3),
                     coverImageUrl = item.formats.imagejpeg
                 ) {
                     onOpenBook(item)

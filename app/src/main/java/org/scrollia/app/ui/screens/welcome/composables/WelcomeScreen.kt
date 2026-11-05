@@ -314,9 +314,8 @@ fun WelcomeScreen(navController: NavController) {
                     onClick = {
                         view.weakHapticFeedback()
                         viewModel.saveOnBoardingState(completed = true)
-                        viewModel.setInternalReaderSetting(true)
                         navController.popBackStack()
-                        navController.navigate(BottomBarScreen.Home.route)
+                        navController.navigate(BottomBarScreen.Explore.route)
                     },
                     modifier = Modifier
                         .widthIn(max = 480.dp)

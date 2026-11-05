@@ -5,14 +5,11 @@
     <string name="cancel">Отменить</string>
     <string name="ok">Ладно</string>
     <string name="got_it">Понятно</string>
-    <string name="no_app_to_handle_epub">Не удается найти ни одного приложения для открытия файла epub.</string>
     <string name="network_error">Ой! Не удалось подключиться к серверу.</string>
     <string name="network_error_retry">Попытайтесь снова</string>
     <string name="error">Ой! Что-то пошло не так.</string>
     <string name="no_app_to_handle_content">Не удалось найти приложение для открытия этого содержимого.</string>
     <!-- Navigation titles -->
-    <string name="navigation_home">Главная</string>
-    <string name="navigation_categories">Категории</string>
     <string name="navigation_library">Библиотека</string>
     <string name="navigation_settings">Настройки</string>
     <!-- ToolTips -->
@@ -54,8 +51,6 @@
     <string name="external_book_info_unavailable">Доступно только для внутренних книг.</string>
     <string name="epub_importing">Импортирование…\nПожалуйста, подождите.</string>
     <string name="epub_imported">Успешно импортировано!</string>
-    <string name="open_app_chooser">Читать в…</string>
-    <string name="share_app_chooser">Поделиться через…</string>
     <string name="library_read_button">Читать</string>
     <string name="library_delete_button">Удалить</string>
     <string name="library_delete_dialog_title">Вы в этом уверены?</string>
@@ -75,22 +70,15 @@
     <!-- Settings screen. -->
     <string name="settings_header">Настройки</string>
     <string name="general_settings_header">Общие</string>
-    <string name="default_reader_setting">Читалка по умолчанию</string>
-    <string name="default_reader_dialog_title">Открыть с помощью…</string>
-    <string name="reader_option_inbuilt">Встроенная читалка</string>
-    <string name="reader_option_external">Внешняя читалка</string>
     <string name="default_locale_setting">Язык по умолчанию</string>
     <string name="default_locale_setting_desc">Выберите предпочитаемый язык.</string>
     <string name="locale_setting_not_found">Извините! Эта функция пока не поддерживается вашей операционной системой.</string>
-    <string name="open_library_at_start_setting">Открыть библиотеку при запуске</string>
-    <string name="open_library_at_start_setting_desc">Открыть экран библиотеки при запуске приложения.</string>
     <string name="theme_setting">Тема по умолчанию</string>
     <string name="theme_dialog_title">Изменить тему</string>
     <string name="theme_option_light">Светлая</string>
     <string name="theme_option_dark">Тёмная</string>
     <string name="theme_option_system">Как в системе</string>
     <string name="theme_dialog_apply_button">Применить</string>
-    <string name="amoled_theme_setting">Тёмная тема</string>
     <string name="license_setting">Лицензия и благодарности</string>
     <string name="license_setting_desc">Лицензии с открытым исходным кодом.</string>
     <string name="about_setting">Информация о приложении</string>
@@ -100,7 +88,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Информация о книге</string>
     <string name="back_button_desc">Назад.</string>
-    <string name="share_intent_header">Поделиться через…</string>
     <string name="read_book_button">Начать чтение</string>
     <string name="download_book_button">Скачать</string>
     <string name="download_started">Скачивание началось!</string>

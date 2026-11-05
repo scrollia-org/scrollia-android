@@ -151,7 +151,15 @@ private fun ReaderDetailScaffold(
         }
     }, floatingActionButton = {
         ExtendedFloatingActionButton(
-            text = { Text(text = stringResource(id = if (progressData != null) R.string.continue_reading_button else R.string.start_reading_button)) },
+            text = {
+                Text(
+                    text = stringResource(
+                        id = if (progressData != null && progressData.progressPercent() > 0) {
+                            R.string.continue_reading_button
+                        } else R.string.start_reading_button
+                    )
+                )
+            },
             onClick = {
                 val intent = Intent(context, ReaderActivity::class.java)
                 intent.putExtra(
@@ -180,7 +188,7 @@ private fun ReaderDetailScaffold(
                 imageData = state.coverImage,
                 currentThemeMode = settingsVM.getCurrentTheme(),
                 progressText = when {
-                    progressData == null -> null
+                    progressData == null || progressData.progressPercent() == 0 -> null
                     progressData.finished -> stringResource(id = R.string.library_finished)
                     else -> stringResource(
                         id = R.string.progress_percent_read,
