@@ -1,8 +1,7 @@
-# TODO: Change info of issue guide.
 name: "\U0001F41E Bug report"
 description: Create a bug report to help us improve.
 title: "[Bug]: "
-labels: ["\U0001F41E bug"]
+labels: [bug]
 body:
   - type: markdown
     attributes:
@@ -53,7 +52,7 @@ body:
     attributes:
       label: Scrollia version
       description: You can find this information in Settings -> About -> Version.
-      placeholder: 1.0.0
+      placeholder: 1.0.2
     validations:
       required: true
   - type: textarea
