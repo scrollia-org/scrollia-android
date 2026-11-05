@@ -20,7 +20,6 @@ package org.scrollia.app.database.progress
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Locale
 
 /**
  * Data class for storing the reading progress of a library item (book).
@@ -59,7 +58,4 @@ data class ProgressData(
 
     /** Whole-book progress as a whole percentage (0..100); 100 once finished. */
     fun progressPercent(): Int = if (finished) 100 else (progress * 100f).toInt().coerceIn(0, 99)
-
-    fun getProgressPercent(): String =
-        String.format(locale = Locale.US, format = "%d", progressPercent())
 }

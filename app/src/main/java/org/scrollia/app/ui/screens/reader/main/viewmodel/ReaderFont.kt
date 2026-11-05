@@ -38,7 +38,6 @@ sealed class ReaderFont(val id: String, val name: String, val fontFamily: FontFa
         // Fallback to the default font instead of crashing when a stored
         // preference id no longer exists (e.g. removed fonts after an update).
         fun getFontById(id: String) = fontMap[id] ?: Literata
-        fun getFontByName(name: String) = getAllFonts().find { it.name == name } ?: Literata
     }
 
     @Keep
