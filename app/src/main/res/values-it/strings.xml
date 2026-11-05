@@ -18,10 +18,7 @@
     <!-- Home screen. -->
     <string name="home_header">Tutti i libri</string>
     <string name="home_search_icon_desc">Cerca libri</string>
-    <string name="language_menu_title">Sfoglia per lingua</string>
     <!-- Categories screen. -->
-    <string name="categories_header">Categorie</string>
-    <string name="no_books_found_for_lang_and_cat">Nessun libro disponibile in %s per questa categoria.</string>
     <!-- Categories -->
     <string name="category_animal">Animali</string>
     <string name="category_children">Bambini</string>

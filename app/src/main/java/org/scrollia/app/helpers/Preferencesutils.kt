@@ -59,15 +59,6 @@ class PreferenceUtil(context: Context) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     /**
-     * Check if a key exists in the preferences
-     *
-     * @param key The key to check
-     * @return True if the key exists, false otherwise
-     */
-    @Suppress("unused")
-    fun keyExists(key: String): Boolean = prefs.contains(key)
-
-    /**
      * Insert a string value into the preferences
      *
      * @param key The key to insert the value into
