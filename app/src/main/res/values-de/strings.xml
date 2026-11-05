@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
     <string name="confirm">Bestätigen</string>
     <string name="cancel">Abbrechen</string>
@@ -19,10 +18,7 @@
     <!-- Home screen. -->
     <string name="home_header">Alle Bücher</string>
     <string name="home_search_icon_desc">Bücher suchen</string>
-    <string name="language_menu_title">Nach Sprache durchsuchen</string>
     <!-- Categories screen. -->
-    <string name="categories_header">Kategorien</string>
-    <string name="no_books_found_for_lang_and_cat">Keine Bücher auf %s in dieser Kategorie verfügbar.</string>
     <!-- Categories -->
     <string name="category_animal">Tiere</string>
     <string name="category_children">Kinder</string>

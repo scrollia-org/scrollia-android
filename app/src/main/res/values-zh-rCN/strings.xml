@@ -18,10 +18,7 @@
     <!-- Home screen. 主页-->
     <string name="home_header">全部书籍</string>
     <string name="home_search_icon_desc">搜索</string>
-    <string name="language_menu_title">按语言浏览</string>
     <!-- Categories screen. 分类页面-->
-    <string name="categories_header">分类</string>
-    <string name="no_books_found_for_lang_and_cat">在这个分类里没有以%s为语言的书籍</string>
     <!-- Categories 分类-->
     <string name="category_animal">动物</string>
     <string name="category_children">儿童</string>

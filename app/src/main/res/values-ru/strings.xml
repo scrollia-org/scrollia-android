@@ -18,10 +18,7 @@
     <!-- Home screen. -->
     <string name="home_header">Все книги</string>
     <string name="home_search_icon_desc">Поиск книг</string>
-    <string name="language_menu_title">Отобразить по языку</string>
     <!-- Categories screen. -->
-    <string name="categories_header">Категории</string>
-    <string name="no_books_found_for_lang_and_cat">Нет доступных книг на %s языке для заданной категории.</string>
     <!-- Categories -->
     <string name="category_animal">Животные</string>
     <string name="category_children">Дети</string>

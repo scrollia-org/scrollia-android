@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Scrollia</string>
     <!-- Others Strings -->
     <string name="confirm">Confirmer</string>
     <string name="cancel">Annuler</string>
@@ -19,10 +18,7 @@
     <!-- Home screen. -->
     <string name="home_header">Tous les livres</string>
     <string name="home_search_icon_desc">Rechercher des livres</string>
-    <string name="language_menu_title">Parcourir par langue</string>
     <!-- Categories screen. -->
-    <string name="categories_header">Catégories</string>
-    <string name="no_books_found_for_lang_and_cat">Aucun livre disponible en %s pour cette catégorie.</string>
     <!-- Categories -->
     <string name="category_animal">Animaux</string>
     <string name="category_children">Enfants</string>
@@ -98,7 +94,6 @@
     <string name="about_header">À propos</string>
     <string name="about_desc">Une application Android gratuite et open source pour télécharger des ebooks du Projet Gutenberg.</string>
     <string name="developed_by">Développée par</string>
-    <string name="dev_name" translatable="false">Starry Shivam</string>
     <string name="useful_links">Liens utiles</string>
     <string name="link_website">Site ouéb</string>
     <string name="link_website_desc">Visitez notre site pour plus d’informations.</string>
