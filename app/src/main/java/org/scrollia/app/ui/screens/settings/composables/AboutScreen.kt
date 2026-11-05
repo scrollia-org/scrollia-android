@@ -36,6 +36,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -50,10 +52,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -127,9 +131,6 @@ fun AboutScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(horizontal = 14.dp)
                 ) {
-                    // TODO: Restore the source-code, contributors, issue-tracker,
-                    //  Telegram and sponsorship entries once those resources exist
-                    //  publicly (see Constants.kt).
                     SettingItem(
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
                         mainText = stringResource(id = R.string.link_website),
@@ -141,6 +142,24 @@ fun AboutScreen(navController: NavController) {
                         mainText = stringResource(id = R.string.link_privacy_policy),
                         subText = stringResource(id = R.string.link_privacy_policy_desc),
                         onClick = { Utils.openWebLink(context, Constants.PRIVACY_POLICY) }
+                    )
+                    SettingItem(
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_github_logo),
+                        mainText = stringResource(id = R.string.link_source_code),
+                        subText = stringResource(id = R.string.link_source_code_desc),
+                        onClick = { Utils.openWebLink(context, Constants.GITHUB_REPO) }
+                    )
+                    SettingItem(
+                        icon = Icons.Filled.Person,
+                        mainText = stringResource(id = R.string.link_contributors),
+                        subText = stringResource(id = R.string.link_contributors_desc),
+                        onClick = { Utils.openWebLink(context, Constants.PROJECT_CONTRIBUTORS) }
+                    )
+                    SettingItem(
+                        icon = Icons.Filled.Warning,
+                        mainText = stringResource(id = R.string.link_issues),
+                        subText = stringResource(id = R.string.link_issues_desc),
+                        onClick = { Utils.openWebLink(context, Constants.GITHUB_ISSUES) }
                     )
                 }
 
