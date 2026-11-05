@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -40,7 +39,6 @@ fun ChaptersDrawer(
     val coroutineScope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
-        modifier = Modifier.systemBarsPadding(),
         drawerState = drawerState,
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {

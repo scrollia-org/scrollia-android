@@ -16,6 +16,7 @@
 
 package org.scrollia.app.ui.theme
 
+import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -118,28 +119,32 @@ private fun getColorScheme(themeState: ThemeMode, darkTheme: Boolean): ColorSche
 }
 
 /**
- * Helper composable function to fix the status bar icons on dark theme
- * when using edge-to-edge mode.
+ * Draws edge-to-edge with transparent system bars whose icons contrast with
+ * a dark or light surface behind them.
+ */
+fun ComponentActivity.applySystemBarStyle(darkSurface: Boolean) {
+    val transparent = android.graphics.Color.TRANSPARENT
+    val style = if (darkSurface) {
+        SystemBarStyle.dark(transparent)
+    } else {
+        SystemBarStyle.light(transparent, transparent)
+    }
+    enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+}
+
+/**
+ * Keeps the system bar icons readable for the selected app theme.
  * @param activity: MainActivity to enable edge-to-edge status bar.
  * @param themeState: ThemeMode to check the current theme.
  */
 @Composable
 fun AdjustEdgeToEdge(activity: AppCompatActivity, themeState: ThemeMode) {
-    LaunchedEffect(themeState) {
-        if (themeState == ThemeMode.Dark) {
-            activity.enableEdgeToEdge(
-                statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
-                navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
-            )
-        } else {
-            activity.enableEdgeToEdge(
-                navigationBarStyle = SystemBarStyle.light(
-                    android.graphics.Color.TRANSPARENT,
-                    android.graphics.Color.TRANSPARENT
-                )
-            )
-        }
+    val darkSurface = when (themeState) {
+        ThemeMode.Light -> false
+        ThemeMode.Dark, ThemeMode.Amoled -> true
+        ThemeMode.Auto -> isSystemInDarkTheme()
     }
+    LaunchedEffect(darkSurface) { activity.applySystemBarStyle(darkSurface) }
 }
 
 

@@ -18,7 +18,6 @@ package org.scrollia.app.ui.screens.reader.main.activities
 
 import android.content.ContentResolver
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
@@ -33,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModelProvider
@@ -51,6 +49,7 @@ import org.scrollia.app.ui.screens.reader.main.viewmodel.VisiblePosition
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
 import org.scrollia.app.ui.theme.ScrolliaTheme
+import org.scrollia.app.ui.theme.applySystemBarStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -64,6 +63,7 @@ class ReaderActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        applySystemBarStyle(darkSurface = false)
         setupWindowInsets() // Setup fullscreen mode.
 
         // Initialize settings view model.
@@ -82,6 +82,9 @@ class ReaderActivity : AppCompatActivity() {
                 val state by viewModel.state.collectAsState()
                 val systemDark = isSystemInDarkTheme()
                 LaunchedEffect(state.keepScreenOn) { applyKeepScreenOn(state.keepScreenOn) }
+                LaunchedEffect(state.readerTheme) {
+                    applySystemBarStyle(darkSurface = state.readerTheme.isDark)
+                }
                 val appTheme = settingsViewModel.theme.value
                 LaunchedEffect(systemDark, appTheme, state.readerTheme) {
                     val synchronizedTheme = when (appTheme) {
@@ -171,19 +174,12 @@ class ReaderActivity : AppCompatActivity() {
 
 
     private fun setupWindowInsets() {
-        // Fullscreen mode that ignores any cutout, notch etc.
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        // Immersive reading: bars stay hidden until the reader menu or a swipe shows them.
         val controller = WindowInsetsControllerCompat(window, window.decorView)
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.hide(WindowInsetsCompat.Type.displayCutout())
-
-        // Set layout in display cutout mode for Android P and above.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        }
     }
 
     private fun applyKeepScreenOn(keepOn: Boolean) {
