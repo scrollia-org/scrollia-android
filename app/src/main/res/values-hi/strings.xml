@@ -18,10 +18,7 @@
     <!-- Home screen. -->
     <string name="home_header">सभी पुस्तकें</string>
     <string name="home_search_icon_desc">पुस्तकें खोजें</string>
-    <string name="language_menu_title">भाषा द्वारा ब्राउज़ करें</string>
     <!-- Categories screen. -->
-    <string name="categories_header">श्रेणियाँ</string>
-    <string name="no_books_found_for_lang_and_cat">%s भाषा में इस श्रेणी के लिए कोई पुस्तक उपलब्ध नहीं है।</string>
     <!-- Categories -->
     <string name="category_animal">पशु</string>
     <string name="category_children">बच्चे</string>
@@ -97,7 +94,6 @@
     <string name="about_header">के बारे में</string>
     <string name="about_desc">Project Gutenberg से ई-बुक डाउनलोड करने के लिए एक मुक्त और ओपन सोर्स एंड्रॉइड एप्लिकेशन।</string>
     <string name="developed_by">द्वारा विकसित</string>
-    <string name="dev_name" translatable="false">Starry Shivam</string>
     <string name="useful_links">उपयोगी लिंक</string>
     <string name="link_website">वेबसाइट</string>
     <string name="link_website_desc">अधिक जानकारी के लिए हमारी वेबसाइट पर जाएं।</string>

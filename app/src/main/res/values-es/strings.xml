@@ -25,10 +25,8 @@
     <string name="append_failed_error">No se pudieron cargar más libros.</string>
     <string name="catalog_empty">Ningún libro coincide con estos filtros.</string>
     <string name="search_empty">No se encontraron libros para «%1$s».</string>
-    <string name="categories_empty">Todavía no hay categorías.</string>
     <string name="home_search_placeholder">Buscar…</string>
     <string name="home_search_close_desc">Borrar o cerrar la búsqueda</string>
-    <string name="language_menu_title">Buscar por idioma</string>
     <string name="filter_icon_desc">Filtrar libros</string>
     <string name="filter_sheet_title">Filtros</string>
     <string name="filter_section_language">Idioma</string>
@@ -41,8 +39,6 @@
     <string name="filter_apply">Aplicar</string>
     <string name="filter_clear">Limpiar filtros</string>
     <!-- Categories screen. -->
-    <string name="categories_header">Categorías</string>
-    <string name="no_books_found_for_lang_and_cat">No hay libros disponibles en %s para esta categoría.</string>
     <!-- Categories -->
     <string name="category_animal">Animales</string>
     <string name="category_children">Niños</string>
@@ -174,6 +170,12 @@
     <string name="link_website_desc">Visita nuestro sitio web para más información.</string>
     <string name="link_privacy_policy">Política de privacidad</string>
     <string name="link_privacy_policy_desc">Lee nuestra política de privacidad más reciente.</string>
+    <string name="link_source_code">Código fuente</string>
+    <string name="link_source_code_desc">Scrollia es de código abierto. Consulta el código en GitHub.</string>
+    <string name="link_contributors">Colaboradores</string>
+    <string name="link_contributors_desc">Las personas que hacen Scrollia.</string>
+    <string name="link_issues">Informar de un problema</string>
+    <string name="link_issues_desc">Informa de un error o propón una mejora en GitHub.</string>
     <string name="about_credits">Créditos</string>
     <string name="about_based_on_myne">Basada en Myne (github.com/Pool-Of-Tears/Myne), licencia Apache-2.0</string>
     <string name="about_based_on_myne_desc">Scrollia nace del código de Myne, de Stɑrry Shivɑm. Toca para ver el proyecto original.</string>

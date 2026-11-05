@@ -40,6 +40,8 @@ enum class ReaderTheme(
     Night("night", ReaderNightBackground, ReaderNightText, Color.Black.copy(alpha = 0.6f)),
     Amoled("amoled", Color.Black, ReaderNightText, Color.Black.copy(alpha = 0.6f));
 
+    val isDark: Boolean get() = this == Night || this == Amoled
+
     companion object {
         fun getById(id: String?) = entries.find { it.id == id } ?: Paper
     }

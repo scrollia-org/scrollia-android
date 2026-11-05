@@ -327,9 +327,6 @@ class BookDownloader @Inject constructor(
         if (bookId != null) removeStatus(bookId, downloadId)
     }
 
-    fun isBookCurrentlyDownloading(bookId: Int): Boolean =
-        _downloads.value[bookId]?.let { isActive(it.status) } == true
-
     fun getRunningDownload(bookId: Int): DownloadInfo? = _downloads.value[bookId]
 
     private fun isActive(status: Int) = status == DownloadManager.STATUS_PENDING ||

@@ -1,0 +1,3 @@
+- Better display on Android 15 and later: readable status bar icons in every reading theme.
+- About now links to the source code, contributors and issue tracker on GitHub.
+- Smaller app, with unused code and resources removed.

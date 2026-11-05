@@ -5,7 +5,6 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="got_it">Got it</string>
-    <string name="no_app_to_handle_epub">Cannot find any app to open epub file.</string>
     <string name="network_error">Oops! The server is temporarily unavailable. Please try again later.</string>
     <string name="network_error_retry">Try Again</string>
     <string name="error">Oops! Something went wrong.</string>
@@ -30,10 +29,8 @@
     <string name="append_failed_error">Couldn’t load more books.</string>
     <string name="catalog_empty">No books match these filters.</string>
     <string name="search_empty">No books found for “%1$s”.</string>
-    <string name="categories_empty">There are no categories yet.</string>
     <string name="home_search_placeholder">Search…</string>
     <string name="home_search_close_desc">Clear or close search</string>
-    <string name="language_menu_title">Browse by language</string>
     <string name="filter_icon_desc">Filter books</string>
     <string name="filter_sheet_title">Filters</string>
     <string name="filter_section_language">Language</string>
@@ -47,8 +44,6 @@
     <string name="filter_clear">Clear filters</string>
 
     <!-- Categories screen. -->
-    <string name="categories_header">Categories</string>
-    <string name="no_books_found_for_lang_and_cat">No books available in %s language for this category.</string>
     <!-- Categories -->
     <string name="category_animal">Animals</string>
     <string name="category_children">Children</string>
@@ -189,6 +184,12 @@
     <string name="link_website_desc">Visit our website for more information.</string>
     <string name="link_privacy_policy">Privacy Policy</string>
     <string name="link_privacy_policy_desc">Read our latest privacy policy.</string>
+    <string name="link_source_code">Source code</string>
+    <string name="link_source_code_desc">Scrollia is open source. Browse the code on GitHub.</string>
+    <string name="link_contributors">Contributors</string>
+    <string name="link_contributors_desc">The people who build Scrollia.</string>
+    <string name="link_issues">Report a problem</string>
+    <string name="link_issues_desc">Report a bug or suggest an improvement on GitHub.</string>
     <string name="about_credits">Credits</string>
     <string name="about_based_on_myne">Based on Myne (github.com/Pool-Of-Tears/Myne), Apache-2.0 license</string>
     <string name="about_based_on_myne_desc">Scrollia is a fork of Myne by Stɑrry Shivɑm. Tap to view the original project.</string>

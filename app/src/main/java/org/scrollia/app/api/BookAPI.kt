@@ -125,26 +125,6 @@ class BookAPI(context: Context) {
     }
 
     /**
-     * This function fetches books by category.
-     * @param category The category of the books to fetch.
-     * @param page The page number of the books to fetch.
-     * @param bookLanguage The language of the books to fetch.
-     * @return A Result object containing the BookSet if the request was successful, or an exception if it failed.
-     */
-    suspend fun getBooksByCategory(
-        category: String,
-        page: Long,
-        bookLanguage: BookLanguage = BookLanguage.AllBooks
-    ): Result<BookSet> {
-        var url = "${baseApiUrl}?page=$page&topic=$category"
-        if (bookLanguage != BookLanguage.AllBooks) {
-            url += "&languages=${bookLanguage.isoCode}"
-        }
-        val request = Request.Builder().get().url(url).build()
-        return makeApiRequest(request)
-    }
-
-    /**
      * Fetches the list of book categories with their book counts from the Scrollia backend.
      * Failures keep their kind: [IOException] when the server could not be reached,
      * [HttpStatusException] (404 on backends without the endpoint) or
