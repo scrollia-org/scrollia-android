@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/icon.png" alt="Scrollia icon" width="128">
+</p>
+
 # Scrollia
 
 A free Android ebook reader powered by [Project Gutenberg](https://gutenberg.org).
