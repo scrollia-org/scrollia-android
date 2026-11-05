@@ -1,0 +1,2 @@
+- Better display on Android 15 and later: readable status bar icons in every reading theme.
+- Smaller app, with unused code and resources removed.
