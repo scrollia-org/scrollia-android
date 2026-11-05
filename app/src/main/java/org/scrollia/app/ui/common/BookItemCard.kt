@@ -17,19 +17,14 @@
 package org.scrollia.app.ui.common
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -68,7 +63,6 @@ fun BookItemCard(
     title: String,
     author: String,
     language: String,
-    subjects: String,
     coverImageUrl: String?,
     loadingEffect: Boolean = false,
     onClick: () -> Unit
@@ -76,37 +70,26 @@ fun BookItemCard(
     val view = LocalView.current
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         onClick = {
             view.weakHapticFeedback()
             onClick()
         },
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
         ),
-        shape = RoundedCornerShape(6.dp)
+        shape = RoundedCornerShape(8.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .heightIn(min = 140.dp),
+            modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val imageBackground = if (isSystemInDarkTheme()) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
-            }
-
             Box(
                 modifier = Modifier
-                    .weight(1.5f)
-                    .fillMaxHeight()
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(imageBackground)
+                    .width(72.dp)
+                    .height(108.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
                     .placeholder(isLoading = loadingEffect)
             ) {
                 AsyncImage(
@@ -114,74 +97,44 @@ fun BookItemCard(
                         .data(coverImageUrl)
                         .crossfade(true)
                         .build(),
-                    placeholder = painterResource(id = R.drawable.placeholder_cat),
+                    placeholder = painterResource(id = R.drawable.placeholder_book),
                     contentDescription = stringResource(id = R.string.cover_image_desc),
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
             }
 
-            Column(
-                modifier = Modifier
-                    .weight(3f)
-                    .fillMaxHeight()
-                    .padding(vertical = 10.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
+            Column(modifier = Modifier.padding(start = 12.dp)) {
                 Text(
                     text = title,
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .fillMaxWidth()
-                        .placeholder(isLoading = loadingEffect),
-                    fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
-                    fontSize = 16.sp,
+                    modifier = Modifier.placeholder(isLoading = loadingEffect),
+                    fontSize = 18.sp,
+                    lineHeight = 23.sp,
                     fontFamily = frauncesFont,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 3,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-
                 Text(
                     text = author,
                     modifier = Modifier
-                        .padding(start = 12.dp, end = 12.dp, top = 2.dp)
+                        .padding(top = 2.dp)
                         .placeholder(isLoading = loadingEffect),
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
-                    lineHeight = 20.sp,
-                    fontStyle = MaterialTheme.typography.bodySmall.fontStyle,
                     fontFamily = interFont,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp
                 )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
                 Text(
                     text = language,
                     modifier = Modifier
-                        .padding(horizontal = 12.dp)
+                        .padding(top = 8.dp)
                         .placeholder(isLoading = loadingEffect),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontStyle = MaterialTheme.typography.bodyMedium.fontStyle,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
                     fontFamily = interFont
-                )
-
-                Text(
-                    text = subjects,
-                    modifier = Modifier
-                        .padding(start = 12.dp, end = 12.dp, top = 2.dp)
-                        .placeholder(isLoading = loadingEffect),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    fontStyle = MaterialTheme.typography.bodySmall.fontStyle,
-                    fontFamily = interFont,
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp
                 )
             }
         }
@@ -209,7 +162,6 @@ fun BookItemShimmerLoader() {
                         title = "Crime and Punishment",
                         author = "Fyodor Dostoyevsky",
                         language = "English",
-                        subjects = "Crime, Psychological aspects, Fiction",
                         coverImageUrl = "No",
                         loadingEffect = true,
                         onClick = {}
@@ -229,7 +181,6 @@ fun BookCardPreview() {
         title = "Crime and Punishment",
         author = "Fyodor Dostoyevsky",
         language = "English",
-        subjects = "Crime, Psychological aspects, Fiction",
         coverImageUrl = "https://www.gutenberg.org/cache/epub/2554/pg2554.cover.medium.jpg",
         onClick = {}
     )

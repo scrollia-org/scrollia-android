@@ -26,8 +26,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import org.scrollia.app.helpers.NetworkObserver
-import org.scrollia.app.ui.screens.categories.composables.CategoriesScreen
-import org.scrollia.app.ui.screens.categories.composables.CategoryDetailScreen
 import org.scrollia.app.ui.screens.detail.composables.BookDetailScreen
 import org.scrollia.app.ui.screens.home.composables.HomeScreen
 import org.scrollia.app.ui.screens.library.composables.LibraryScreen
@@ -59,9 +57,9 @@ fun NavGraph(
             WelcomeScreen(navController = navController)
         }
 
-        /** Home Screen */
+        /** Explore Screen */
         composable(
-            route = BottomBarScreen.Home.route,
+            route = BottomBarScreen.Explore.route,
             enterTransition = { bottomNavEnter() },
             exitTransition = {
                 if (initialState.destination.route == Screens.BookDetailScreen.route) {
@@ -92,39 +90,6 @@ fun NavGraph(
         ) { backStackEntry ->
             val bookId = backStackEntry.arguments!!.getString(BOOK_ID_ARG_KEY)!!
             BookDetailScreen(bookId, navController)
-        }
-
-        /** Categories Screen */
-        composable(
-            route = BottomBarScreen.Categories.route,
-            enterTransition = { bottomNavEnter() },
-            exitTransition = {
-                if (initialState.destination.route == Screens.CategoryDetailScreen.route) {
-                    exitTransition()
-                } else bottomNavExit()
-            },
-            popEnterTransition = {
-                if (initialState.destination.route == Screens.CategoryDetailScreen.route) {
-                    popEnterTransition()
-                } else bottomNavPopEnter()
-            },
-            popExitTransition = { bottomNavPopExit() }) {
-            CategoriesScreen(navController, networkStatus)
-        }
-
-        /** Category Detail Screen */
-        composable(
-            route = Screens.CategoryDetailScreen.route,
-            arguments = listOf(navArgument(CATEGORY_DETAIL_ARG_KEY) {
-                type = NavType.StringType
-            }),
-            enterTransition = { enterTransition() },
-            exitTransition = { exitTransition() },
-            popEnterTransition = { popEnterTransition() },
-            popExitTransition = { popExitTransition() },
-        ) { backStackEntry ->
-            val category = backStackEntry.arguments!!.getString(CATEGORY_DETAIL_ARG_KEY)!!
-            CategoryDetailScreen(category, navController, networkStatus)
         }
 
         /** Library Screen */

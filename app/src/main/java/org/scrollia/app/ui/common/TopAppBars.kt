@@ -185,7 +185,7 @@ private fun TopBarActionItem(icon: ImageVector, onclick: () -> Unit) {
 @Composable
 private fun TopAppBarsPV() {
     Column(Modifier.fillMaxSize()) {
-        CustomTopAppBar(headerText = "Something", iconRes = R.drawable.ic_nav_categories)
+        CustomTopAppBar(headerText = "Something", iconRes = R.drawable.ic_nav_library)
         CustomTopAppBar(headerText = "Something", onBackButtonClicked = {})
         CustomTopAppBar(
             headerText = "Something",

@@ -16,7 +16,6 @@
 
 package org.scrollia.app.ui.screens.library.composables
 
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -25,7 +24,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,14 +34,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -60,7 +57,9 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -69,7 +68,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -77,6 +75,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -84,6 +83,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -91,18 +91,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.psoffritti.taptargetcompose.TapTargetCoordinator
 import com.psoffritti.taptargetcompose.TapTargetStyle
 import com.psoffritti.taptargetcompose.TextDefinition
-import org.scrollia.app.BuildConfig
 import org.scrollia.app.MainActivity
 import org.scrollia.app.R
 import org.scrollia.app.database.library.LibraryItem
@@ -114,14 +114,18 @@ import org.scrollia.app.helpers.isScrollingUp
 import org.scrollia.app.helpers.weakHapticFeedback
 import org.scrollia.app.ui.common.CustomTopAppBar
 import org.scrollia.app.ui.common.NoBooksAvailable
+import org.scrollia.app.ui.navigation.BottomBarScreen
 import org.scrollia.app.ui.navigation.Screens
 import org.scrollia.app.ui.screens.library.viewmodels.LibrarySort
 import org.scrollia.app.ui.screens.library.viewmodels.LibrarySorting
 import org.scrollia.app.ui.screens.library.viewmodels.LibraryViewModel
 import org.scrollia.app.ui.screens.main.bottomNavPadding
+import org.scrollia.app.ui.screens.main.navigateToTab
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
+import org.scrollia.app.ui.theme.frauncesFont
 import org.scrollia.app.ui.theme.interFont
+import org.scrollia.app.ui.theme.literataFont
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
@@ -139,6 +143,7 @@ fun LibraryScreen(navController: NavController) {
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
+    val libraryItems by viewModel.allItems.observeAsState(initial = emptyList())
 
     val showImportDialog = remember { mutableStateOf(false) }
     val importBookLauncher =
@@ -200,7 +205,8 @@ fun LibraryScreen(navController: NavController) {
             floatingActionButton = {
                 val density = LocalDensity.current
                 AnimatedVisibility(
-                    visible = !showImportDialog.value && lazyListState.isScrollingUp(),
+                    visible = libraryItems.isNotEmpty() &&
+                            !showImportDialog.value && lazyListState.isScrollingUp(),
                     enter = slideInVertically {
                         with(density) { 40.dp.roundToPx() }
                     } + fadeIn(),
@@ -259,7 +265,8 @@ fun LibraryScreen(navController: NavController) {
                 lazyListState = lazyListState,
                 snackBarHostState = snackBarHostState,
                 navController = navController,
-                paddingValues = paddingValues
+                paddingValues = paddingValues,
+                onImportClick = { importBookLauncher.launch(arrayOf(Constants.EPUB_MIME_TYPE)) }
             )
 
             if (showImportDialog.value) {
@@ -302,7 +309,8 @@ private fun LibraryContents(
     lazyListState: LazyListState,
     snackBarHostState: SnackbarHostState,
     navController: NavController,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    onImportClick: () -> Unit
 ) {
     val context = LocalContext.current
     val settingsVm = (context.getActivity() as MainActivity).settingsViewModel
@@ -339,7 +347,10 @@ private fun LibraryContents(
             .padding(paddingValues)
     ) {
         if (libraryItems.isEmpty()) {
-            NoBooksAvailable(text = stringResource(id = R.string.empty_library))
+            EmptyLibrary(
+                onExploreClick = { navController.navigateToTab(BottomBarScreen.Explore.route) },
+                onImportClick = onImportClick
+            )
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -376,6 +387,65 @@ private fun LibraryContents(
 }
 
 @Composable
+private fun EmptyLibrary(
+    onExploreClick: () -> Unit,
+    onImportClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(id = R.drawable.ic_read_book),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(48.dp)
+        )
+        Text(
+            text = stringResource(id = R.string.empty_library),
+            fontFamily = frauncesFont,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 24.sp,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(top = 20.dp)
+        )
+        Text(
+            text = stringResource(id = R.string.empty_library_description),
+            fontFamily = literataFont,
+            fontSize = 16.sp,
+            lineHeight = 24.sp,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 12.dp)
+        )
+        FilledTonalButton(
+            onClick = onExploreClick,
+            modifier = Modifier
+                .padding(top = 28.dp)
+                .widthIn(max = 320.dp)
+                .fillMaxWidth()
+                .height(48.dp)
+        ) {
+            Text(text = stringResource(id = R.string.empty_library_action))
+        }
+        OutlinedButton(
+            onClick = onImportClick,
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .widthIn(max = 320.dp)
+                .fillMaxWidth()
+                .height(48.dp)
+        ) {
+            Text(text = stringResource(id = R.string.empty_library_import))
+        }
+    }
+}
+
+@Composable
 private fun LibraryLazyItem(
     modifier: Modifier,
     item: LibraryItem,
@@ -386,6 +456,9 @@ private fun LibraryLazyItem(
     settingsVm: SettingsViewModel
 ) {
     val context = LocalContext.current
+    val coverFile by produceState<File?>(initialValue = null, item.id, item.filePath) {
+        value = viewModel.coverFile(item)
+    }
 
     val coroutineScope = rememberCoroutineScope()
     val openDeleteDialog = remember { mutableStateOf(false) }
@@ -413,45 +486,18 @@ private fun LibraryLazyItem(
             }
         })
 
-    // Swipe actions to share book.
-    val shareAction = SwipeAction(
-        icon = painterResource(
-            id = if (settingsVm.getCurrentTheme() == ThemeMode.Dark) R.drawable.ic_share else R.drawable.ic_share_white
-        ), background = MaterialTheme.colorScheme.primary, onSwipe = {
-            val uri = FileProvider.getUriForFile(
-                context,
-                BuildConfig.APPLICATION_ID + ".provider",
-                File(item.filePath)
-            )
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            intent.type = context.contentResolver.getType(uri)
-            intent.putExtra(Intent.EXTRA_STREAM, uri)
-            context.startActivity(
-                Intent.createChooser(
-                    intent,
-                    context.getString(R.string.share_app_chooser)
-                )
-            )
-        })
-
     SwipeableActionsBox(
         modifier = modifier.padding(vertical = 4.dp),
-        startActions = listOf(shareAction),
         endActions = listOf(detailsAction),
         swipeThreshold = 85.dp
     ) {
         LibraryCard(
             title = item.title,
             author = item.authors,
-            item.getFileSize(),
-            item.getDownloadDate(),
-            isExternalBook = item.isImported,
+            coverFile = coverFile,
             progress = progress,
             onReadClick = {
                 BookUtils.openBookFile(
-                    context = context,
-                    internalReader = viewModel.getInternalReaderSetting(),
                     libraryItem = item,
                     navController = navController
                 )
@@ -505,115 +551,125 @@ private fun LibraryLazyItem(
 private fun LibraryCard(
     title: String,
     author: String,
-    fileSize: String,
-    date: String,
-    isExternalBook: Boolean,
+    coverFile: File?,
     progress: ProgressData? = null,
     onReadClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
-        ), shape = RoundedCornerShape(0.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .clickable { onReadClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+        ),
+        shape = RoundedCornerShape(8.dp)
     ) {
         Row(
-            modifier = Modifier.padding(start = 12.dp, end = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.Top
         ) {
             Box(
                 modifier = Modifier
-                    .height(90.dp)
-                    .width(90.dp)
-                    .padding(10.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .width(72.dp)
+                    .height(108.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(
-                        id = if (isExternalBook) R.drawable.ic_library_external_item
-                        else R.drawable.ic_library_item
-                    ),
-                    contentDescription = stringResource(id = R.string.back_button_desc),
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(32.dp)
-                )
+                if (coverFile != null) {
+                    AsyncImage(
+                        model = coverFile,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Text(
+                        text = title,
+                        fontFamily = frauncesFont,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 13.sp,
+                        lineHeight = 17.sp,
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
             }
 
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = title,
-                    fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
-                    fontSize = 18.sp,
-                    fontFamily = interFont,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-
-                Text(
-                    text = author,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
-                    maxLines = 1,
-                    fontStyle = MaterialTheme.typography.bodySmall.fontStyle,
-                    fontFamily = interFont,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.offset(y = (-8).dp)
-                )
-
-                Row(modifier = Modifier.offset(y = (-8).dp)) {
-                    Text(
-                        text = fileSize,
-                        fontFamily = interFont,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Light,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(end = 6.dp)
-                    )
-                    VerticalDivider(
-                        modifier = Modifier
-                            .height(17.5.dp)
-                            .width(1.dp)
-                            .clip(CircleShape),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = date,
-                        fontFamily = interFont,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Light,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(start = 6.dp)
-                    )
+            Column(modifier = Modifier.padding(start = 12.dp)) {
+                Row(verticalAlignment = Alignment.Top) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = title,
+                            fontFamily = frauncesFont,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 18.sp,
+                            lineHeight = 23.sp,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = author,
+                            fontFamily = interFont,
+                            fontSize = 13.sp,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                    IconButton(
+                        onClick = onDeleteClick,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = stringResource(id = R.string.library_delete_button),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
-                if (progress != null) {
+                if (progress != null && (progress.finished || progress.progressPercent() > 0)) {
                     LibraryProgress(
                         progress = progress,
-                        modifier = Modifier
-                            .offset(y = (-6).dp)
-                            .padding(bottom = 4.dp)
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                 }
 
-                Row(modifier = Modifier.offset(y = (-4).dp)) {
-                    LibraryCardButton(
-                        text = stringResource(id = R.string.library_read_button),
-                        icon = ImageVector.vectorResource(id = R.drawable.ic_library_read),
-                        onClick = { onReadClick() })
-
-                    Spacer(modifier = Modifier.width(10.dp))
-
-                    LibraryCardButton(
-                        text = stringResource(id = R.string.library_delete_button),
-                        icon = Icons.Outlined.Delete,
-                        onClick = { onDeleteClick() })
+                FilledTonalButton(
+                    onClick = onReadClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
+                        .height(48.dp),
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_read_book),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(
+                            id = if (progress != null && !progress.finished && progress.progressPercent() > 0) {
+                                R.string.continue_reading_button
+                            } else R.string.library_read_button
+                        ),
+                        fontFamily = interFont,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 15.sp
+                    )
                 }
-                Spacer(modifier = Modifier.height(2.dp))
             }
         }
     }
@@ -695,43 +751,6 @@ private fun LibraryProgress(progress: ProgressData, modifier: Modifier = Modifie
     }
 }
 
-@Composable
-private fun LibraryCardButton(
-    text: String,
-    icon: ImageVector,
-    onClick: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .clickable { onClick() }
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = "Favorite Icon",
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(14.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = text,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
-
-
 @ExperimentalMaterial3Api
 @Composable
 @Preview
@@ -739,9 +758,8 @@ fun LibraryScreenPreview() {
     LibraryCard(
         title = "The Idiot",
         author = "Fyodor Dostoevsky",
-        fileSize = "5.9MB",
-        date = "01- Jan -2020",
-        isExternalBook = false,
+        coverFile = null,
         onReadClick = {},
-        onDeleteClick = {})
+        onDeleteClick = {}
+    )
 }

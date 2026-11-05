@@ -6,14 +6,11 @@
     <string name="cancel">Anulează</string>
     <string name="ok">OK</string>
     <string name="got_it">Got it</string>
-    <string name="no_app_to_handle_epub">Nu pot găsi nicio aplicație pentru a deschide un fișier epub.</string>
     <string name="network_error">Ups! Nu a reușit să se conecteze cu serverul.</string>
     <string name="network_error_retry">Încearcă din nou</string>
     <string name="error">Ups! Ceva a mers rău.</string>
     <string name="no_app_to_handle_content">Nu s-a găsit nicio aplicație pentru a deschide acest conținut.</string>
     <!-- Navigation titles -->
-    <string name="navigation_home">Acasă</string>
-    <string name="navigation_categories">Categorii</string>
     <string name="navigation_library">Librărie</string>
     <string name="navigation_settings">Setări</string>
     <!-- ToolTips -->
@@ -55,8 +52,6 @@
     <string name="external_book_info_unavailable">Disponibil doar pentru cărți interne.</string>
     <string name="epub_importing">Se importă… Vă rugăm să așteptați.</string>
     <string name="epub_imported">Importat cu succes!</string>
-    <string name="open_app_chooser">Deschide cu…</string>
-    <string name="share_app_chooser">Împărtășiți cu…</string>
     <string name="library_read_button">Citește</string>
     <string name="library_delete_button">Șterge</string>
     <string name="library_delete_dialog_title">Ești sigur de asta?</string>
@@ -76,22 +71,15 @@
     <!-- Settings screen. -->
     <string name="settings_header">Setări</string>
     <string name="general_settings_header">General</string>
-    <string name="default_reader_setting">Cititor implicit</string>
-    <string name="default_reader_dialog_title">Deschideți ebook-uri cu…</string>
-    <string name="reader_option_inbuilt">Cititor încorporat</string>
-    <string name="reader_option_external">Cititor extern</string>
     <string name="default_locale_setting">Limbă implicită</string>
     <string name="default_locale_setting_desc">Selectați limba preferată.</string>
     <string name="locale_setting_not_found">Ne pare rău! Această funcție nu este încă suportată de sistemul dvs. de operare.</string>
-    <string name="open_library_at_start_setting">Deschide librăria la pornire</string>
-    <string name="open_library_at_start_setting_desc">Deschide ecranul bibliotecii la pornirea aplicației.</string>
     <string name="theme_setting">Tema implicită</string>
     <string name="theme_dialog_title">Tema implicită</string>
     <string name="theme_option_light">Lumină</string>
     <string name="theme_option_dark">Întuneric</string>
     <string name="theme_option_system">Implicit în sistem</string>
     <string name="theme_dialog_apply_button">Aplicați</string>
-    <string name="amoled_theme_setting">Tema întunecată</string>
     <string name="license_setting">Licență &amp; Recunoștințe</string>
     <string name="license_setting_desc">Licențe de sursă deschisă.</string>
     <string name="about_setting">Informații despre aplicație</string>
@@ -101,7 +89,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Detalii despre carte</string>
     <string name="back_button_desc">Înapoi.</string>
-    <string name="share_intent_header">Împărtășiți asta folosind…</string>
     <string name="read_book_button">Începeți să citiți</string>
     <string name="download_book_button">Descarcă</string>
     <string name="download_started">Descărcarea începută!</string>

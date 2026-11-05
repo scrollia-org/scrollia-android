@@ -6,14 +6,11 @@
     <string name="cancel">Abbrechen</string>
     <string name="ok">OK</string>
     <string name="got_it">Verstanden</string>
-    <string name="no_app_to_handle_epub">Kann keine App zum Öffnen von Epub-Dateien finden.</string>
     <string name="network_error">Hoppla! Konnte keine Verbindung zum Server aufbauen.</string>
     <string name="network_error_retry">Erneut versuchen</string>
     <string name="error">Hoppla! Etwas ist schiefgelaufen.</string>
     <string name="no_app_to_handle_content">Keine App gefunden, um diesen Inhalt zu öffnen.</string>
     <!-- Navigation titles -->
-    <string name="navigation_home">Start</string>
-    <string name="navigation_categories">Kategorien</string>
     <string name="navigation_library">Bibliothek</string>
     <string name="navigation_settings">Einstellungen</string>
     <!-- ToolTips -->
@@ -55,8 +52,6 @@
     <string name="external_book_info_unavailable">Nur für interne Bücher verfügbar.</string>
     <string name="epub_importing">Importiere… Bitte warten.</string>
     <string name="epub_imported">Erfolgreich importiert!</string>
-    <string name="open_app_chooser">Öffnen mit …</string>
-    <string name="share_app_chooser">Teilen mit …</string>
     <string name="library_read_button">Lesen</string>
     <string name="library_delete_button">Löschen</string>
     <string name="library_delete_dialog_title">Bist du dir ganz sicher?</string>
@@ -76,22 +71,15 @@
     <!-- Settings screen. -->
     <string name="settings_header">Einstellungen</string>
     <string name="general_settings_header">Allgemein</string>
-    <string name="default_reader_setting">Standard-Reader</string>
-    <string name="default_reader_dialog_title">E-Books öffnen mit …</string>
-    <string name="reader_option_inbuilt">Integrierter Reader</string>
-    <string name="reader_option_external">Externer Reader</string>
     <string name="default_locale_setting">Standard-Sprache</string>
     <string name="default_locale_setting_desc">Wählen Sie Ihre bevorzugte Sprachumgebung.</string>
     <string name="locale_setting_not_found">Entschuldigung! Diese Funktion wird von Ihrem Betriebssystem noch nicht unterstützt.</string>
-    <string name="open_library_at_start_setting">Bibliothek beim Start öffnen</string>
-    <string name="open_library_at_start_setting_desc">Öffne den Bibliotheksbildschirm beim Starten der App.</string>
     <string name="theme_setting">Standard-Theme</string>
     <string name="theme_dialog_title">Theme ändern</string>
     <string name="theme_option_light">Hell</string>
     <string name="theme_option_dark">Dunkel</string>
     <string name="theme_option_system">Systemstandard</string>
     <string name="theme_dialog_apply_button">Anwenden</string>
-    <string name="amoled_theme_setting">Dunkles Thema</string>
     <string name="license_setting">Lizenz &amp; Danksagungen</string>
     <string name="license_setting_desc">Open-Source-Lizenzen.</string>
     <string name="about_setting">App-Informationen</string>
@@ -101,7 +89,6 @@
     <!-- Book Detail Screen -->
     <string name="book_detail_header">Buchdetails</string>
     <string name="back_button_desc">Zurückgehen.</string>
-    <string name="share_intent_header">Teilen mit …</string>
     <string name="read_book_button">Lesen beginnen</string>
     <string name="download_book_button">Herunterladen</string>
     <string name="download_started">Herunterladen begonnen!</string>

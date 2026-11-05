@@ -16,18 +16,10 @@
 
 package org.scrollia.app.helpers.book
 
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
-import androidx.core.content.FileProvider
 import androidx.navigation.NavController
-import org.scrollia.app.BuildConfig
-import org.scrollia.app.R
 import org.scrollia.app.api.models.Author
 import org.scrollia.app.database.library.LibraryItem
-import org.scrollia.app.helpers.toToast
 import org.scrollia.app.ui.navigation.Screens
-import java.io.File
 import java.util.Locale
 
 object BookUtils {
@@ -69,51 +61,11 @@ object BookUtils {
         return languages.joinToString(", ") { Locale.forLanguageTag(it).displayLanguage }
     }
 
-    /**
-     * Converts the list of subjects into a single string.
-     *
-     * @param subjects List of subjects.
-     * @param limit Maximum number of subjects to show.
-     * @return String representation of the subjects.
-     */
-    fun getSubjectsAsString(subjects: List<String>, limit: Int): String {
-        val allSubjects = subjects.flatMap { it.split("--") }.map { it.trim() }.toSet()
-        val truncatedSubs = if (allSubjects.size > limit) allSubjects.take(limit) else allSubjects
-        return truncatedSubs.joinToString(", ")
-    }
-
-    /**
-     * Opens the book file using the appropriate app or the internal reader.
-     *
-     * @param context Context of the app.
-     * @param internalReader Whether to use the internal reader or not.
-     * @param libraryItem Library item to open.
-     * @param navController Navigation controller to navigate to the reader screen.
-     */
+    /** Opens the book with Scrollia's reader. */
     fun openBookFile(
-        context: Context,
-        internalReader: Boolean,
         libraryItem: LibraryItem,
         navController: NavController
     ) {
-        if (internalReader) {
-            navController.navigate(Screens.ReaderDetailScreen.withLibraryItemId(libraryItem.id.toString()))
-        } else {
-            val uri = FileProvider.getUriForFile(
-                context, BuildConfig.APPLICATION_ID + ".provider", File(libraryItem.filePath)
-            )
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            intent.setDataAndType(uri, context.contentResolver.getType(uri))
-            val chooser = Intent.createChooser(
-                intent, context.getString(R.string.open_app_chooser)
-            )
-            try {
-                context.startActivity(chooser)
-            } catch (exc: ActivityNotFoundException) {
-                exc.printStackTrace()
-                context.getString(R.string.no_app_to_handle_epub).toToast(context)
-            }
-        }
+        navController.navigate(Screens.ReaderDetailScreen.withLibraryItemId(libraryItem.id.toString()))
     }
 }
