@@ -1,4 +1,4 @@
-### Tanslation language
+### Translation language
 <!--- add your translation locale here -->
 
 ### Translation checklist
@@ -14,4 +14,5 @@ You can translate most conveniently using Android Studio's XML editor, but your 
 - [ ] Provide the translated strings inside strings.xml under the appropriate folder.
 - [ ] Used the correct locale code (en-US, en-GB, de, es, fr...)
 - [ ] Named the folder correctly (values-[locale-code])
+- [ ] Added the locale to `resourceConfigurations` in `app/build.gradle`; the app only ships the languages listed there.
 
