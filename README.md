@@ -37,12 +37,13 @@ echo "sdk.dir=/path/to/Android/Sdk" > local.properties
 
 ## Release signing
 
-Keep the upload keystore and `keystore.properties` in the repository root but
-out of version control; both are gitignored. Back them up securely. The
-properties file uses this format:
+Release builds read `keystore.properties` from the repository root, which is
+gitignored. Keep the upload keystore out of version control (any path works;
+relative paths resolve from the repository root) and back both up securely.
+The properties file uses this format:
 
 ```properties
-storeFile=scrollia-upload.keystore
+storeFile=/path/to/scrollia-upload.keystore
 storePassword=<upload-store-password>
 keyAlias=upload
 keyPassword=<upload-key-password>
@@ -58,7 +59,7 @@ Scrollia is a fork of [Myne](https://github.com/Pool-Of-Tears/Myne) by Starry Sh
 ## License
 
 ```
-Copyright 2024-Present Scrollia
+Copyright 2026-Present Scrollia contributors
 
 Licensed under the Apache License, Version 2.0
 ```
