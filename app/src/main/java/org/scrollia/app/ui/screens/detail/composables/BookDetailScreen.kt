@@ -277,15 +277,15 @@ private fun BookDetailContents(
                             bookId = displayBook.id,
                             onComplete = { libraryItem ->
                                 BookUtils.openBookFile(
-                                    libraryItem = libraryItem,
-                                    navController = navController
+                                    context = context,
+                                    libraryItem = libraryItem
                                 )
                             }
                         )
                     } else {
                         BookUtils.openBookFile(
-                            libraryItem = state.bookLibraryItem,
-                            navController = navController
+                            context = context,
+                            libraryItem = state.bookLibraryItem
                         )
                     }
                 }

@@ -16,10 +16,12 @@
 
 package org.scrollia.app.helpers.book
 
-import androidx.navigation.NavController
+import android.content.Context
+import android.content.Intent
 import org.scrollia.app.api.models.Author
 import org.scrollia.app.database.library.LibraryItem
-import org.scrollia.app.ui.navigation.Screens
+import org.scrollia.app.ui.screens.reader.main.activities.ReaderActivity
+import org.scrollia.app.ui.screens.reader.main.activities.ReaderConstants
 import java.util.Locale
 
 object BookUtils {
@@ -62,10 +64,10 @@ object BookUtils {
     }
 
     /** Opens the book with Scrollia's reader. */
-    fun openBookFile(
-        libraryItem: LibraryItem,
-        navController: NavController
-    ) {
-        navController.navigate(Screens.ReaderDetailScreen.withLibraryItemId(libraryItem.id.toString()))
+    fun openBookFile(context: Context, libraryItem: LibraryItem) {
+        val intent = Intent(context, ReaderActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra(ReaderConstants.EXTRA_LIBRARY_ITEM_ID, libraryItem.id)
+        context.startActivity(intent)
     }
 }

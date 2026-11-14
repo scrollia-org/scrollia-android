@@ -470,19 +470,7 @@ private fun LibraryLazyItem(
         ), background = MaterialTheme.colorScheme.primary, onSwipe = {
             viewModel.viewModelScope.launch {
                 delay(250L)
-                if (item.isImported) {
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.external_book_info_unavailable),
-                        actionLabel = context.getString(R.string.ok),
-                        duration = SnackbarDuration.Short
-                    )
-                } else {
-                    navController.navigate(
-                        Screens.BookDetailScreen.withBookId(
-                            item.bookId.toString()
-                        )
-                    )
-                }
+                navController.navigate(Screens.ReaderDetailScreen.withLibraryItemId(item.id.toString()))
             }
         })
 
@@ -498,8 +486,8 @@ private fun LibraryLazyItem(
             progress = progress,
             onReadClick = {
                 BookUtils.openBookFile(
-                    libraryItem = item,
-                    navController = navController
+                    context = context,
+                    libraryItem = item
                 )
             },
             onDeleteClick = { openDeleteDialog.value = true })
