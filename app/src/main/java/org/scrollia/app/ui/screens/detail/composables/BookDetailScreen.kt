@@ -81,6 +81,7 @@ import androidx.navigation.NavController
 import org.scrollia.app.MainActivity
 import org.scrollia.app.R
 import org.scrollia.app.api.models.Edition
+import org.scrollia.app.api.models.withEdition
 import org.scrollia.app.helpers.Utils
 import org.scrollia.app.helpers.book.BookUtils
 import org.scrollia.app.helpers.getActivity
@@ -181,15 +182,7 @@ private fun BookDetailContents(
             editions.firstOrNull { deviceLang in it.languages }?.id ?: book.id
     }
     val displayBook = remember(book, selectedEditionId) {
-        val edition = editions.firstOrNull { it.id == selectedEditionId }
-        if (edition == null || edition.id == book.id) book
-        else book.copy(
-            id = edition.id,
-            title = edition.title,
-            languages = edition.languages,
-            downloadCount = edition.downloadCount,
-            formats = edition.formats
-        )
+        book.withEdition(selectedEditionId)
     }
     // The library stores edition ids; refresh the item when the selected
     // edition changes so the button reflects that edition's download state.
