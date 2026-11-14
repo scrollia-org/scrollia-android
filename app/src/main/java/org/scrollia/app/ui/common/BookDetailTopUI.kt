@@ -100,7 +100,7 @@ fun BookDetailTopUI(
                         modifier = Modifier
                             .width(118.dp)
                             .height(160.dp),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Fit
                     )
                 }
             }
