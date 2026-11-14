@@ -52,7 +52,12 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -333,12 +338,15 @@ private fun BookDetailContents(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditionSelector(
     editions: List<Edition>,
     selectedEditionId: Int,
     onEditionSelected: (Int) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedEdition = editions.firstOrNull { it.id == selectedEditionId } ?: return
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -353,18 +361,39 @@ private fun EditionSelector(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            editions.forEach { edition ->
-                FilterChip(
-                    selected = edition.id == selectedEditionId,
-                    onClick = { onEditionSelected(edition.id) },
-                    label = {
-                        Text(
-                            text = languageEndonym(edition.languages.firstOrNull() ?: ""),
-                            fontFamily = interFont
-                        )
-                    }
-                )
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it }
+        ) {
+            OutlinedTextField(
+                value = languageEndonym(selectedEdition.languages.firstOrNull() ?: ""),
+                onValueChange = {},
+                readOnly = true,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(fontFamily = interFont),
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                editions.forEach { edition ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = languageEndonym(edition.languages.firstOrNull() ?: ""),
+                                fontFamily = interFont
+                            )
+                        },
+                        onClick = {
+                            onEditionSelected(edition.id)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
