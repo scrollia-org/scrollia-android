@@ -84,6 +84,18 @@
     <string name="library_finished">Terminado</string>
     <string name="library_sort_recent">Lectura reciente</string>
     <string name="library_sort_title">Título A–Z</string>
+    <string name="library_more_options">Más opciones</string>
+    <string name="library_details_button">Detalles</string>
+    <string name="detail_start_reading">Empezar a leer</string>
+    <string name="detail_continue_reading">Continuar leyendo</string>
+    <string name="detail_read_again">Volver a leer</string>
+    <string name="detail_synopsis_more">Leer más</string>
+    <string name="detail_synopsis_less">Leer menos</string>
+    <string name="reader_chapter_current_label">Leyendo</string>
+    <plurals name="detail_chapter_count">
+        <item quantity="one">%d capítulo</item>
+        <item quantity="other">%d capítulos</item>
+    </plurals>
     <!--Reader Screen -->
     <string name="back">Volver</string>
     <string name="reader_error_title">No pudimos abrir este libro</string>
@@ -97,6 +109,8 @@
     <string name="import_error_unreadable">No se pudo leer el archivo. Comprueba que sigue disponible e inténtalo de nuevo.</string>
     <string name="import_error_storage">No se pudo guardar el libro. Comprueba el espacio libre del dispositivo e inténtalo de nuevo.</string>
     <string name="reader_chapter_list_title">Capítulos</string>
+    <string name="reader_current_chapter">Capítulo actual</string>
+    <string name="reader_chapter_read">Capítulo leído</string>
     <string name="reader_theme_paper">Papel</string>
     <string name="reader_theme_sepia">Sepia</string>
     <string name="reader_theme_night">Nocturno</string>

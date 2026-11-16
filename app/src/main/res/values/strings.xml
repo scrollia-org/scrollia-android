@@ -91,6 +91,18 @@
     <string name="library_finished">Finished</string>
     <string name="library_sort_recent">Recently read</string>
     <string name="library_sort_title">Title A–Z</string>
+    <string name="library_more_options">More options</string>
+    <string name="library_details_button">Details</string>
+    <string name="detail_start_reading">Start reading</string>
+    <string name="detail_continue_reading">Continue reading</string>
+    <string name="detail_read_again">Read again</string>
+    <string name="detail_synopsis_more">Read more</string>
+    <string name="detail_synopsis_less">Show less</string>
+    <string name="reader_chapter_current_label">Reading</string>
+    <plurals name="detail_chapter_count">
+        <item quantity="one">%d chapter</item>
+        <item quantity="other">%d chapters</item>
+    </plurals>
 
     <!--Reader Screen -->
     <string name="back">Back</string>
@@ -105,6 +117,8 @@
     <string name="import_error_unreadable">The file couldn’t be read. Check that it’s still available and try again.</string>
     <string name="import_error_storage">The book couldn’t be saved. Check the free space on your device and try again.</string>
     <string name="reader_chapter_list_title">Chapters</string>
+    <string name="reader_current_chapter">Current chapter</string>
+    <string name="reader_chapter_read">Chapter read</string>
     <string name="reader_theme_paper">Paper</string>
     <string name="reader_theme_sepia">Sepia</string>
     <string name="reader_theme_night">Night</string>

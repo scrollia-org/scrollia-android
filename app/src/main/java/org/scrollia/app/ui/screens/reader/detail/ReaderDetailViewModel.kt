@@ -44,10 +44,28 @@ data class ReaderDetailScreenState(
     val isLoading: Boolean = true,
     val title: String = "",
     val authors: String = "",
+    val description: String = "",
+    val descriptionNote: String = "",
     val coverImage: Any? = null,
     val chapters: List<EpubChapter> = emptyList(),
     val error: String? = null,
 )
+
+// The API appends the synopsis attribution as its last paragraph (backend/api/main.py,
+// ATTRIBUTION and ATTRIBUTION_OWN_AI); it must stay visible when the synopsis is folded.
+private val SYNOPSIS_NOTE = Regex(
+    "^(?:(?:Source|Fuente): Wikipedia .*|Synopsis written with AI\\.|Sinopsis redactada con IA\\.)$"
+)
+
+internal fun splitSynopsisNote(description: String): Pair<String, String> {
+    val body = description.substringBeforeLast("\n\n", missingDelimiterValue = "")
+    val last = description.substringAfterLast("\n\n").trim()
+    return if (body.isNotBlank() && SYNOPSIS_NOTE.matches(last)) {
+        body.trim() to last
+    } else {
+        description.trim() to ""
+    }
+}
 
 @HiltViewModel
 class ReaderDetailViewModel @Inject constructor(
@@ -72,13 +90,13 @@ class ReaderDetailViewModel @Inject constructor(
                     ?: throw IllegalStateException("Library item not found")
                 progressData = progressDao.getReaderDataAsFlow(id)
                 val cachedCover = bookCoverCache.coverFile(libraryItem)
-                val coverImage: String? = if (cachedCover == null) try {
-                    if (!libraryItem.isImported && networkStatus == NetworkObserver.Status.Available) {
-                        bookAPI.getExtraInfo(libraryItem.title)?.coverImage
-                    } else null
-                } catch (exc: Exception) {
-                    Log.e("ReaderDetailViewModel", "Failed to fetch cover image.", exc)
-                    null
+                val extraInfo = if (!libraryItem.isImported && networkStatus == NetworkObserver.Status.Available) {
+                    try {
+                        bookAPI.getExtraInfo(libraryItem.title)
+                    } catch (exc: Exception) {
+                        Log.e("ReaderDetailViewModel", "Failed to fetch book information.", exc)
+                        null
+                    }
                 } else null
                 val isInternalChineseBook =
                     !libraryItem.isImported && epubParser.peekLanguage(libraryItem.filePath) == "zh"
@@ -86,10 +104,14 @@ class ReaderDetailViewModel @Inject constructor(
                     libraryItem.filePath,
                     shouldUseToc = !isInternalChineseBook
                 )
+                val (description, descriptionNote) =
+                    splitSynopsisNote(extraInfo?.description.orEmpty())
                 state = state.copy(
                     title = libraryItem.title,
                     authors = libraryItem.authors,
-                    coverImage = cachedCover ?: coverImage ?: epubBook.coverImage,
+                    description = description,
+                    descriptionNote = descriptionNote,
+                    coverImage = cachedCover ?: extraInfo?.coverImage ?: epubBook.coverImage,
                     chapters = epubBook.chapters,
                 )
                 delay(350)
