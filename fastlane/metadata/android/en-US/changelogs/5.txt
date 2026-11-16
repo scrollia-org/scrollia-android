@@ -1,0 +1,3 @@
+- My Books is a cover shelf: tap a cover to keep reading, long-press or ⋮ for details.
+- Book detail shows synopsis, progress and a clear Start / Continue / Read again action.
+- Edition language uses a dropdown; covers stay fully visible; reading resumes where you left off.
