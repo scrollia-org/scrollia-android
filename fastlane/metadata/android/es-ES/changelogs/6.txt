@@ -1,0 +1,1 @@
+- Lectura más fiable de EPUB de Gutenberg e importados: los párrafos no se funden y ya no se saltan capítulos del spine.

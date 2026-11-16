@@ -22,9 +22,12 @@ import android.util.Log
 import org.scrollia.app.epub.models.HtmlSpan
 import org.scrollia.app.epub.models.ReaderItem
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import org.jsoup.parser.Parser
+import java.io.ByteArrayInputStream
 import java.io.File
 import kotlin.io.path.invariantSeparatorsPathString
 
@@ -72,6 +75,49 @@ class EpubXMLFileParser(
             "samp", "small", "span", "strike", "strong", "sub", "sup", "time", "u",
             "var", "wbr"
         )
+
+        /**
+         * HTML void elements that may legally use the XML self-closing form.
+         * Everything else that appears as `<tag …/>` in EPUB XHTML must be treated
+         * as an empty element, not as an unclosed start tag (HTML parse mode).
+         */
+        private val HTML_VOID_TAGS = setOf(
+            "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+            "meta", "param", "source", "track", "wbr"
+        )
+
+        private val SELF_CLOSING_TAG =
+            Regex("""<([A-Za-z][\w:.-]*)([^<>]*?)/>""", RegexOption.DOT_MATCHES_ALL)
+
+        /**
+         * Expand non-void `<tag …/>` to `<tag …></tag>` so an HTML-mode fallback
+         * does not swallow the rest of the chapter into the first such tag.
+         */
+        internal fun expandNonVoidSelfClosingTags(xhtml: String): String {
+            return SELF_CLOSING_TAG.replace(xhtml) { match ->
+                val name = match.groupValues[1]
+                val attrs = match.groupValues[2]
+                if (name.substringBefore(':').lowercase() in HTML_VOID_TAGS) {
+                    match.value
+                } else {
+                    "<$name$attrs></$name>"
+                }
+            }
+        }
+
+        /**
+         * Parse EPUB XHTML as XML first. Fall back to HTML only after expanding
+         * non-void self-closing tags — never a per-book tag list.
+         */
+        internal fun parseXhtmlDocument(bytes: ByteArray): Document {
+            return try {
+                Jsoup.parse(ByteArrayInputStream(bytes), "UTF-8", "", Parser.xmlParser())
+            } catch (exc: Exception) {
+                Log.w(TAG, "XML parse failed; expanding self-closing tags for HTML fallback", exc)
+                val expanded = expandNonVoidSelfClosingTags(bytes.toString(Charsets.UTF_8))
+                Jsoup.parse(expanded, "", Parser.htmlParser())
+            }
+        }
     }
 
 
@@ -81,15 +127,14 @@ class EpubXMLFileParser(
      * @return [Output] The title and body content of the XML document.
      */
     fun parseAsDocument(): Output {
-        val document = Jsoup.parse(data.inputStream(), "UTF-8", "")
+        val document = parseXhtmlDocument(data)
 
         val title: String
         val bodyContent: List<ReaderItem>
-        val bodyElement: Element?
 
         if (fragmentId != null) {
             // Check if the fragment ID represents a <div> tag
-            bodyElement = document.selectFirst("div#$fragmentId")
+            val bodyElement = document.selectFirst("div#$fragmentId")
 
             if (bodyElement != null) {
                 // If the fragment ID represents a <div> tag, fetch the entire body content
@@ -139,11 +184,11 @@ class EpubXMLFileParser(
         } else {
             // If no fragment ID is provided, fetch the entire body content
             Log.d(TAG, "No fragment ID provided. Fetching the entire body content.")
-            bodyElement = document.body()
+            val rootNodes = contentRootNodes(document)
             val header = document.selectFirst(HEADER_SELECTORS)
             title = header?.text() ?: ""
             header?.remove()
-            bodyContent = processNodes(bodyElement.childNodes())
+            bodyContent = processNodes(rootNodes)
         }
 
         // If the body is empty after fragment-based parsing, fallback to full file content.
@@ -151,7 +196,7 @@ class EpubXMLFileParser(
         // very end of a file or just before a page break.
         val finalBody = if (bodyContent.isEmpty() && fragmentId != null) {
             Log.w(TAG, "Empty body content for fragment $fragmentId. Falling back to full file.")
-            processNodes(document.body().childNodes())
+            processNodes(contentRootNodes(document))
         } else {
             bodyContent
         }
@@ -160,6 +205,15 @@ class EpubXMLFileParser(
             title = title.smartTrim(),
             body = finalBody
         )
+    }
+
+    /** Prefer `<body>`; XML mode does not invent one when the file has no wrapper. */
+    private fun contentRootNodes(document: Document): List<Node> {
+        val body = document.selectFirst("body")
+        if (body != null) return body.childNodes()
+        val html = document.selectFirst("html")
+        if (html != null) return html.childNodes()
+        return document.childNodes()
     }
 
     private val Element.isHeader: Boolean

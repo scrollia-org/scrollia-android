@@ -107,6 +107,24 @@ class EpubParserTest {
     }
 
     @Test
+    fun spineKeepsFilesMissingFromIncompleteToc(): Unit = runBlocking {
+        // TOC only lists chapters 1 and 3; spine has 1, 2, 3 — chapter 2 must still appear.
+        val epub = createEpubWithIncompleteToc()
+        val book = epubParser.createEpubBook(ByteArrayInputStream(epub), shouldUseToc = true)
+
+        assertThat(book.chapters.map { it.title }).containsExactly(
+            "Listed One",
+            "Chapter 2",
+            "Listed Three",
+        ).inOrder()
+        assertThat(book.chapters.map { it.absPath }).containsExactly(
+            "chapter1.xhtml",
+            "chapter2.xhtml",
+            "chapter3.xhtml",
+        ).inOrder()
+    }
+
+    @Test
     fun testParseImages() = runBlocking {
         val inputStream = ByteArrayInputStream(testEpubFile)
         val epubBook = epubParser.createEpubBook(inputStream, true)
@@ -283,5 +301,83 @@ class EpubParserTest {
         val tempFile = File.createTempFile("test.epub", null)
         tempFile.writeBytes(content)
         return tempFile
+    }
+
+    /** Three spine files; TOC names only the first and third. */
+    private fun createEpubWithIncompleteToc(): ByteArray {
+        val containerXml = """
+           <?xml version="1.0" encoding="UTF-8"?>
+           <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+               <rootfiles>
+                   <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
+               </rootfiles>
+           </container>
+        """.trimIndent()
+
+        val contentOpf = """
+           <?xml version="1.0" encoding="UTF-8"?>
+           <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="2.0">
+               <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+                   <dc:title>Incomplete Toc Book</dc:title>
+                   <dc:creator opf:role="aut">Test Author</dc:creator>
+                   <dc:language>en</dc:language>
+               </metadata>
+               <manifest>
+                   <item id="chapter1" href="chapter1.xhtml" media-type="application/xhtml+xml"/>
+                   <item id="chapter2" href="chapter2.xhtml" media-type="application/xhtml+xml"/>
+                   <item id="chapter3" href="chapter3.xhtml" media-type="application/xhtml+xml"/>
+                   <item id="toc" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+               </manifest>
+               <spine toc="toc">
+                   <itemref idref="chapter1"/>
+                   <itemref idref="chapter2"/>
+                   <itemref idref="chapter3"/>
+               </spine>
+           </package>
+        """.trimIndent()
+
+        fun chapter(title: String, body: String) = """
+           <?xml version="1.0" encoding="UTF-8"?>
+           <html xmlns="http://www.w3.org/1999/xhtml">
+               <head><title>$title</title></head>
+               <body>
+                   <h1>$title</h1>
+                   <p>$body</p>
+               </body>
+           </html>
+        """.trimIndent()
+
+        val tocNcx = """
+           <?xml version="1.0" encoding="UTF-8"?>
+           <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+               <navMap>
+                   <navPoint id="nav1" playOrder="1">
+                       <navLabel><text>Listed One</text></navLabel>
+                       <content src="chapter1.xhtml"/>
+                   </navPoint>
+                   <navPoint id="nav3" playOrder="2">
+                       <navLabel><text>Listed Three</text></navLabel>
+                       <content src="chapter3.xhtml"/>
+                   </navPoint>
+               </navMap>
+           </ncx>
+        """.trimIndent()
+
+        return ByteArrayOutputStream().use { outputStream ->
+            ZipOutputStream(outputStream).use { zip ->
+                fun put(name: String, content: String) {
+                    zip.putNextEntry(ZipEntry(name))
+                    zip.write(content.toByteArray())
+                    zip.closeEntry()
+                }
+                put("META-INF/container.xml", containerXml)
+                put("content.opf", contentOpf)
+                put("chapter1.xhtml", chapter("One", "First"))
+                put("chapter2.xhtml", chapter("Two", "Middle — missing from TOC"))
+                put("chapter3.xhtml", chapter("Three", "Last"))
+                put("toc.ncx", tocNcx)
+            }
+            outputStream.toByteArray()
+        }
     }
 }
