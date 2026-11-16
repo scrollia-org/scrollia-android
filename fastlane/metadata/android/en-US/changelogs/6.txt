@@ -1,0 +1,1 @@
+- More reliable reading of Gutenberg and imported EPUBs: paragraphs stay separate and chapters from the spine are no longer skipped.
