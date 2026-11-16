@@ -23,35 +23,44 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalButton
@@ -80,7 +89,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -132,6 +141,8 @@ import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 import java.io.File
 
+/** Narrowest shelf cell: two columns on phones, three or four on tablets. */
+private val ShelfCellMinWidth = 150.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -142,7 +153,7 @@ fun LibraryScreen(navController: NavController) {
 
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val lazyListState = rememberLazyListState()
+    val lazyGridState = rememberLazyGridState()
     val libraryItems by viewModel.allItems.observeAsState(initial = emptyList())
 
     val showImportDialog = remember { mutableStateOf(false) }
@@ -206,7 +217,7 @@ fun LibraryScreen(navController: NavController) {
                 val density = LocalDensity.current
                 AnimatedVisibility(
                     visible = libraryItems.isNotEmpty() &&
-                            !showImportDialog.value && lazyListState.isScrollingUp(),
+                            !showImportDialog.value && lazyGridState.isScrollingUp(),
                     enter = slideInVertically {
                         with(density) { 40.dp.roundToPx() }
                     } + fadeIn(),
@@ -262,7 +273,7 @@ fun LibraryScreen(navController: NavController) {
         ) { paddingValues ->
             LibraryContents(
                 viewModel = viewModel,
-                lazyListState = lazyListState,
+                lazyGridState = lazyGridState,
                 snackBarHostState = snackBarHostState,
                 navController = navController,
                 paddingValues = paddingValues,
@@ -306,7 +317,7 @@ fun LibraryScreen(navController: NavController) {
 @Composable
 private fun LibraryContents(
     viewModel: LibraryViewModel,
-    lazyListState: LazyListState,
+    lazyGridState: LazyGridState,
     snackBarHostState: SnackbarHostState,
     navController: NavController,
     paddingValues: PaddingValues,
@@ -352,13 +363,17 @@ private fun LibraryContents(
                 onImportClick = onImportClick
             )
         } else {
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = ShelfCellMinWidth),
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background),
-                state = lazyListState
+                state = lazyGridState,
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 96.dp),
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                item(key = "library_sort") {
+                item(key = "library_sort", span = { GridItemSpan(maxLineSpan) }) {
                     LibrarySortRow(sort = sort, onSortSelected = { viewModel.setSort(it) })
                 }
                 items(
@@ -462,6 +477,9 @@ private fun LibraryLazyItem(
 
     val coroutineScope = rememberCoroutineScope()
     val openDeleteDialog = remember { mutableStateOf(false) }
+    val openDetails = {
+        navController.navigate(Screens.ReaderDetailScreen.withLibraryItemId(item.id.toString()))
+    }
 
     // Swipe actions to show book details.
     val detailsAction = SwipeAction(
@@ -470,26 +488,15 @@ private fun LibraryLazyItem(
         ), background = MaterialTheme.colorScheme.primary, onSwipe = {
             viewModel.viewModelScope.launch {
                 delay(250L)
-                if (item.isImported) {
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.external_book_info_unavailable),
-                        actionLabel = context.getString(R.string.ok),
-                        duration = SnackbarDuration.Short
-                    )
-                } else {
-                    navController.navigate(
-                        Screens.BookDetailScreen.withBookId(
-                            item.bookId.toString()
-                        )
-                    )
-                }
+                openDetails()
             }
         })
 
     SwipeableActionsBox(
-        modifier = modifier.padding(vertical = 4.dp),
+        modifier = modifier,
         endActions = listOf(detailsAction),
-        swipeThreshold = 85.dp
+        swipeThreshold = 85.dp,
+        backgroundUntilSwipeThreshold = MaterialTheme.colorScheme.background
     ) {
         LibraryCard(
             title = item.title,
@@ -498,10 +505,11 @@ private fun LibraryLazyItem(
             progress = progress,
             onReadClick = {
                 BookUtils.openBookFile(
-                    libraryItem = item,
-                    navController = navController
+                    context = context,
+                    libraryItem = item
                 )
             },
+            onDetailsClick = openDetails,
             onDeleteClick = { openDeleteDialog.value = true })
     }
 
@@ -547,6 +555,7 @@ private fun LibraryLazyItem(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LibraryCard(
     title: String,
@@ -554,120 +563,135 @@ private fun LibraryCard(
     coverFile: File?,
     progress: ProgressData? = null,
     onReadClick: () -> Unit,
+    onDetailsClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    Card(
+    val view = LocalView.current
+    val showMenu = remember { mutableStateOf(false) }
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .clickable { onReadClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
-        ),
-        shape = RoundedCornerShape(8.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .combinedClickable(
+                onClick = {
+                    view.weakHapticFeedback()
+                    onReadClick()
+                },
+                onLongClick = onDetailsClick
+            )
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(2f / 3f)
+                .shadow(elevation = 3.dp, shape = RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            if (coverFile != null) {
+                AsyncImage(
+                    model = coverFile,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                // Typographic stand-in, never stock art.
+                Text(
+                    text = title,
+                    fontFamily = frauncesFont,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp,
+                    lineHeight = 21.sp,
+                    textAlign = TextAlign.Center,
+                    maxLines = 6,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+
+        if (progress != null && (progress.finished || progress.progressPercent() > 0)) {
+            LibraryProgress(
+                progress = progress,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+            )
+        }
+
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(top = 6.dp),
             verticalAlignment = Alignment.Top
         ) {
-            Box(
-                modifier = Modifier
-                    .width(72.dp)
-                    .height(108.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                if (coverFile != null) {
-                    AsyncImage(
-                        model = coverFile,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Text(
-                        text = title,
-                        fontFamily = frauncesFont,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 13.sp,
-                        lineHeight = 17.sp,
-                        maxLines = 4,
-                        overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    fontFamily = frauncesFont,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp,
+                    lineHeight = 20.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = author,
+                    fontFamily = interFont,
+                    fontSize = 13.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
             }
-
-            Column(modifier = Modifier.padding(start = 12.dp)) {
-                Row(verticalAlignment = Alignment.Top) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = title,
-                            fontFamily = frauncesFont,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 18.sp,
-                            lineHeight = 23.sp,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = author,
-                            fontFamily = interFont,
-                            fontSize = 13.sp,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 2.dp)
-                        )
-                    }
-                    IconButton(
-                        onClick = onDeleteClick,
-                        modifier = Modifier.size(48.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = stringResource(id = R.string.library_delete_button),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                if (progress != null && (progress.finished || progress.progressPercent() > 0)) {
-                    LibraryProgress(
-                        progress = progress,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-
-                FilledTonalButton(
-                    onClick = onReadClick,
+            Box {
+                IconButton(
+                    onClick = { showMenu.value = true },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
-                        .height(48.dp),
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                        .size(48.dp)
+                        .offset(x = 12.dp, y = (-10).dp)
                 ) {
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_read_book),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+                        imageVector = Icons.Outlined.MoreVert,
+                        contentDescription = stringResource(id = R.string.library_more_options),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(
-                            id = if (progress != null && !progress.finished && progress.progressPercent() > 0) {
-                                R.string.continue_reading_button
-                            } else R.string.library_read_button
-                        ),
-                        fontFamily = interFont,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 15.sp
+                }
+                DropdownMenu(
+                    expanded = showMenu.value,
+                    onDismissRequest = { showMenu.value = false }
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(id = R.string.library_details_button),
+                                fontFamily = interFont
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(imageVector = Icons.Outlined.Info, contentDescription = null)
+                        },
+                        onClick = {
+                            showMenu.value = false
+                            onDetailsClick()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(id = R.string.library_delete_button),
+                                fontFamily = interFont
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(imageVector = Icons.Outlined.Delete, contentDescription = null)
+                        },
+                        onClick = {
+                            showMenu.value = false
+                            onDeleteClick()
+                        }
                     )
                 }
             }
@@ -682,7 +706,7 @@ private fun LibrarySortRow(sort: LibrarySort, onSortSelected: (LibrarySort) -> U
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 4.dp),
+            .padding(top = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         LibrarySort.entries.forEach { option ->
@@ -731,7 +755,7 @@ private fun LibraryProgress(progress: ProgressData, modifier: Modifier = Modifie
             LinearProgressIndicator(
                 progress = { progress.progress.coerceIn(0f, 1f) },
                 modifier = Modifier
-                    .width(120.dp)
+                    .weight(1f)
                     .height(2.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 trackColor = MaterialTheme.colorScheme.outlineVariant,
@@ -760,6 +784,7 @@ fun LibraryScreenPreview() {
         author = "Fyodor Dostoevsky",
         coverFile = null,
         onReadClick = {},
+        onDetailsClick = {},
         onDeleteClick = {}
     )
 }

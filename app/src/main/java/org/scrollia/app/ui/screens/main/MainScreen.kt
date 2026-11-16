@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -59,7 +60,8 @@ import org.scrollia.app.MainViewModel
 import org.scrollia.app.helpers.NetworkObserver
 import org.scrollia.app.ui.navigation.BottomBarScreen
 import org.scrollia.app.ui.navigation.NavGraph
-import org.scrollia.app.ui.navigation.Screens
+import org.scrollia.app.ui.screens.reader.main.activities.ReaderActivity
+import org.scrollia.app.ui.screens.reader.main.activities.ReaderConstants
 import org.scrollia.app.ui.theme.interFont
 import androidx.compose.runtime.getValue
 
@@ -177,11 +179,14 @@ private fun CustomBottomNavigationItem(
 
 @Composable
 private fun HandleShortcutIntent(intent: Intent, navController: NavController) {
+    val context = LocalContext.current
     val data = intent.data
     if (data != null && data.scheme == MainViewModel.LAUNCHER_SHORTCUT_SCHEME) {
         val libraryItemId = intent.getIntExtra(MainViewModel.LC_SC_LIBRARY_ITEM_ID, -100)
         if (libraryItemId != -100) {
-            navController.navigate(Screens.ReaderDetailScreen.withLibraryItemId(libraryItemId.toString()))
+            val readerIntent = Intent(context, ReaderActivity::class.java)
+            readerIntent.putExtra(ReaderConstants.EXTRA_LIBRARY_ITEM_ID, libraryItemId)
+            context.startActivity(readerIntent)
             return
         }
         if (intent.getBooleanExtra(MainViewModel.LC_SC_BOOK_LIBRARY, false)) {

@@ -1,0 +1,3 @@
+- Mis libros es una estantería: toca una portada para seguir leyendo; mantén pulsado o ⋮ para detalles.
+- La ficha muestra sinopsis, progreso y una acción clara: Empezar / Continuar / Volver a leer.
+- El idioma de edición va en un desplegable; la portada se ve entera; la lectura retoma donde la dejaste.

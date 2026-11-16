@@ -48,3 +48,14 @@ data class Book(
     @SerialName("translators")
     val translators: List<Translator>
 )
+
+fun Book.withEdition(editionId: Int?): Book {
+    val edition = editions.firstOrNull { it.id == editionId } ?: return this
+    return copy(
+        id = edition.id,
+        title = edition.title,
+        languages = edition.languages,
+        downloadCount = edition.downloadCount,
+        formats = edition.formats
+    )
+}
