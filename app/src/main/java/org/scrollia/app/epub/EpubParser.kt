@@ -68,18 +68,6 @@ class EpubParser {
     )
 
     /**
-     * Represents a temporary EPUB chapter.
-     *
-     * @param url The URL of the chapter.
-     * @param title The title of the chapter.
-     * @param body The body content of the chapter.
-     * @param chapterIndex The index of the chapter.
-     */
-    data class TempEpubChapter(
-        val url: String, val title: String?, val body: List<ReaderItem>, val chapterIndex: Int
-    )
-
-    /**
      * Represents an EPUB file.
      *
      * @param absPath The absolute path of the file.
@@ -320,30 +308,22 @@ class EpubParser {
             findNestedNavPoints((tocDocument?.selectFirstTag("navMap") as Element?))
         }
 
-        // Try to detect broken or incomplete TOC
-        val isTocReliable = tocNavPoints != null &&
-                tocNavPoints.size > 3 &&
-                tocNavPoints.map { it.selectFirstChildTag("content")?.getAttributeValue("src") }
-                    .distinct().size > 1
-
-        val spineItemCount = document.spine.childElements.filter { it.tagName.contains("itemref") }.size
-        val isTocIncomplete = tocNavPoints != null &&
-                tocNavPoints.size < (spineItemCount / 2) &&
-                spineItemCount > 10
-
-        // Determine the method of parsing chapters based on the presence of ToC and
-        // the shouldUseToc flag. We also check if the ToC file has more than two navPoint
-        // to ensure that it is a valid ToC file.
-        val chapters = if (shouldUseToc && isTocReliable && !isTocIncomplete) {
-            Log.d(TAG, "Parsing based on ToC file")
-            parseUsingTocFile(tocNavPoints, hrefRootPath)
+        // Reading order always comes from the spine. The TOC only supplies titles
+        // (and in-file fragment splits when several navPoints share one spine file).
+        val tocEntries = if (shouldUseToc) {
+            buildTocEntries(tocNavPoints, hrefRootPath)
         } else {
-            Log.d(
-                TAG,
-                "Parsing based on spine; shouldUseToc: $shouldUseToc, isTocReliable: $isTocReliable, isTocIncomplete: $isTocIncomplete"
-            )
-            parseUsingSpine(document.spine, manifestItems, files)
+            emptyList()
         }
+        Log.d(
+            TAG,
+            "Parsing chapters from spine (toc titles: ${tocEntries.size}, shouldUseToc: $shouldUseToc)"
+        )
+        val chapters = parseChaptersFromSpine(
+            spine = document.spine,
+            manifestItems = manifestItems,
+            tocEntries = tocEntries,
+        )
 
         Log.d(TAG, "Parsing images")
         val images = parseImages(manifestItems, files)
@@ -475,116 +455,110 @@ class EpubParser {
         return "$timestamp-$randomSuffix"
     }
 
+    private data class TocEntry(
+        val path: String,
+        val fragmentId: String?,
+        val title: String,
+    )
+
     /**
-     * Parse the EPUB file using the table of contents (ToC) file.
-     * This method is called from [parseAndCreateEbook].
-     *
-     * @param tocNavPoints The list of navPoints in the ToC file.
-     * @param hrefRootPath The root path of the href attribute.
-     * @return The list of parsed chapters.
+     * Flatten TOC navPoints into path/fragment/title rows for spine labelling.
      */
-    private fun parseUsingTocFile(
-        tocNavPoints: List<Element>,
+    private fun buildTocEntries(
+        tocNavPoints: List<Element>?,
         hrefRootPath: File,
-    ): List<EpubChapter> {
-        // Parse each chapter entry.
+    ): List<TocEntry> {
+        if (tocNavPoints.isNullOrEmpty()) return emptyList()
         return tocNavPoints.mapIndexedNotNull { index, navPoint ->
             val title =
                 navPoint.selectFirstChildTag("navLabel")?.selectFirstChildTag("text")?.textContent
+                    ?.takeIf { it.isNotEmpty() } ?: "Chapter ${index + 1}"
             val chapterSrc = navPoint.selectFirstChildTag("content")?.getAttributeValue("src")
-                ?.decodedURL?.hrefAbsolutePath(hrefRootPath)
-
-            if (chapterSrc != null) {
-                // Check if the chapter source contains a fragment ID
-                val fragmentPath = chapterSrc.substringBefore('#')
-                // Find next fragment ID if it exists in the same file
-                var nextFragmentId: String? = null
-                if (index < tocNavPoints.size - 1) {
-                    val nextChapterSrc = tocNavPoints[index + 1].selectFirstChildTag("content")
-                        ?.getAttributeValue("src")?.decodedURL?.hrefAbsolutePath(hrefRootPath)
-                    if (nextChapterSrc != null && '#' in nextChapterSrc) {
-                        val (nextPath, nextId) = nextChapterSrc.split("#", limit = 2)
-                        if (nextPath == fragmentPath) {
-                            nextFragmentId = nextId
-                        }
-                    }
-                }
-
-                EpubChapter(
-                    chapterId = generateId(),
-                    absPath = chapterSrc,
-                    title = title?.takeIf { it.isNotEmpty() } ?: "Chapter ${index + 1}",
-                    body = emptyList(), // Lazy loaded later.
-                    nextFragmentId = nextFragmentId
-                )
-
-            } else {
-                null
-            }
-        }.toList()
+                ?.decodedURL?.hrefAbsolutePath(hrefRootPath) ?: return@mapIndexedNotNull null
+            val path = chapterSrc.substringBefore('#')
+            val fragmentId = chapterSrc.substringAfter('#', missingDelimiterValue = "")
+                .ifEmpty { null }
+            TocEntry(path = path, fragmentId = fragmentId, title = title)
+        }
     }
 
     /**
-     * Parse the EPUB file using the spine.
-     * This method is called from [parseAndCreateEbook].
-     *
-     * @param spine The spine of the EPUB document.
-     * @param manifestItems The manifest items.
-     * @param files The EPUB files.
-     * @return The list of parsed chapters.
+     * Build the chapter list from the spine (complete reading order). TOC entries
+     * only rename chapters and, when several share one file with fragment ids,
+     * split that file the way the TOC describes.
      */
-    private fun parseUsingSpine(
+    private fun parseChaptersFromSpine(
         spine: Node,
         manifestItems: Map<String, EpubManifestItem>,
-        files: Map<String, EpubFile>,
+        tocEntries: List<TocEntry>,
     ): List<EpubChapter> {
-        var chapterIndex = 0
+        val tocByPath = tocEntries.groupBy { it.path }
         val chapterExtensions = listOf("xhtml", "xml", "html", "htm").map { ".$it" }
+        val chapters = mutableListOf<EpubChapter>()
+        var chapterIndex = 0
 
-        return spine.selectChildTag("itemref")
+        val spineItems = spine.selectChildTag("itemref")
             .ifEmpty { spine.selectChildTag("opf:itemref") }
-            .asSequence() // as sequence to avoid creating a copy of the list
             .mapNotNull { manifestItems[it.getAttribute("idref")] }
             .filter { item ->
                 chapterExtensions.any {
                     item.absPath.endsWith(it, ignoreCase = true)
                 } || item.mediaType.startsWith("image/")
             }
-            .mapNotNull { files[it.absPath]?.let { file -> it to file } }
-            // A full chapter usually is split in multiple sequential entries,
-            // try to merge them and extract the main title of each one.
-            // It is not perfect but better than nothing.
-            .map { (item, file) ->
-                if (item.mediaType.startsWith("image/")) {
-                    TempEpubChapter(
-                        url = "image_${file.absPath}",
-                        title = null,
-                        body = emptyList(),
-                        chapterIndex = chapterIndex,
-                    )
-                } else {
-                    val currentIndex = chapterIndex
-                    val chapterTitle = "Chapter ${currentIndex + 1}"
-                    chapterIndex += 1
 
-                    TempEpubChapter(
-                        url = file.absPath,
-                        title = chapterTitle,
+        for (item in spineItems) {
+            if (item.mediaType.startsWith("image/")) {
+                chapters.add(
+                    EpubChapter(
+                        chapterId = generateId(),
+                        absPath = "image_${item.absPath}",
+                        title = "Chapter ${chapterIndex + 1}",
                         body = emptyList(),
-                        chapterIndex = currentIndex,
                     )
-                }
-            }
-            .groupBy { it.chapterIndex }
-            .map { (index, list) ->
-                EpubChapter(
-                    chapterId = generateId(),
-                    absPath = list.first().url,
-                    title = list.first().title?.takeIf { it.isNotBlank() } ?: "Chapter $index",
-                    body = list.flatMap { it.body }
                 )
+                chapterIndex += 1
+                continue
             }
-            .toList()
+
+            val path = item.absPath
+            val entriesForFile = tocByPath[path].orEmpty()
+            val splitByFragments =
+                entriesForFile.size >= 2 && entriesForFile.any { it.fragmentId != null }
+
+            if (splitByFragments) {
+                entriesForFile.forEachIndexed { index, entry ->
+                    val next = entriesForFile.getOrNull(index + 1)
+                    val nextFragmentId =
+                        next?.fragmentId?.takeIf { next.path == path && entry.fragmentId != null }
+                    val absPath =
+                        if (entry.fragmentId != null) "$path#${entry.fragmentId}" else path
+                    chapters.add(
+                        EpubChapter(
+                            chapterId = generateId(),
+                            absPath = absPath,
+                            title = entry.title,
+                            body = emptyList(),
+                            nextFragmentId = nextFragmentId,
+                        )
+                    )
+                    chapterIndex += 1
+                }
+            } else {
+                val title = entriesForFile.firstOrNull()?.title ?: "Chapter ${chapterIndex + 1}"
+                // Whole spine file: never drop a file that the TOC forgot to list.
+                chapters.add(
+                    EpubChapter(
+                        chapterId = generateId(),
+                        absPath = path,
+                        title = title,
+                        body = emptyList(),
+                    )
+                )
+                chapterIndex += 1
+            }
+        }
+
+        return chapters
     }
 
     /**
