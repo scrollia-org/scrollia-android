@@ -16,9 +16,8 @@
 
 package org.scrollia.app.ui.theme
 
+import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
@@ -29,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
 
@@ -119,23 +119,28 @@ private fun getColorScheme(themeState: ThemeMode, darkTheme: Boolean): ColorSche
 }
 
 /**
- * Draws edge-to-edge with transparent system bars whose icons contrast with
- * a dark or light surface behind them.
+ * Edge-to-edge window with system-bar icon contrast for [darkSurface].
+ *
+ * On Android 15+ (API 35) edge-to-edge is already enforced when targeting SDK 35+;
+ * we only adjust icon appearance and contrast enforcement — no deprecated
+ * [android.view.Window.setStatusBarColor] / [android.view.Window.setNavigationBarColor].
+ * Below API 35, [WindowCompat.enableEdgeToEdge] covers older devices.
  */
 fun ComponentActivity.applySystemBarStyle(darkSurface: Boolean) {
-    val transparent = android.graphics.Color.TRANSPARENT
-    val style = if (darkSurface) {
-        SystemBarStyle.dark(transparent)
-    } else {
-        SystemBarStyle.light(transparent, transparent)
+    // API 35+: the platform already draws edge-to-edge for targetSdk 35+; only
+    // icon contrast remains. Below that, WindowCompat still uses the legacy
+    // transparent-bar path for older devices.
+    if (Build.VERSION.SDK_INT < 35) {
+        WindowCompat.enableEdgeToEdge(window)
     }
-    enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+    val controller = WindowCompat.getInsetsController(window, window.decorView)
+    // true = dark icons (for a light surface behind the bars).
+    controller.isAppearanceLightStatusBars = !darkSurface
+    controller.isAppearanceLightNavigationBars = !darkSurface
 }
 
 /**
  * Keeps the system bar icons readable for the selected app theme.
- * @param activity: MainActivity to enable edge-to-edge status bar.
- * @param themeState: ThemeMode to check the current theme.
  */
 @Composable
 fun AdjustEdgeToEdge(activity: AppCompatActivity, themeState: ThemeMode) {

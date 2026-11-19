@@ -1,0 +1,3 @@
+- Meaning looks up selected words via your installed dictionary or translate apps.
+- Edge-to-edge display updated for Android 15 (no deprecated system-bar color APIs on API 35+).
+- Clearer crash screen if something goes wrong.

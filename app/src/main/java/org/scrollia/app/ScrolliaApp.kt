@@ -30,6 +30,7 @@ import coil.util.DebugLogger
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import org.scrollia.app.helpers.book.BookDownloader
+import org.scrollia.app.ui.screens.crash.CrashActivity
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -46,7 +47,10 @@ class ScrolliaApp : Application(), ImageLoaderFactory {
         // Web search, Translate, Dictionary) and tells Pages mode that a selection is active.
         // The new context menu, on by default since Compose Foundation 1.11, ignores it.
         ComposeFoundationFlags.isNewContextMenuEnabled = false
-        CaocConfig.Builder.create().restartActivity(MainActivity::class.java).apply()
+        CaocConfig.Builder.create()
+            .errorActivity(CrashActivity::class.java)
+            .restartActivity(MainActivity::class.java)
+            .apply()
     }
 
     override fun newImageLoader(): ImageLoader {

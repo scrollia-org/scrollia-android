@@ -168,9 +168,11 @@ fun ChaptersContent(
 }
 
 /**
- * Selection with copy/share/translate; web search and dictionary are temporarily disabled.
- * [content] learns if the toolbar is hidden. With [selectable] false only the toolbar is provided
- * (see ScrolliaSelectionContainer).
+ * Selection with copy/share/translate/meaning. Web search stays off until its QA
+ * (DESIGN §19). Meaning hands the selection to apps that handle PROCESS_TEXT
+ * (system translate/dictionary); no bundled dictionary and no silent web fallback.
+ * [content] learns if the toolbar is hidden. With [selectable] false only the toolbar
+ * is provided (see ScrolliaSelectionContainer).
  */
 @Composable
 internal fun ReaderSelectionContainer(
@@ -218,32 +220,31 @@ internal fun ReaderSelectionContainer(
                 context.getString(R.string.no_app_to_handle_content).toToast(context)
             }
         },
-        onDictionaryRequested = {
-            val dictionaryIntent = Intent()
-            val browserIntent = Intent()
-
-            dictionaryIntent.type = "text/plain"
-            dictionaryIntent.action = Intent.ACTION_PROCESS_TEXT
-            dictionaryIntent.putExtra(Intent.EXTRA_PROCESS_TEXT, it.trim())
-            dictionaryIntent.putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
-
-            browserIntent.action = Intent.ACTION_VIEW
-            val text = it.trim().replace(" ", "+")
-            browserIntent.data = "https://www.onelook.com/?w=$text".toUri()
-
-            var dictionaryFailure = false
-            try {
-                context.startActivity(Intent.createChooser(dictionaryIntent, null))
-            } catch (_: ActivityNotFoundException) {
-                dictionaryFailure = true
+        onDictionaryRequested = dictionary@{
+            val text = it.trim()
+            if (text.isEmpty()) return@dictionary
+            val dictionaryIntent = Intent(Intent.ACTION_PROCESS_TEXT).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_PROCESS_TEXT, text)
+                putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
             }
-
-            if (dictionaryFailure) {
-                try {
-                    context.startActivity(Intent.createChooser(browserIntent, null))
-                } catch (_: ActivityNotFoundException) {
-                    context.getString(R.string.no_app_to_handle_content).toToast(context)
-                }
+            val handlers = context.packageManager.queryIntentActivities(
+                dictionaryIntent,
+                0
+            )
+            if (handlers.isEmpty()) {
+                context.getString(R.string.no_app_to_handle_content).toToast(context)
+                return@dictionary
+            }
+            try {
+                context.startActivity(
+                    Intent.createChooser(
+                        dictionaryIntent,
+                        context.getString(R.string.dictionary)
+                    )
+                )
+            } catch (_: ActivityNotFoundException) {
+                context.getString(R.string.no_app_to_handle_content).toToast(context)
             }
         },
         selectable = selectable

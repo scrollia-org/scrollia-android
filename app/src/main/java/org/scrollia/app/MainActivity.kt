@@ -20,7 +20,6 @@ import android.content.pm.ShortcutManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +33,7 @@ import org.scrollia.app.ui.screens.main.MainScreen
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.theme.AdjustEdgeToEdge
 import org.scrollia.app.ui.theme.ScrolliaTheme
+import org.scrollia.app.ui.theme.applySystemBarStyle
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.runtime.getValue
 
@@ -57,7 +57,9 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.isLoading.value
         }
 
-        enableEdgeToEdge() // enable edge to edge for the activity.
+        // Edge-to-edge without the deprecated Activity.enableEdgeToEdge(SystemBarStyle)
+        // path; AdjustEdgeToEdge refreshes icon contrast when the theme changes.
+        applySystemBarStyle(darkSurface = false)
 
         setContent {
             ScrolliaTheme(settingsViewModel = settingsViewModel) {
