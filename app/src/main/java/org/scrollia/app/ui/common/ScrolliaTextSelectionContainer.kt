@@ -167,6 +167,22 @@ private class ScrolliaSelectionToolbar(
 
     override var status: TextToolbarStatus by mutableStateOf(TextToolbarStatus.Hidden)
 
+    /**
+     * Compose only gives the selected text via copy-to-clipboard. Copy, read, invoke
+     * [block], then restore the previous clip so Share/Meaning do not leave the
+     * selection on the system clipboard.
+     */
+    private fun withSelectedText(onCopyRequested: (() -> Unit)?, block: (String) -> Unit) {
+        val previousClipboard = clipboardManager.primaryClip
+        onCopyRequested?.invoke()
+        block(clipboardManager.text?.toString().orEmpty())
+        if (previousClipboard != null) {
+            clipboardManager.setPrimaryClip(previousClipboard)
+        } else {
+            clipboardManager.setPrimaryClip(ClipData.newPlainText(null, " "))
+        }
+    }
+
     override fun showMenu(
         rect: Rect,
         onCopyRequested: (() -> Unit)?,
@@ -179,64 +195,25 @@ private class ScrolliaSelectionToolbar(
             onCopyRequested?.invoke()
             onCopyRequest?.invoke()
         }
-        callback.onShareRequested = {
-            val previousClipboard = clipboardManager.primaryClip
-            onCopyRequested?.invoke()
-            val currentClipboard = clipboardManager.text
-
-            onShareRequest?.invoke(currentClipboard.toString())
-
-            if (previousClipboard != null) {
-                clipboardManager.setPrimaryClip(
-                    previousClipboard
-                )
-            } else {
-                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, " "))
+        // Only set handlers that exist so the floating menu never shows a dead item.
+        callback.onShareRequested = onShareRequest?.let { handler ->
+            {
+                withSelectedText(onCopyRequested) { handler(it) }
             }
         }
-        callback.onWebSearchRequested = {
-            val previousClipboard = clipboardManager.primaryClip
-            onCopyRequested?.invoke()
-            val currentClipboard = clipboardManager.text
-
-            onWebSearchRequest?.invoke(currentClipboard.toString())
-
-            if (previousClipboard != null) {
-                clipboardManager.setPrimaryClip(
-                    previousClipboard
-                )
-            } else {
-                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, " "))
+        callback.onWebSearchRequested = onWebSearchRequest?.let { handler ->
+            {
+                withSelectedText(onCopyRequested) { handler(it) }
             }
         }
-        callback.onTranslateRequested = {
-            val previousClipboard = clipboardManager.primaryClip
-            onCopyRequested?.invoke()
-            val currentClipboard = clipboardManager.text
-
-            onTranslateRequest?.invoke(currentClipboard.toString())
-
-            if (previousClipboard != null) {
-                clipboardManager.setPrimaryClip(
-                    previousClipboard
-                )
-            } else {
-                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, " "))
+        callback.onTranslateRequested = onTranslateRequest?.let { handler ->
+            {
+                withSelectedText(onCopyRequested) { handler(it) }
             }
         }
-        callback.onDictionaryRequested = {
-            val previousClipboard = clipboardManager.primaryClip
-            onCopyRequested?.invoke()
-            val currentClipboard = clipboardManager.text
-
-            onDictionaryRequest?.invoke(currentClipboard.toString())
-
-            if (previousClipboard != null) {
-                clipboardManager.setPrimaryClip(
-                    previousClipboard
-                )
-            } else {
-                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, " "))
+        callback.onDictionaryRequested = onDictionaryRequest?.let { handler ->
+            {
+                withSelectedText(onCopyRequested) { handler(it) }
             }
         }
 
@@ -292,11 +269,13 @@ fun ScrolliaSelectionContainer(
             onShareRequest = {
                 onShareRequested(it)
             },
-            onWebSearchRequest = null,
+            onWebSearchRequest = null, // kept off until web-search QA (DESIGN §19)
             onTranslateRequest = {
                 onTranslateRequested(it)
             },
-            onDictionaryRequest = null
+            onDictionaryRequest = {
+                onDictionaryRequested(it)
+            }
         )
     }
     val isToolbarHidden = remember(scrolliaSelectionToolbar.status) {
