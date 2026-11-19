@@ -138,6 +138,12 @@ fun AboutScreen(navController: NavController) {
                         onClick = { Utils.openWebLink(context, Constants.WEBSITE) }
                     )
                     SettingItem(
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_faq),
+                        mainText = stringResource(id = R.string.link_faq),
+                        subText = stringResource(id = R.string.link_faq_desc),
+                        onClick = { Utils.openWebLink(context, Constants.FAQ) }
+                    )
+                    SettingItem(
                         icon = Icons.Filled.Lock,
                         mainText = stringResource(id = R.string.link_privacy_policy),
                         subText = stringResource(id = R.string.link_privacy_policy_desc),

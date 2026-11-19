@@ -29,6 +29,7 @@ object Constants {
     // Public-facing URLs.
     const val DEV_EMAIL = "contact@scrollia.org"
     const val WEBSITE = "https://scrollia.org"
+    const val FAQ = "https://scrollia.org/faq/"
     const val PRIVACY_POLICY = "https://scrollia.org/privacy"
     const val GITHUB_REPO = "https://github.com/scrollia-org/scrollia-android"
     const val PROJECT_CONTRIBUTORS = "$GITHUB_REPO/graphs/contributors"

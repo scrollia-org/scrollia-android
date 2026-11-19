@@ -186,6 +186,8 @@
     <string name="useful_links">Enlaces útiles</string>
     <string name="link_website">Sitio web</string>
     <string name="link_website_desc">Visita nuestro sitio web para más información.</string>
+    <string name="link_faq">Preguntas frecuentes</string>
+    <string name="link_faq_desc">Dominio público, traducciones con IA, idiomas y más.</string>
     <string name="link_privacy_policy">Política de privacidad</string>
     <string name="link_privacy_policy_desc">Lee nuestra política de privacidad más reciente.</string>
     <string name="link_source_code">Código fuente</string>

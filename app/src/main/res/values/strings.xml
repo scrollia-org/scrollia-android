@@ -200,6 +200,8 @@
     <string name="useful_links">Useful Links</string>
     <string name="link_website">Website</string>
     <string name="link_website_desc">Visit our website for more information.</string>
+    <string name="link_faq">Frequently asked questions</string>
+    <string name="link_faq_desc">Public domain, AI translations, languages, and more.</string>
     <string name="link_privacy_policy">Privacy Policy</string>
     <string name="link_privacy_policy_desc">Read our latest privacy policy.</string>
     <string name="link_source_code">Source code</string>
