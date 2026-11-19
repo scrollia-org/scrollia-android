@@ -52,6 +52,20 @@ keyPassword=<upload-key-password>
 Build the Play App Bundle with `./gradlew bundleRelease`. Never use the Android
 debug certificate for a Play release.
 
+### GitHub release APK
+
+Gradle names the APK `Scrollia-v{version}.apk`. For every GitHub release, **also**
+upload a copy named **`Scrollia.apk`**: the website download button is a fixed
+link to
+`https://github.com/scrollia-org/scrollia-android/releases/latest/download/Scrollia.apk`
+and must not be edited per version.
+
+```bash
+# after assembling / downloading the versioned APK
+cp app/build/outputs/apk/release/Scrollia-vX.Y.Z.apk Scrollia.apk
+gh release upload vX.Y.Z Scrollia-vX.Y.Z.apk Scrollia.apk --clobber
+```
+
 ## Credits
 
 Scrollia is a fork of [Myne](https://github.com/Pool-Of-Tears/Myne) by Starry Shivam, licensed under Apache 2.0.
