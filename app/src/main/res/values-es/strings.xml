@@ -139,6 +139,10 @@
     <!-- Text selection -->
     <string name="copy">Copiar</string>
     <string name="copied">¡Copiado!</string>
+    <string name="crash_title">Algo ha fallado</string>
+    <string name="crash_body">Scrollia encontró un error inesperado. Puedes reiniciar y seguir leyendo.</string>
+    <string name="crash_restart">Reiniciar</string>
+    <string name="crash_close">Cerrar</string>
     <string name="web_search">Búsqueda web</string>
     <string name="share">Compartir</string>
     <string name="translate">Traducir</string>

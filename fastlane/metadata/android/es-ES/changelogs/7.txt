@@ -1,0 +1,3 @@
+- Significado consulta la palabra seleccionada con el diccionario o traductor instalado.
+- Pantalla de borde a borde actualizada para Android 15 (sin APIs de color de barra obsoletas en API 35+).
+- Pantalla de error más clara si algo falla.

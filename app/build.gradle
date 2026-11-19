@@ -24,8 +24,8 @@ android {
         applicationId "org.scrollia.app"
         minSdk 26
         targetSdk 36
-        versionCode 6
-        versionName "1.1.1"
+        versionCode 7
+        versionName "1.1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resourceConfigurations += ["en", "es"]
@@ -137,7 +137,7 @@ dependencies {
     // Material icons.
     implementation 'androidx.compose.material:material-icons-core:1.7.8'
     // Material theme for main activity.
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
     // Android 12+ splash API.
     implementation 'androidx.core:core-splashscreen:1.2.0'
     // KotlinX Serialization library.
