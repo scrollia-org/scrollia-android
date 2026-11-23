@@ -181,6 +181,8 @@
     <string name="reader_search_empty">Keine Treffer in diesem Buch.</string>
     <string name="reader_search_count">%1$d Treffer</string>
     <string name="selection_report_typo">Tippfehler melden</string>
+    <string name="selection_highlight">Markieren</string>
+    <string name="highlight_select_one_paragraph">Markieren Sie Text in einem einzigen Absatz.</string>
     <string name="link_website">Website</string>
     <string name="link_website_desc">Besuchen Sie unsere Website für weitere Informationen.</string>
     <string name="link_faq">Häufige Fragen</string>

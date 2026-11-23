@@ -22,6 +22,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
+import org.scrollia.app.database.highlight.Highlight
+import org.scrollia.app.database.highlight.HighlightDao
 import org.scrollia.app.database.library.LibraryDao
 import org.scrollia.app.database.library.LibraryItem
 import org.scrollia.app.database.progress.ProgressDao
@@ -29,8 +31,8 @@ import org.scrollia.app.database.progress.ProgressData
 import org.scrollia.app.helpers.Constants
 
 @Database(
-    entities = [LibraryItem::class, ProgressData::class],
-    version = 6,
+    entities = [LibraryItem::class, ProgressData::class, Highlight::class],
+    version = 7,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -42,6 +44,7 @@ abstract class ScrolliaDatabase : RoomDatabase() {
 
     abstract fun getLibraryDao(): LibraryDao
     abstract fun getReaderDao(): ProgressDao
+    abstract fun getHighlightDao(): HighlightDao
 
     companion object {
 
@@ -55,6 +58,27 @@ abstract class ScrolliaDatabase : RoomDatabase() {
             database.execSQL("ALTER TABLE reader_table ADD COLUMN last_chapter_item_index INTEGER NOT NULL DEFAULT 0")
             database.execSQL("ALTER TABLE reader_table ADD COLUMN progress REAL NOT NULL DEFAULT 0")
             database.execSQL("ALTER TABLE reader_table ADD COLUMN finished INTEGER NOT NULL DEFAULT 0")
+        }
+
+        internal val migration6to7 = Migration(6, 7) { database ->
+            database.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS highlights (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    library_item_id INTEGER NOT NULL,
+                    chapter_index INTEGER NOT NULL,
+                    item_index INTEGER NOT NULL,
+                    start_offset INTEGER NOT NULL,
+                    end_offset INTEGER NOT NULL,
+                    quote TEXT NOT NULL,
+                    color INTEGER NOT NULL,
+                    created_at INTEGER NOT NULL
+                )
+                """.trimIndent()
+            )
+            database.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_highlights_library_item_id ON highlights(library_item_id)"
+            )
         }
 
         @Volatile
@@ -71,7 +95,7 @@ abstract class ScrolliaDatabase : RoomDatabase() {
                     context.applicationContext,
                     ScrolliaDatabase::class.java,
                     Constants.DATABASE_NAME
-                ).addMigrations(migration3to4, migration5to6).build()
+                ).addMigrations(migration3to4, migration5to6, migration6to7).build()
                 INSTANCE = instance
                 // return instance
                 instance

@@ -181,6 +181,8 @@
     <string name="reader_search_empty">Sem resultados neste livro.</string>
     <string name="reader_search_count">%1$d resultados</string>
     <string name="selection_report_typo">Reportar gralha</string>
+    <string name="selection_highlight">Destacar</string>
+    <string name="highlight_select_one_paragraph">Selecione texto num único parágrafo para o destacar.</string>
     <string name="link_website">Site</string>
     <string name="link_website_desc">Visite o nosso site para mais informações.</string>
     <string name="link_faq">Perguntas frequentes</string>

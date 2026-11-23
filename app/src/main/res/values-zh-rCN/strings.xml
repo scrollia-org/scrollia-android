@@ -181,6 +181,8 @@
     <string name="reader_search_empty">本书中没有匹配结果。</string>
     <string name="reader_search_count">%1$d 处匹配</string>
     <string name="selection_report_typo">报告错字</string>
+    <string name="selection_highlight">高亮</string>
+    <string name="highlight_select_one_paragraph">请在同一段落内选择文字以高亮。</string>
     <string name="link_website">网站</string>
     <string name="link_website_desc">访问我们的网站了解更多。</string>
     <string name="link_faq">常见问题</string>

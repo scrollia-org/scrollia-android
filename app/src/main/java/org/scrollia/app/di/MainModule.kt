@@ -20,6 +20,7 @@ package org.scrollia.app.di
 import android.content.Context
 import org.scrollia.app.api.BookAPI
 import org.scrollia.app.database.ScrolliaDatabase
+import org.scrollia.app.database.highlight.HighlightDao
 import org.scrollia.app.database.library.LibraryDao
 import org.scrollia.app.epub.EpubParser
 import org.scrollia.app.helpers.PreferenceUtil
@@ -53,6 +54,10 @@ class MainModule {
 
     @Provides
     fun provideReaderDao(scrolliaDatabase: ScrolliaDatabase) = scrolliaDatabase.getReaderDao()
+
+    @Provides
+    fun provideHighlightDao(scrolliaDatabase: ScrolliaDatabase): HighlightDao =
+        scrolliaDatabase.getHighlightDao()
 
     @Singleton
     @Provides

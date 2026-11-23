@@ -67,6 +67,7 @@ import org.scrollia.app.helpers.toToast
 import org.scrollia.app.ui.common.ScrolliaSelectionContainer
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderListEntry
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
+import org.scrollia.app.ui.screens.reader.main.viewmodel.withHighlights
 import org.scrollia.app.ui.theme.frauncesFont
 import androidx.compose.runtime.getValue
 
@@ -77,7 +78,8 @@ fun ChaptersContent(
     entries: List<ReaderListEntry>,
     lazyListState: LazyListState,
     onToggleReaderMenu: () -> Unit,
-    onLoadImage: (String) -> Unit
+    onLoadImage: (String) -> Unit,
+    onHighlightRequested: (String) -> Unit = {}
 ) {
     val targetFontSize = remember(state.fontSize) { ReaderLayout.fontSizeSp(state.fontSize) }
     val maxTextWidth = rememberReaderMeasure(targetFontSize, state.fontFamily.fontFamily)
@@ -95,7 +97,10 @@ fun ChaptersContent(
         label = "lineHeight"
     )
 
-    ReaderSelectionContainer(state = state) {
+    ReaderSelectionContainer(
+        state = state,
+        onHighlightRequested = onHighlightRequested
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -155,6 +160,8 @@ fun ChaptersContent(
                             ReaderItemContent(
                                 item = item,
                                 state = state,
+                                chapterIndex = entry.chapterIndex,
+                                itemIndex = entry.itemIndex,
                                 fontSize = fontSize,
                                 lineHeight = lineHeight,
                                 maxTextWidth = maxTextWidth,
@@ -180,6 +187,7 @@ fun ChaptersContent(
 internal fun ReaderSelectionContainer(
     state: ReaderScreenState,
     selectable: Boolean = true,
+    onHighlightRequested: (String) -> Unit = {},
     content: @Composable (toolbarHidden: Boolean) -> Unit
 ) {
     val context = LocalContext.current
@@ -226,6 +234,7 @@ internal fun ReaderSelectionContainer(
         onFeedbackRequested = { quote ->
             openReaderFeedback(context, state, quote)
         },
+        onHighlightRequested = onHighlightRequested,
         onDictionaryRequested = dictionary@{
             val text = it.trim()
             if (text.isEmpty()) return@dictionary
@@ -306,15 +315,24 @@ private fun ChapterHeader(
 private fun ReaderItemContent(
     item: ReaderItem,
     state: ReaderScreenState,
+    chapterIndex: Int,
+    itemIndex: Int,
     fontSize: Float,
     lineHeight: Float,
     maxTextWidth: Dp,
     bodyStyle: TextStyle,
     onLoadImage: (String) -> Unit
 ) {
+    val itemHighlights = remember(state.highlights, chapterIndex, itemIndex) {
+        state.highlights.filter {
+            it.chapterIndex == chapterIndex && it.itemIndex == itemIndex
+        }
+    }
     when (item) {
         is ReaderItem.Text -> {
-            val annotatedString = remember(item.spans) { item.spans.asAnnotatedString() }
+            val annotatedString = remember(item.spans, itemHighlights) {
+                item.spans.asAnnotatedString().withHighlights(itemHighlights)
+            }
             Text(
                 text = annotatedString,
                 fontSize = fontSize.sp,
@@ -387,8 +405,9 @@ private fun ReaderItemContent(
                     .background(state.readerTheme.textColor.copy(alpha = 0.07f))
                     .padding(16.dp)
             ) {
-                val annotatedString = remember(item.spans) {
+                val annotatedString = remember(item.spans, itemHighlights) {
                     item.spans.asAnnotatedString(collapseWhitespace = false)
+                        .withHighlights(itemHighlights)
                 }
                 Text(
                     text = annotatedString,

@@ -200,6 +200,8 @@
     <string name="reader_search_empty">Sin coincidencias en este libro.</string>
     <string name="reader_search_count">%1$d coincidencias</string>
     <string name="selection_report_typo">Avisar errata</string>
+    <string name="selection_highlight">Resaltar</string>
+    <string name="highlight_select_one_paragraph">Selecciona texto de un solo párrafo para resaltarlo.</string>
     <string name="link_website">Sitio web</string>
     <string name="link_website_desc">Visita nuestro sitio web para más información.</string>
     <string name="link_faq">Preguntas frecuentes</string>

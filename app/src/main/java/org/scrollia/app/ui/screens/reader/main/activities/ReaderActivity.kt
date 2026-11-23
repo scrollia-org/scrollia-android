@@ -49,11 +49,14 @@ import org.scrollia.app.ui.screens.reader.main.viewmodel.ReadingMode
 import org.scrollia.app.ui.screens.reader.main.viewmodel.VisiblePosition
 import org.scrollia.app.ui.screens.settings.viewmodels.SettingsViewModel
 import org.scrollia.app.ui.screens.settings.viewmodels.ThemeMode
+import org.scrollia.app.R
+import org.scrollia.app.helpers.toToast
 import org.scrollia.app.ui.theme.ScrolliaTheme
 import org.scrollia.app.ui.theme.applySystemBarStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import androidx.compose.ui.platform.LocalContext
 
 @AndroidEntryPoint
 class ReaderActivity : AppCompatActivity() {
@@ -82,6 +85,15 @@ class ReaderActivity : AppCompatActivity() {
 
                 val state by viewModel.state.collectAsState()
                 val systemDark = isSystemInDarkTheme()
+                val context = LocalContext.current
+                val onHighlightRequested: (String) -> Unit = remember(viewModel, context) {
+                    { quote ->
+                        if (!viewModel.toggleHighlightFromSelection(quote)) {
+                            context.getString(R.string.highlight_select_one_paragraph)
+                                .toToast(context)
+                        }
+                    }
+                }
                 LaunchedEffect(state.keepScreenOn) { applyKeepScreenOn(state.keepScreenOn) }
                 LaunchedEffect(state.orientation) {
                     requestedOrientation = state.orientation.activityInfo
@@ -150,7 +162,8 @@ class ReaderActivity : AppCompatActivity() {
                                 state = state,
                                 viewModel = viewModel,
                                 onPositionChanged = onPositionChanged,
-                                onSaveProgress = onSaveProgress
+                                onSaveProgress = onSaveProgress,
+                                onHighlightRequested = onHighlightRequested
                             )
 
                             ReadingMode.PAGED -> PagedChaptersContent(
@@ -163,7 +176,8 @@ class ReaderActivity : AppCompatActivity() {
                                     onPositionChanged(position)
                                     onSaveProgress(position)
                                 },
-                                onLoadImage = { viewModel.loadImageData(it) }
+                                onLoadImage = { viewModel.loadImageData(it) },
+                                onHighlightRequested = onHighlightRequested
                             )
                         }
 
@@ -257,7 +271,8 @@ private fun ScrollReaderContent(
     state: ReaderScreenState,
     viewModel: ReaderViewModel,
     onPositionChanged: (VisiblePosition) -> Unit,
-    onSaveProgress: (VisiblePosition) -> Unit
+    onSaveProgress: (VisiblePosition) -> Unit,
+    onHighlightRequested: (String) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     val entries = remember(state.chapters, state.loadedChapters) {
@@ -305,7 +320,8 @@ private fun ScrollReaderContent(
         entries = entries,
         lazyListState = lazyListState,
         onToggleReaderMenu = { viewModel.toggleReaderMenu() },
-        onLoadImage = { viewModel.loadImageData(it) }
+        onLoadImage = { viewModel.loadImageData(it) },
+        onHighlightRequested = onHighlightRequested
     )
 }
 

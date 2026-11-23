@@ -214,6 +214,8 @@
     <string name="reader_search_empty">No matches in this book.</string>
     <string name="reader_search_count">%1$d matches</string>
     <string name="selection_report_typo">Report typo</string>
+    <string name="selection_highlight">Highlight</string>
+    <string name="highlight_select_one_paragraph">Select text within a single paragraph to highlight it.</string>
     <string name="link_website">Website</string>
     <string name="link_website_desc">Visit our website for more information.</string>
     <string name="link_faq">Frequently asked questions</string>

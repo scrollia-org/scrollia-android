@@ -181,6 +181,8 @@
     <string name="reader_search_empty">Aucune occurrence dans ce livre.</string>
     <string name="reader_search_count">%1$d occurrences</string>
     <string name="selection_report_typo">Signaler coquille</string>
+    <string name="selection_highlight">Surligner</string>
+    <string name="highlight_select_one_paragraph">Sélectionnez du texte dans un seul paragraphe pour le surligner.</string>
     <string name="link_website">Site web</string>
     <string name="link_website_desc">Visitez notre site pour plus d’informations.</string>
     <string name="link_faq">Questions fréquentes</string>

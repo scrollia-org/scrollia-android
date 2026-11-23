@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import org.scrollia.app.database.highlight.Highlight
+import org.scrollia.app.database.highlight.HighlightDao
 import org.scrollia.app.database.library.LibraryDao
 import org.scrollia.app.database.progress.ProgressDao
 import org.scrollia.app.database.progress.ProgressData
@@ -89,6 +91,7 @@ data class ReaderScreenState(
     val lastSearchQuery: String = "",
     val searchHits: List<ReaderSearchHit> = emptyList(),
     val searchInProgress: Boolean = false,
+    val highlights: List<Highlight> = emptyList(),
     // Paged mode: spec the pages below were measured with, and pages per chapter index.
     val pageSpec: PageSpec? = null,
     val pages: Map<Int, List<ReaderPage>> = emptyMap(),
@@ -98,6 +101,7 @@ data class ReaderScreenState(
 class ReaderViewModel @Inject constructor(
     private val libraryDao: LibraryDao,
     private val progressDao: ProgressDao,
+    private val highlightDao: HighlightDao,
     private val preferenceUtil: PreferenceUtil,
     private val epubParser: EpubParser,
     private val bookImporter: BookImporter,
@@ -144,6 +148,7 @@ class ReaderViewModel @Inject constructor(
     // Imported in this session and not opened successfully yet: rolled back if opening fails.
     @Volatile
     private var unopenedImportId: Int? = null
+    private var highlightsJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -208,6 +213,7 @@ class ReaderViewModel @Inject constructor(
      * that chapter; otherwise it restores the saved anchor, if any.
      */
     fun loadEpubBook(libraryItemId: Int, startChapterIndex: Int? = null) {
+        observeHighlights(libraryItemId)
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(shouldShowLoader = true, hasError = false, libraryItemId = libraryItemId)
@@ -698,6 +704,50 @@ class ReaderViewModel @Inject constructor(
     fun setOrientation(orientation: ReaderOrientation) {
         preferenceUtil.putString(PreferenceUtil.READER_ORIENTATION_STR, orientation.id)
         _state.update { it.copy(orientation = orientation) }
+    }
+
+    private fun observeHighlights(libraryItemId: Int) {
+        highlightsJob?.cancel()
+        highlightsJob = viewModelScope.launch {
+            highlightDao.observeForBook(libraryItemId).collect { list ->
+                _state.update { it.copy(highlights = list) }
+            }
+        }
+    }
+
+    /**
+     * Toggle a highlight for the selected [quote] in the current chapter.
+     * Returns true when a highlight was added or removed; false if the quote
+     * cannot be located in a single paragraph.
+     */
+    fun toggleHighlightFromSelection(quote: String): Boolean {
+        val needle = quote.trim()
+        if (needle.isEmpty()) return false
+        val chapterIndex = state.value.currentChapterIndex
+        val existing = state.value.highlights.firstOrNull {
+            it.chapterIndex == chapterIndex && it.quote == needle
+        }
+        if (existing != null) {
+            viewModelScope.launch(Dispatchers.IO) { highlightDao.delete(existing) }
+            return true
+        }
+        val libraryItemId = state.value.libraryItemId ?: return false
+        val chapter = state.value.chapters.getOrNull(chapterIndex) ?: return false
+        val body = state.value.loadedChapters[chapter.chapterId]?.body ?: return false
+        val anchor = locateHighlight(chapterIndex, body, quote) ?: return false
+        viewModelScope.launch(Dispatchers.IO) {
+            highlightDao.insert(
+                Highlight(
+                    libraryItemId = libraryItemId,
+                    chapterIndex = anchor.chapterIndex,
+                    itemIndex = anchor.itemIndex,
+                    startOffset = anchor.startOffset,
+                    endOffset = anchor.endOffset,
+                    quote = anchor.quote
+                )
+            )
+        }
+        return true
     }
 
     private companion object {
