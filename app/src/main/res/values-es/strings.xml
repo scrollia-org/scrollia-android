@@ -135,6 +135,10 @@
     <string name="reader_settings_justify_desc">Márgenes parejos, con separación silábica automática</string>
     <string name="reader_settings_keep_screen_on">Mantener pantalla encendida</string>
     <string name="reader_settings_keep_screen_on_desc">La pantalla no se apagará mientras haya un libro abierto</string>
+    <string name="reader_settings_orientation">Orientación</string>
+    <string name="reader_orientation_system">Auto</string>
+    <string name="reader_orientation_portrait">Vertical</string>
+    <string name="reader_orientation_landscape">Horizontal</string>
     <string name="reader_settings_sample">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo.</string>
     <!-- Text selection -->
     <string name="copy">Copiar</string>

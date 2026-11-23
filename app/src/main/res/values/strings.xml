@@ -143,6 +143,10 @@
     <string name="reader_settings_justify_desc">Even margins, with automatic hyphenation</string>
     <string name="reader_settings_keep_screen_on">Keep screen on</string>
     <string name="reader_settings_keep_screen_on_desc">The screen won\'t turn off while a book is open</string>
+    <string name="reader_settings_orientation">Orientation</string>
+    <string name="reader_orientation_system">Auto</string>
+    <string name="reader_orientation_portrait">Portrait</string>
+    <string name="reader_orientation_landscape">Landscape</string>
     <string name="reader_settings_sample">It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness.</string>
 
     <!-- Text selection -->

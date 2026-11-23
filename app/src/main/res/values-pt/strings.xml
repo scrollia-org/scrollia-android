@@ -121,6 +121,10 @@
     <string name="reader_settings_justify_desc">Margens uniformes, com hifenização automática</string>
     <string name="reader_settings_keep_screen_on">Manter o ecrã ligado</string>
     <string name="reader_settings_keep_screen_on_desc">O ecrã não se desliga enquanto um livro estiver aberto</string>
+    <string name="reader_settings_orientation">Orientação</string>
+    <string name="reader_orientation_system">Auto</string>
+    <string name="reader_orientation_portrait">Vertical</string>
+    <string name="reader_orientation_landscape">Horizontal</string>
     <string name="reader_settings_sample">No meio do caminho tinha uma pedra.</string>
     <string name="copy">Copiar</string>
     <string name="copied">Copiado!</string>

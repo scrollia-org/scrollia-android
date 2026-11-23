@@ -42,6 +42,7 @@ class PreferenceUtil(context: Context) {
         const val READER_JUSTIFY_BOOL = "reader_justify_text"
         const val READER_MODE_STR = "reader_mode"
         const val READER_KEEP_SCREEN_ON_BOOL = "reader_keep_screen_on"
+        const val READER_ORIENTATION_STR = "reader_orientation"
 
         // Home screen preference keys
         const val PREFERRED_BOOK_LANG_STR = "preferred_book_language"

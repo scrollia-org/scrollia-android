@@ -121,6 +121,10 @@
     <string name="reader_settings_justify_desc">Gleichmäßige Ränder mit automatischer Silbentrennung</string>
     <string name="reader_settings_keep_screen_on">Bildschirm an lassen</string>
     <string name="reader_settings_keep_screen_on_desc">Der Bildschirm bleibt an, solange ein Buch geöffnet ist</string>
+    <string name="reader_settings_orientation">Ausrichtung</string>
+    <string name="reader_orientation_system">Auto</string>
+    <string name="reader_orientation_portrait">Hochformat</string>
+    <string name="reader_orientation_landscape">Querformat</string>
     <string name="reader_settings_sample">Es war die beste aller Zeiten, es war die schlimmste aller Zeiten.</string>
     <string name="copy">Kopieren</string>
     <string name="copied">Kopiert!</string>

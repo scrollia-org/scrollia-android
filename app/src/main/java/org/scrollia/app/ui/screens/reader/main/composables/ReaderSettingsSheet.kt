@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import org.scrollia.app.R
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderFont
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderOrientation
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderTheme
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReadingMode
@@ -74,6 +75,7 @@ fun ReaderSettingsSheet(
     onJustifyChanged: (Boolean) -> Unit,
     onKeepScreenOnChanged: (Boolean) -> Unit,
     onReadingModeChanged: (ReadingMode) -> Unit,
+    onOrientationChanged: (ReaderOrientation) -> Unit,
 ) {
     val theme = state.readerTheme
     val ink = theme.textColor
@@ -200,6 +202,29 @@ fun ReaderSettingsSheet(
                         onClick = { onReaderThemeChanged(option) },
                         modifier = Modifier.weight(1f)
                     )
+                }
+            }
+
+            SheetSectionHeader(R.string.reader_settings_orientation, ink)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ReaderOrientation.entries.forEach { option ->
+                    ReaderChip(
+                        selected = option == state.orientation,
+                        onClick = { onOrientationChanged(option) },
+                        ink = ink
+                    ) {
+                        Text(
+                            text = stringResource(
+                                id = when (option) {
+                                    ReaderOrientation.System -> R.string.reader_orientation_system
+                                    ReaderOrientation.Portrait -> R.string.reader_orientation_portrait
+                                    ReaderOrientation.Landscape -> R.string.reader_orientation_landscape
+                                }
+                            ),
+                            fontFamily = interFont,
+                            fontSize = 15.sp
+                        )
+                    }
                 }
             }
 

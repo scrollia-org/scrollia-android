@@ -18,6 +18,7 @@ package org.scrollia.app.ui.screens.reader.main.activities
 
 import android.content.ContentResolver
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
@@ -82,6 +83,9 @@ class ReaderActivity : AppCompatActivity() {
                 val state by viewModel.state.collectAsState()
                 val systemDark = isSystemInDarkTheme()
                 LaunchedEffect(state.keepScreenOn) { applyKeepScreenOn(state.keepScreenOn) }
+                LaunchedEffect(state.orientation) {
+                    requestedOrientation = state.orientation.activityInfo
+                }
                 LaunchedEffect(state.readerTheme) {
                     applySystemBarStyle(darkSurface = state.readerTheme.isDark)
                 }
@@ -180,6 +184,12 @@ class ReaderActivity : AppCompatActivity() {
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.hide(WindowInsetsCompat.Type.displayCutout())
+    }
+
+    override fun onDestroy() {
+        // Don't leave the process locked after leaving the reader.
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        super.onDestroy()
     }
 
     private fun applyKeepScreenOn(keepOn: Boolean) {

@@ -135,6 +135,10 @@
     <string name="reader_settings_justify_desc">Margini uniformi, con sillabazione automatica</string>
     <string name="reader_settings_keep_screen_on">Mantieni lo schermo acceso</string>
     <string name="reader_settings_keep_screen_on_desc">Lo schermo non si spegnerà mentre un libro è aperto</string>
+    <string name="reader_settings_orientation">Orientamento</string>
+    <string name="reader_orientation_system">Auto</string>
+    <string name="reader_orientation_portrait">Verticale</string>
+    <string name="reader_orientation_landscape">Orizzontale</string>
     <string name="reader_settings_sample">Nel mezzo del cammin di nostra vita mi ritrovai per una selva oscura, ché la diritta via era smarrita.</string>
     <!-- Text selection -->
     <string name="copy">Copia</string>

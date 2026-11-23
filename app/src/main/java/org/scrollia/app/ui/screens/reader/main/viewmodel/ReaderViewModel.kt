@@ -83,6 +83,7 @@ data class ReaderScreenState(
     val readingMode: ReadingMode = ReadingMode.SCROLL,
     // On unless the reader explicitly disables it.
     val keepScreenOn: Boolean = true,
+    val orientation: ReaderOrientation = ReaderOrientation.System,
     // Paged mode: spec the pages below were measured with, and pages per chapter index.
     val pageSpec: PageSpec? = null,
     val pages: Map<Int, List<ReaderPage>> = emptyMap(),
@@ -176,6 +177,12 @@ class ReaderViewModel @Inject constructor(
                     ),
                     keepScreenOn = preferenceUtil.getBoolean(
                         PreferenceUtil.READER_KEEP_SCREEN_ON_BOOL, true
+                    ),
+                    orientation = ReaderOrientation.getById(
+                        preferenceUtil.getString(
+                            PreferenceUtil.READER_ORIENTATION_STR,
+                            ReaderOrientation.System.id
+                        )
                     )
                 )
             }
@@ -603,6 +610,11 @@ class ReaderViewModel @Inject constructor(
     fun setKeepScreenOn(keepOn: Boolean) {
         preferenceUtil.putBoolean(PreferenceUtil.READER_KEEP_SCREEN_ON_BOOL, keepOn)
         _state.update { it.copy(keepScreenOn = keepOn) }
+    }
+
+    fun setOrientation(orientation: ReaderOrientation) {
+        preferenceUtil.putString(PreferenceUtil.READER_ORIENTATION_STR, orientation.id)
+        _state.update { it.copy(orientation = orientation) }
     }
 
     private companion object {

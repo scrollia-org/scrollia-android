@@ -126,6 +126,7 @@ fun ReaderScreen(
             onJustifyChanged = { viewModel.setJustifyText(it) },
             onKeepScreenOnChanged = { viewModel.setKeepScreenOn(it) },
             onReadingModeChanged = { viewModel.setReadingMode(it) },
+            onOrientationChanged = { viewModel.setOrientation(it) },
         )
     }
 

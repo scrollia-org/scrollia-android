@@ -121,6 +121,10 @@
     <string name="reader_settings_justify_desc">整齐页边，自动断字</string>
     <string name="reader_settings_keep_screen_on">保持屏幕常亮</string>
     <string name="reader_settings_keep_screen_on_desc">打开图书时屏幕不会自动关闭</string>
+    <string name="reader_settings_orientation">屏幕方向</string>
+    <string name="reader_orientation_system">自动</string>
+    <string name="reader_orientation_portrait">竖屏</string>
+    <string name="reader_orientation_landscape">横屏</string>
     <string name="reader_settings_sample">在我年轻的时候，我曾有过许多梦想。</string>
     <string name="copy">复制</string>
     <string name="copied">已复制！</string>

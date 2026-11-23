@@ -121,6 +121,10 @@
     <string name="reader_settings_justify_desc">Marges régulières, avec césure automatique</string>
     <string name="reader_settings_keep_screen_on">Garder l’écran allumé</string>
     <string name="reader_settings_keep_screen_on_desc">L’écran ne s’éteint pas tant qu’un livre est ouvert</string>
+    <string name="reader_settings_orientation">Orientation</string>
+    <string name="reader_orientation_system">Auto</string>
+    <string name="reader_orientation_portrait">Portrait</string>
+    <string name="reader_orientation_landscape">Paysage</string>
     <string name="reader_settings_sample">Longtemps, je me suis couché de bonne heure.</string>
     <string name="copy">Copier</string>
     <string name="copied">Copié !</string>
