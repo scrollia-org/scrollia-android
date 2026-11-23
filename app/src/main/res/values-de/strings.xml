@@ -176,6 +176,10 @@
     <string name="feedback_body_prompt">Schreiben Sie Ihre Nachricht darunter:</string>
     <string name="reader_report_typo">Tippfehler melden</string>
     <string name="reader_more_options">Weitere Optionen</string>
+    <string name="reader_search_title">Im Buch suchen</string>
+    <string name="reader_search_placeholder">Wort oder Phrase</string>
+    <string name="reader_search_empty">Keine Treffer in diesem Buch.</string>
+    <string name="reader_search_count">%1$d Treffer</string>
     <string name="selection_report_typo">Tippfehler melden</string>
     <string name="link_website">Website</string>
     <string name="link_website_desc">Besuchen Sie unsere Website für weitere Informationen.</string>

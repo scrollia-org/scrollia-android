@@ -84,6 +84,11 @@ data class ReaderScreenState(
     // On unless the reader explicitly disables it.
     val keepScreenOn: Boolean = true,
     val orientation: ReaderOrientation = ReaderOrientation.System,
+    val searchQuery: String = "",
+    /** Query that produced [searchHits]; empty until the first search finishes. */
+    val lastSearchQuery: String = "",
+    val searchHits: List<ReaderSearchHit> = emptyList(),
+    val searchInProgress: Boolean = false,
     // Paged mode: spec the pages below were measured with, and pages per chapter index.
     val pageSpec: PageSpec? = null,
     val pages: Map<Int, List<ReaderPage>> = emptyMap(),
@@ -396,11 +401,89 @@ class ReaderViewModel @Inject constructor(
 
     /** Open the start of [chapterIndex], in either reading mode. */
     fun jumpToChapter(chapterIndex: Int) {
-        if (chapterIndex !in state.value.chapters.indices) return
-        _state.update { it.copy(pendingRestore = ReaderAnchor(chapterIndex, 0)) }
-        loadChapterBody(chapterIndex)
-        if (state.value.readingMode == ReadingMode.PAGED) requestPages(chapterIndex)
+        jumpToAnchor(ReaderAnchor(chapterIndex, 0))
     }
+
+    /** Open a specific chapter item (search hit, highlight, etc.). */
+    fun jumpToAnchor(anchor: ReaderAnchor) {
+        if (anchor.chapterIndex !in state.value.chapters.indices) return
+        loadChapterBody(anchor.chapterIndex)
+        _state.update { it.copy(pendingRestore = anchor) }
+        if (state.value.readingMode == ReadingMode.PAGED) {
+            requestPages(anchor.chapterIndex)
+        }
+    }
+
+    fun setSearchQuery(query: String) {
+        _state.update { it.copy(searchQuery = query) }
+    }
+
+    fun clearSearch() {
+        _state.update {
+            it.copy(
+                searchQuery = "",
+                lastSearchQuery = "",
+                searchHits = emptyList(),
+                searchInProgress = false
+            )
+        }
+    }
+
+    /** Search every chapter for [query]; caps at [MAX_SEARCH_HITS]. */
+    fun searchInBook(query: String) {
+        val trimmed = query.trim()
+        if (trimmed.isEmpty()) {
+            clearSearch()
+            return
+        }
+        _state.update {
+            it.copy(
+                searchQuery = trimmed,
+                searchInProgress = true,
+                searchHits = emptyList(),
+                lastSearchQuery = ""
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val filePath = state.value.epubBook?.filePath.orEmpty()
+            val chapters = state.value.chapters
+            val hits = mutableListOf<ReaderSearchHit>()
+            for ((index, chapter) in chapters.withIndex()) {
+                if (hits.size >= MAX_SEARCH_HITS) break
+                var body = state.value.loadedChapters[chapter.chapterId]?.body
+                if (body == null && filePath.isNotEmpty()) {
+                    try {
+                        val content = epubParser.getChapterBody(filePath, chapter)
+                        body = content.body
+                        _state.update {
+                            it.copy(loadedChapters = it.loadedChapters + (chapter.chapterId to content))
+                        }
+                    } catch (exc: Exception) {
+                        if (exc is CancellationException) throw exc
+                        Log.e("ReaderViewModel", "Search could not load chapter $index", exc)
+                        continue
+                    }
+                }
+                if (body.isNullOrEmpty()) continue
+                hits += findSearchHits(
+                    chapterIndex = index,
+                    chapterTitle = chapter.title.ifBlank { contentTitleFallback(index) },
+                    body = body,
+                    query = trimmed,
+                    maxHits = MAX_SEARCH_HITS - hits.size
+                )
+            }
+            _state.update {
+                it.copy(
+                    searchHits = hits,
+                    searchInProgress = false,
+                    lastSearchQuery = trimmed
+                )
+            }
+        }
+    }
+
+    private fun contentTitleFallback(index: Int): String = "Chapter ${index + 1}"
 
     fun setReadingMode(mode: ReadingMode) {
         if (mode == state.value.readingMode) return
@@ -621,5 +704,6 @@ class ReaderViewModel @Inject constructor(
         const val KEY_IMPORTED_ID = "imported_library_item_id"
         const val PAGINATION_DEBOUNCE_MS = 150L
         const val MAX_CACHED_CHAPTER_PAGES = 48
+        const val MAX_SEARCH_HITS = 100
     }
 }

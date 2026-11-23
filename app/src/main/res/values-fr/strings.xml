@@ -176,6 +176,10 @@
     <string name="feedback_body_prompt">Écrivez votre message ci-dessous :</string>
     <string name="reader_report_typo">Signaler une coquille</string>
     <string name="reader_more_options">Plus d’options</string>
+    <string name="reader_search_title">Chercher dans le livre</string>
+    <string name="reader_search_placeholder">Mot ou expression</string>
+    <string name="reader_search_empty">Aucune occurrence dans ce livre.</string>
+    <string name="reader_search_count">%1$d occurrences</string>
     <string name="selection_report_typo">Signaler coquille</string>
     <string name="link_website">Site web</string>
     <string name="link_website_desc">Visitez notre site pour plus d’informations.</string>

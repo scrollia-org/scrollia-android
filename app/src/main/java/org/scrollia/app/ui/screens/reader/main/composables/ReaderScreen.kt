@@ -80,6 +80,7 @@ import androidx.compose.ui.unit.sp
 import org.scrollia.app.R
 import kotlin.math.roundToInt
 import org.scrollia.app.ui.common.RecoverableError
+import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderAnchor
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderTheme
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderViewModel
@@ -115,6 +116,10 @@ fun ReaderScreen(
     }
 
     var showSettingsSheet by rememberSaveable { mutableStateOf(false) }
+    var showSearchSheet by rememberSaveable { mutableStateOf(false) }
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
+
     if (showSettingsSheet) {
         ReaderSettingsSheet(
             state = state,
@@ -129,9 +134,22 @@ fun ReaderScreen(
             onOrientationChanged = { viewModel.setOrientation(it) },
         )
     }
-
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val coroutineScope = rememberCoroutineScope()
+    if (showSearchSheet) {
+        ReaderSearchSheet(
+            state = state,
+            onDismiss = {
+                showSearchSheet = false
+                viewModel.clearSearch()
+            },
+            onQueryChanged = { viewModel.setSearchQuery(it) },
+            onSearch = { viewModel.searchInBook(it) },
+            onHitClick = { hit ->
+                showSearchSheet = false
+                viewModel.clearSearch()
+                viewModel.jumpToAnchor(ReaderAnchor(hit.chapterIndex, hit.itemIndex))
+            },
+        )
+    }
 
     BackHandler(drawerState.isOpen) {
         if (drawerState.isOpen) {
@@ -157,7 +175,8 @@ fun ReaderScreen(
                     onNextChapter = {
                         coroutineScope.launch { onScrollToChapter(state.currentChapterIndex + 1) }
                     },
-                    onSettingsClicked = { showSettingsSheet = true }
+                    onSettingsClicked = { showSettingsSheet = true },
+                    onSearchClicked = { showSearchSheet = true },
                 )
             },
             content = { paddingValues ->
@@ -234,6 +253,7 @@ private fun ReaderTopAppBar(
     onPreviousChapter: () -> Unit,
     onNextChapter: () -> Unit,
     onSettingsClicked: () -> Unit,
+    onSearchClicked: () -> Unit,
 ) {
     val context = LocalContext.current
     var showOverflowMenu by rememberSaveable { mutableStateOf(false) }
@@ -302,6 +322,15 @@ private fun ReaderTopAppBar(
                                 expanded = showOverflowMenu,
                                 onDismissRequest = { showOverflowMenu = false }
                             ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(text = stringResource(id = R.string.reader_search_title))
+                                    },
+                                    onClick = {
+                                        showOverflowMenu = false
+                                        onSearchClicked()
+                                    }
+                                )
                                 DropdownMenuItem(
                                     text = {
                                         Text(text = stringResource(id = R.string.reader_report_typo))

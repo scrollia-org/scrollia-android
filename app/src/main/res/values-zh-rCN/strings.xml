@@ -176,6 +176,10 @@
     <string name="feedback_body_prompt">请在下方写下你的留言：</string>
     <string name="reader_report_typo">报告错字</string>
     <string name="reader_more_options">更多选项</string>
+    <string name="reader_search_title">在书中搜索</string>
+    <string name="reader_search_placeholder">词语或短语</string>
+    <string name="reader_search_empty">本书中没有匹配结果。</string>
+    <string name="reader_search_count">%1$d 处匹配</string>
     <string name="selection_report_typo">报告错字</string>
     <string name="link_website">网站</string>
     <string name="link_website_desc">访问我们的网站了解更多。</string>

@@ -195,6 +195,10 @@
     <string name="feedback_body_prompt">Scrivi il tuo messaggio qui sotto:</string>
     <string name="reader_report_typo">Segnala un refuso</string>
     <string name="reader_more_options">Altre opzioni</string>
+    <string name="reader_search_title">Cerca nel libro</string>
+    <string name="reader_search_placeholder">Parola o frase</string>
+    <string name="reader_search_empty">Nessuna corrispondenza in questo libro.</string>
+    <string name="reader_search_count">%1$d risultati</string>
     <string name="selection_report_typo">Segnala refuso</string>
     <string name="link_website">Sito web</string>
     <string name="link_website_desc">Visita il nostro sito per maggiori informazioni.</string>

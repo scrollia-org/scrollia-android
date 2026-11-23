@@ -209,6 +209,10 @@
     <string name="feedback_body_prompt">Write your note below:</string>
     <string name="reader_report_typo">Report a typo</string>
     <string name="reader_more_options">More options</string>
+    <string name="reader_search_title">Search in book</string>
+    <string name="reader_search_placeholder">Word or phrase</string>
+    <string name="reader_search_empty">No matches in this book.</string>
+    <string name="reader_search_count">%1$d matches</string>
     <string name="selection_report_typo">Report typo</string>
     <string name="link_website">Website</string>
     <string name="link_website_desc">Visit our website for more information.</string>

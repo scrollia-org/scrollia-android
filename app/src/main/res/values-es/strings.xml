@@ -195,6 +195,10 @@
     <string name="feedback_body_prompt">Escribe tu mensaje debajo:</string>
     <string name="reader_report_typo">Avisar de una errata</string>
     <string name="reader_more_options">Más opciones</string>
+    <string name="reader_search_title">Buscar en el libro</string>
+    <string name="reader_search_placeholder">Palabra o frase</string>
+    <string name="reader_search_empty">Sin coincidencias en este libro.</string>
+    <string name="reader_search_count">%1$d coincidencias</string>
     <string name="selection_report_typo">Avisar errata</string>
     <string name="link_website">Sitio web</string>
     <string name="link_website_desc">Visita nuestro sitio web para más información.</string>
