@@ -69,6 +69,7 @@ import coil.compose.AsyncImage
 import org.scrollia.app.BuildConfig
 import org.scrollia.app.R
 import org.scrollia.app.helpers.Constants
+import org.scrollia.app.helpers.FeedbackMail
 import org.scrollia.app.helpers.Utils
 import org.scrollia.app.ui.common.CustomTopAppBar
 import org.scrollia.app.ui.theme.interFont
@@ -131,6 +132,12 @@ fun AboutScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(horizontal = 14.dp)
                 ) {
+                    SettingItem(
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_feedback),
+                        mainText = stringResource(id = R.string.link_feedback),
+                        subText = stringResource(id = R.string.link_feedback_desc),
+                        onClick = { FeedbackMail.openGeneral(context) }
+                    )
                     SettingItem(
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
                         mainText = stringResource(id = R.string.link_website),
@@ -330,11 +337,7 @@ private fun DeveloperCard(context: Context) {
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.clickable {
-                        Utils.openEmail(
-                            context = context,
-                            email = Constants.DEV_EMAIL,
-                            subject = "Scrollia Feedback (v${BuildConfig.VERSION_NAME})"
-                        )
+                        FeedbackMail.openGeneral(context)
                     }
                 )
             }

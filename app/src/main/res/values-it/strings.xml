@@ -184,6 +184,14 @@
     <string name="about_desc">Un lettore di ebook gratuito basato su Project Gutenberg. Prende il nome dal rotolo — la forma che ha portato la parola scritta per millenni prima del libro stampato.</string>
     <string name="developed_by">Sviluppato da</string>
     <string name="useful_links">Link utili</string>
+    <string name="link_feedback">Invia feedback</string>
+    <string name="link_feedback_desc">Idee, refusi o miglioramenti — apre la tua app di posta.</string>
+    <string name="feedback_subject_general">Feedback di Scrollia (v%1$s)</string>
+    <string name="feedback_subject_reader">Refuso / feedback di Scrollia (v%1$s)</string>
+    <string name="feedback_body_prompt">Scrivi il tuo messaggio qui sotto:</string>
+    <string name="reader_report_typo">Segnala un refuso</string>
+    <string name="reader_more_options">Altre opzioni</string>
+    <string name="selection_report_typo">Segnala refuso</string>
     <string name="link_website">Sito web</string>
     <string name="link_website_desc">Visita il nostro sito per maggiori informazioni.</string>
     <string name="link_faq">Domande frequenti</string>

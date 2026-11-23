@@ -198,6 +198,14 @@
     <string name="developed_by">Developed By</string>
     <string name="dev_name" translatable="false">Scrollia</string>
     <string name="useful_links">Useful Links</string>
+    <string name="link_feedback">Send feedback</string>
+    <string name="link_feedback_desc">Ideas, typos, or anything to improve — opens your email app.</string>
+    <string name="feedback_subject_general">Scrollia feedback (v%1$s)</string>
+    <string name="feedback_subject_reader">Scrollia typo / feedback (v%1$s)</string>
+    <string name="feedback_body_prompt">Write your note below:</string>
+    <string name="reader_report_typo">Report a typo</string>
+    <string name="reader_more_options">More options</string>
+    <string name="selection_report_typo">Report typo</string>
     <string name="link_website">Website</string>
     <string name="link_website_desc">Visit our website for more information.</string>
     <string name="link_faq">Frequently asked questions</string>

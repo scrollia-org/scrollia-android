@@ -184,6 +184,14 @@
     <string name="about_desc">Una aplicación Android gratuita y de código abierto para descargar libros electrónicos del Proyecto Gutenberg.</string>
     <string name="developed_by">Desarrollado por</string>
     <string name="useful_links">Enlaces útiles</string>
+    <string name="link_feedback">Enviar comentarios</string>
+    <string name="link_feedback_desc">Ideas, erratas o cualquier mejora — abre tu app de correo.</string>
+    <string name="feedback_subject_general">Comentarios de Scrollia (v%1$s)</string>
+    <string name="feedback_subject_reader">Errata / comentarios de Scrollia (v%1$s)</string>
+    <string name="feedback_body_prompt">Escribe tu mensaje debajo:</string>
+    <string name="reader_report_typo">Avisar de una errata</string>
+    <string name="reader_more_options">Más opciones</string>
+    <string name="selection_report_typo">Avisar errata</string>
     <string name="link_website">Sitio web</string>
     <string name="link_website_desc">Visita nuestro sitio web para más información.</string>
     <string name="link_faq">Preguntas frecuentes</string>

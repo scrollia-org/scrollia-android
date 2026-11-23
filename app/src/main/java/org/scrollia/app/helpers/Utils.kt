@@ -75,17 +75,23 @@ object Utils {
     }
 
     /**
-     * Opens an email client with the specified email address and subject.
-     *
-     * @param context The context to use.
-     * @param email The email address to send the email to.
-     * @param subject The subject of the email.
+     * Opens an email client with the specified address, subject and optional body.
+     * Uses ACTION_SENDTO so only mail apps handle it; nothing is sent until the
+     * user confirms in their client.
      */
-    fun openEmail(context: Context, email: String, subject: String) {
+    fun openEmail(
+        context: Context,
+        email: String,
+        subject: String,
+        body: String? = null
+    ) {
         val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
             putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
             putExtra(Intent.EXTRA_SUBJECT, subject)
+            if (!body.isNullOrBlank()) {
+                putExtra(Intent.EXTRA_TEXT, body)
+            }
         }
         try {
             context.startActivity(emailIntent)

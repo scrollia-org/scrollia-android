@@ -165,6 +165,14 @@
     <string name="about_desc">Um leitor de ebooks gratuito baseado no Project Gutenberg. O nome vem do rolo — a forma que transportou a palavra escrita durante milénios antes do livro impresso.</string>
     <string name="developed_by">Desenvolvido por</string>
     <string name="useful_links">Ligações úteis</string>
+    <string name="link_feedback">Enviar feedback</string>
+    <string name="link_feedback_desc">Ideias, gralhas ou melhorias — abre a sua app de correio.</string>
+    <string name="feedback_subject_general">Feedback do Scrollia (v%1$s)</string>
+    <string name="feedback_subject_reader">Gralha / feedback do Scrollia (v%1$s)</string>
+    <string name="feedback_body_prompt">Escreva a sua mensagem abaixo:</string>
+    <string name="reader_report_typo">Reportar uma gralha</string>
+    <string name="reader_more_options">Mais opções</string>
+    <string name="selection_report_typo">Reportar gralha</string>
     <string name="link_website">Site</string>
     <string name="link_website_desc">Visite o nosso site para mais informações.</string>
     <string name="link_faq">Perguntas frequentes</string>

@@ -38,6 +38,5 @@ object Constants {
     /** Upstream project Scrollia is forked from (Apache-2.0). */
     const val MYNE_REPO = "https://github.com/Pool-Of-Tears/Myne"
 
-    // TODO: Add Telegram and sponsorship links to AboutScreen once those
-    //  resources exist.
+    // Telegram / sponsorship: add to AboutScreen only when those channels exist.
 }

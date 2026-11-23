@@ -58,9 +58,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import android.content.Context
 import org.scrollia.app.R
 import org.scrollia.app.epub.asAnnotatedString
 import org.scrollia.app.epub.models.ReaderItem
+import org.scrollia.app.helpers.FeedbackMail
 import org.scrollia.app.helpers.toToast
 import org.scrollia.app.ui.common.ScrolliaSelectionContainer
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderListEntry
@@ -93,7 +95,7 @@ fun ChaptersContent(
         label = "lineHeight"
     )
 
-    ReaderSelectionContainer {
+    ReaderSelectionContainer(state = state) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -168,14 +170,15 @@ fun ChaptersContent(
 }
 
 /**
- * Selection with copy/share/translate/meaning. Web search stays off until its QA
- * (DESIGN §19). Meaning hands the selection to apps that handle PROCESS_TEXT
- * (system translate/dictionary); no bundled dictionary and no silent web fallback.
- * [content] learns if the toolbar is hidden. With [selectable] false only the toolbar
- * is provided (see ScrolliaSelectionContainer).
+ * Selection with copy/share/translate/meaning and typo report. Web search stays
+ * off until its QA (DESIGN §19). Meaning hands the selection to apps that handle
+ * PROCESS_TEXT (system translate/dictionary); no bundled dictionary and no silent
+ * web fallback. [content] learns if the toolbar is hidden. With [selectable] false
+ * only the toolbar is provided (see ScrolliaSelectionContainer).
  */
 @Composable
 internal fun ReaderSelectionContainer(
+    state: ReaderScreenState,
     selectable: Boolean = true,
     content: @Composable (toolbarHidden: Boolean) -> Unit
 ) {
@@ -220,6 +223,9 @@ internal fun ReaderSelectionContainer(
                 context.getString(R.string.no_app_to_handle_content).toToast(context)
             }
         },
+        onFeedbackRequested = { quote ->
+            openReaderFeedback(context, state, quote)
+        },
         onDictionaryRequested = dictionary@{
             val text = it.trim()
             if (text.isEmpty()) return@dictionary
@@ -249,6 +255,24 @@ internal fun ReaderSelectionContainer(
         },
         selectable = selectable
     ) { toolbarHidden -> content(toolbarHidden) }
+}
+
+internal fun openReaderFeedback(
+    context: Context,
+    state: ReaderScreenState,
+    quote: String? = null
+) {
+    val book = state.epubBook
+    FeedbackMail.openFromReader(
+        context = context,
+        title = book?.title,
+        author = book?.author,
+        language = book?.language,
+        chapterTitle = state.currentChapter.title.takeIf { it.isNotBlank() },
+        chapterIndex = state.currentChapterIndex.takeIf { state.chapters.isNotEmpty() },
+        chapterCount = state.chapters.size.takeIf { it > 0 },
+        quote = quote
+    )
 }
 
 @Composable

@@ -169,7 +169,7 @@ fun PagedChaptersContent(
         }
     }
 
-    ReaderSelectionContainer(selectable = false) { toolbarHidden ->
+    ReaderSelectionContainer(state = state, selectable = false) { toolbarHidden ->
         val selectionToolbarHidden by rememberUpdatedState(toolbarHidden)
         BoxWithConstraints(
             modifier = Modifier

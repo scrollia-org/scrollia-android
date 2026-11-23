@@ -165,6 +165,14 @@
     <string name="about_desc">Un lecteur d’ebooks gratuit basé sur Project Gutenberg. Nommé d’après le rouleau — la forme qui a porté l’écrit pendant des millénaires avant le livre imprimé.</string>
     <string name="developed_by">Développé par</string>
     <string name="useful_links">Liens utiles</string>
+    <string name="link_feedback">Envoyer un avis</string>
+    <string name="link_feedback_desc">Idées, coquilles ou améliorations — ouvre votre messagerie.</string>
+    <string name="feedback_subject_general">Avis Scrollia (v%1$s)</string>
+    <string name="feedback_subject_reader">Coquille / avis Scrollia (v%1$s)</string>
+    <string name="feedback_body_prompt">Écrivez votre message ci-dessous :</string>
+    <string name="reader_report_typo">Signaler une coquille</string>
+    <string name="reader_more_options">Plus d’options</string>
+    <string name="selection_report_typo">Signaler coquille</string>
     <string name="link_website">Site web</string>
     <string name="link_website_desc">Visitez notre site pour plus d’informations.</string>
     <string name="link_faq">Questions fréquentes</string>

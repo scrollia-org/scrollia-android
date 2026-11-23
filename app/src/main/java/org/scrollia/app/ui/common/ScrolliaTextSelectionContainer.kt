@@ -47,6 +47,7 @@ private const val MENU_ITEM_SHARE = 1
 private const val MENU_ITEM_WEB = 2
 private const val MENU_ITEM_TRANSLATE = 3
 private const val MENU_ITEM_DICTIONARY = 4
+private const val MENU_ITEM_FEEDBACK = 5
 
 /**
  * Custom Text ActionMode callback. Used in pair with [ScrolliaSelectionToolbar]. Follow [TextToolbar] for more info.
@@ -58,7 +59,8 @@ private class ScrolliaTextActionModeCallback(
     var onShareRequested: (() -> Unit)? = null,
     var onWebSearchRequested: (() -> Unit)? = null,
     var onTranslateRequested: (() -> Unit)? = null,
-    var onDictionaryRequested: (() -> Unit)? = null
+    var onDictionaryRequested: (() -> Unit)? = null,
+    var onFeedbackRequested: (() -> Unit)? = null
 ) : ActionMode.Callback {
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         requireNotNull(menu)
@@ -89,6 +91,11 @@ private class ScrolliaTextActionModeCallback(
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         }
 
+        onFeedbackRequested?.let {
+            menu.add(0, MENU_ITEM_FEEDBACK, 5, context.getString(R.string.selection_report_typo))
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        }
+
         return true
     }
 
@@ -103,6 +110,7 @@ private class ScrolliaTextActionModeCallback(
             MENU_ITEM_WEB -> onWebSearchRequested?.invoke()
             MENU_ITEM_TRANSLATE -> onTranslateRequested?.invoke()
             MENU_ITEM_DICTIONARY -> onDictionaryRequested?.invoke()
+            MENU_ITEM_FEEDBACK -> onFeedbackRequested?.invoke()
             else -> return false
         }
         mode?.finish()
@@ -157,7 +165,9 @@ private class ScrolliaSelectionToolbar(
     private val onShareRequest: ((String) -> Unit)?,
     private val onWebSearchRequest: ((String) -> Unit)?,
     private val onTranslateRequest: ((String) -> Unit)?,
-    private val onDictionaryRequest: ((String) -> Unit)?
+    private val onDictionaryRequest: ((String) -> Unit)?,
+    // Updated on recomposition so typo reports keep the current chapter.
+    var onFeedbackRequest: ((String) -> Unit)?
 ) : TextToolbar {
     private var actionMode: ActionMode? = null
     private val callback = ScrolliaTextActionModeCallback(context = context)
@@ -216,6 +226,11 @@ private class ScrolliaSelectionToolbar(
                 withSelectedText(onCopyRequested) { handler(it) }
             }
         }
+        callback.onFeedbackRequested = onFeedbackRequest?.let { handler ->
+            {
+                withSelectedText(onCopyRequested) { handler(it) }
+            }
+        }
 
         if (actionMode == null) {
             status = TextToolbarStatus.Shown
@@ -252,6 +267,7 @@ fun ScrolliaSelectionContainer(
     onWebSearchRequested: ((String) -> Unit),
     onTranslateRequested: ((String) -> Unit),
     onDictionaryRequested: ((String) -> Unit),
+    onFeedbackRequested: ((String) -> Unit)? = null,
     selectable: Boolean = true,
     content: @Composable (toolbarHidden: Boolean) -> Unit
 ) {
@@ -275,9 +291,12 @@ fun ScrolliaSelectionContainer(
             },
             onDictionaryRequest = {
                 onDictionaryRequested(it)
-            }
+            },
+            onFeedbackRequest = onFeedbackRequested
         )
     }
+    // Refresh each composition so reports include the chapter on screen.
+    scrolliaSelectionToolbar.onFeedbackRequest = onFeedbackRequested
     val isToolbarHidden = remember(scrolliaSelectionToolbar.status) {
         derivedStateOf {
             scrolliaSelectionToolbar.status == TextToolbarStatus.Hidden

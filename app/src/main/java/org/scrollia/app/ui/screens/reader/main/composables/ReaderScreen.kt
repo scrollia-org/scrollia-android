@@ -36,12 +36,16 @@ import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -66,6 +70,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
@@ -229,6 +234,8 @@ private fun ReaderTopAppBar(
     onNextChapter: () -> Unit,
     onSettingsClicked: () -> Unit,
 ) {
+    val context = LocalContext.current
+    var showOverflowMenu by rememberSaveable { mutableStateOf(false) }
     AnimatedVisibility(
         visible = state.showReaderMenu,
         enter = expandVertically(initialHeight = { 0 }, expandFrom = Alignment.Top)
@@ -283,6 +290,28 @@ private fun ReaderTopAppBar(
                             state = state,
                             onClick = onSettingsClicked
                         )
+                        Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                            ReaderBarIcon(
+                                icon = Icons.Filled.MoreVert,
+                                contentDescription = stringResource(id = R.string.reader_more_options),
+                                state = state,
+                                onClick = { showOverflowMenu = true }
+                            )
+                            DropdownMenu(
+                                expanded = showOverflowMenu,
+                                onDismissRequest = { showOverflowMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(text = stringResource(id = R.string.reader_report_typo))
+                                    },
+                                    onClick = {
+                                        showOverflowMenu = false
+                                        openReaderFeedback(context, state)
+                                    }
+                                )
+                            }
+                        }
                     }
                 )
                 Column(

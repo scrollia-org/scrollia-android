@@ -165,6 +165,14 @@
     <string name="about_desc">Ein kostenloser E-Book-Reader auf Basis von Project Gutenberg. Benannt nach der Schriftrolle — der Form, die das geschriebene Wort Jahrtausende vor dem gedruckten Buch trug.</string>
     <string name="developed_by">Entwickelt von</string>
     <string name="useful_links">Nützliche Links</string>
+    <string name="link_feedback">Feedback senden</string>
+    <string name="link_feedback_desc">Ideen, Tippfehler oder Verbesserungen — öffnet Ihre Mail-App.</string>
+    <string name="feedback_subject_general">Scrollia-Feedback (v%1$s)</string>
+    <string name="feedback_subject_reader">Tippfehler / Feedback Scrollia (v%1$s)</string>
+    <string name="feedback_body_prompt">Schreiben Sie Ihre Nachricht darunter:</string>
+    <string name="reader_report_typo">Tippfehler melden</string>
+    <string name="reader_more_options">Weitere Optionen</string>
+    <string name="selection_report_typo">Tippfehler melden</string>
     <string name="link_website">Website</string>
     <string name="link_website_desc">Besuchen Sie unsere Website für weitere Informationen.</string>
     <string name="link_faq">Häufige Fragen</string>
