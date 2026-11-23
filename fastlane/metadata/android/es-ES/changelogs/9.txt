@@ -1,0 +1,4 @@
+• Avisa de erratas y envía comentarios por correo desde Acerca de o el lector
+• Busca dentro del libro que estás leyendo
+• Resalta texto seleccionado (vuelve a pulsar Resaltar para quitarlo)
+• Bloquea la orientación de lectura en vertical u horizontal
