@@ -4,7 +4,8 @@ The public, canonical privacy policy for Scrollia and Scrollia for Android is:
 
 **https://scrollia.org/privacy/**
 
-It is available in Spanish and English and describes the data stored on the
+It follows the site UI languages (Spanish, English, French, German,
+Portuguese, Italian, and Chinese) and describes the data stored on the
 device, catalog requests and technical logs, Cloudflare, user-initiated Google
 Translate requests, retention, deletion, and the privacy contact.
 

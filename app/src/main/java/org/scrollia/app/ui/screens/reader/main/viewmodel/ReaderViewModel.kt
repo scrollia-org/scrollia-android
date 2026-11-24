@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import org.scrollia.app.database.highlight.Highlight
+import org.scrollia.app.database.highlight.HighlightDao
 import org.scrollia.app.database.library.LibraryDao
 import org.scrollia.app.database.progress.ProgressDao
 import org.scrollia.app.database.progress.ProgressData
@@ -83,6 +85,13 @@ data class ReaderScreenState(
     val readingMode: ReadingMode = ReadingMode.SCROLL,
     // On unless the reader explicitly disables it.
     val keepScreenOn: Boolean = true,
+    val orientation: ReaderOrientation = ReaderOrientation.System,
+    val searchQuery: String = "",
+    /** Query that produced [searchHits]; empty until the first search finishes. */
+    val lastSearchQuery: String = "",
+    val searchHits: List<ReaderSearchHit> = emptyList(),
+    val searchInProgress: Boolean = false,
+    val highlights: List<Highlight> = emptyList(),
     // Paged mode: spec the pages below were measured with, and pages per chapter index.
     val pageSpec: PageSpec? = null,
     val pages: Map<Int, List<ReaderPage>> = emptyMap(),
@@ -92,6 +101,7 @@ data class ReaderScreenState(
 class ReaderViewModel @Inject constructor(
     private val libraryDao: LibraryDao,
     private val progressDao: ProgressDao,
+    private val highlightDao: HighlightDao,
     private val preferenceUtil: PreferenceUtil,
     private val epubParser: EpubParser,
     private val bookImporter: BookImporter,
@@ -138,6 +148,7 @@ class ReaderViewModel @Inject constructor(
     // Imported in this session and not opened successfully yet: rolled back if opening fails.
     @Volatile
     private var unopenedImportId: Int? = null
+    private var highlightsJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -176,6 +187,12 @@ class ReaderViewModel @Inject constructor(
                     ),
                     keepScreenOn = preferenceUtil.getBoolean(
                         PreferenceUtil.READER_KEEP_SCREEN_ON_BOOL, true
+                    ),
+                    orientation = ReaderOrientation.getById(
+                        preferenceUtil.getString(
+                            PreferenceUtil.READER_ORIENTATION_STR,
+                            ReaderOrientation.System.id
+                        )
                     )
                 )
             }
@@ -196,6 +213,7 @@ class ReaderViewModel @Inject constructor(
      * that chapter; otherwise it restores the saved anchor, if any.
      */
     fun loadEpubBook(libraryItemId: Int, startChapterIndex: Int? = null) {
+        observeHighlights(libraryItemId)
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(shouldShowLoader = true, hasError = false, libraryItemId = libraryItemId)
@@ -389,11 +407,89 @@ class ReaderViewModel @Inject constructor(
 
     /** Open the start of [chapterIndex], in either reading mode. */
     fun jumpToChapter(chapterIndex: Int) {
-        if (chapterIndex !in state.value.chapters.indices) return
-        _state.update { it.copy(pendingRestore = ReaderAnchor(chapterIndex, 0)) }
-        loadChapterBody(chapterIndex)
-        if (state.value.readingMode == ReadingMode.PAGED) requestPages(chapterIndex)
+        jumpToAnchor(ReaderAnchor(chapterIndex, 0))
     }
+
+    /** Open a specific chapter item (search hit, highlight, etc.). */
+    fun jumpToAnchor(anchor: ReaderAnchor) {
+        if (anchor.chapterIndex !in state.value.chapters.indices) return
+        loadChapterBody(anchor.chapterIndex)
+        _state.update { it.copy(pendingRestore = anchor) }
+        if (state.value.readingMode == ReadingMode.PAGED) {
+            requestPages(anchor.chapterIndex)
+        }
+    }
+
+    fun setSearchQuery(query: String) {
+        _state.update { it.copy(searchQuery = query) }
+    }
+
+    fun clearSearch() {
+        _state.update {
+            it.copy(
+                searchQuery = "",
+                lastSearchQuery = "",
+                searchHits = emptyList(),
+                searchInProgress = false
+            )
+        }
+    }
+
+    /** Search every chapter for [query]; caps at [MAX_SEARCH_HITS]. */
+    fun searchInBook(query: String) {
+        val trimmed = query.trim()
+        if (trimmed.isEmpty()) {
+            clearSearch()
+            return
+        }
+        _state.update {
+            it.copy(
+                searchQuery = trimmed,
+                searchInProgress = true,
+                searchHits = emptyList(),
+                lastSearchQuery = ""
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val filePath = state.value.epubBook?.filePath.orEmpty()
+            val chapters = state.value.chapters
+            val hits = mutableListOf<ReaderSearchHit>()
+            for ((index, chapter) in chapters.withIndex()) {
+                if (hits.size >= MAX_SEARCH_HITS) break
+                var body = state.value.loadedChapters[chapter.chapterId]?.body
+                if (body == null && filePath.isNotEmpty()) {
+                    try {
+                        val content = epubParser.getChapterBody(filePath, chapter)
+                        body = content.body
+                        _state.update {
+                            it.copy(loadedChapters = it.loadedChapters + (chapter.chapterId to content))
+                        }
+                    } catch (exc: Exception) {
+                        if (exc is CancellationException) throw exc
+                        Log.e("ReaderViewModel", "Search could not load chapter $index", exc)
+                        continue
+                    }
+                }
+                if (body.isNullOrEmpty()) continue
+                hits += findSearchHits(
+                    chapterIndex = index,
+                    chapterTitle = chapter.title.ifBlank { contentTitleFallback(index) },
+                    body = body,
+                    query = trimmed,
+                    maxHits = MAX_SEARCH_HITS - hits.size
+                )
+            }
+            _state.update {
+                it.copy(
+                    searchHits = hits,
+                    searchInProgress = false,
+                    lastSearchQuery = trimmed
+                )
+            }
+        }
+    }
+
+    private fun contentTitleFallback(index: Int): String = "Chapter ${index + 1}"
 
     fun setReadingMode(mode: ReadingMode) {
         if (mode == state.value.readingMode) return
@@ -605,9 +701,59 @@ class ReaderViewModel @Inject constructor(
         _state.update { it.copy(keepScreenOn = keepOn) }
     }
 
+    fun setOrientation(orientation: ReaderOrientation) {
+        preferenceUtil.putString(PreferenceUtil.READER_ORIENTATION_STR, orientation.id)
+        _state.update { it.copy(orientation = orientation) }
+    }
+
+    private fun observeHighlights(libraryItemId: Int) {
+        highlightsJob?.cancel()
+        highlightsJob = viewModelScope.launch {
+            highlightDao.observeForBook(libraryItemId).collect { list ->
+                _state.update { it.copy(highlights = list) }
+            }
+        }
+    }
+
+    /**
+     * Toggle a highlight for the selected [quote] in the current chapter.
+     * Returns true when a highlight was added or removed; false if the quote
+     * cannot be located in a single paragraph.
+     */
+    fun toggleHighlightFromSelection(quote: String): Boolean {
+        val needle = quote.trim()
+        if (needle.isEmpty()) return false
+        val chapterIndex = state.value.currentChapterIndex
+        val existing = state.value.highlights.firstOrNull {
+            it.chapterIndex == chapterIndex && it.quote == needle
+        }
+        if (existing != null) {
+            viewModelScope.launch(Dispatchers.IO) { highlightDao.delete(existing) }
+            return true
+        }
+        val libraryItemId = state.value.libraryItemId ?: return false
+        val chapter = state.value.chapters.getOrNull(chapterIndex) ?: return false
+        val body = state.value.loadedChapters[chapter.chapterId]?.body ?: return false
+        val anchor = locateHighlight(chapterIndex, body, quote) ?: return false
+        viewModelScope.launch(Dispatchers.IO) {
+            highlightDao.insert(
+                Highlight(
+                    libraryItemId = libraryItemId,
+                    chapterIndex = anchor.chapterIndex,
+                    itemIndex = anchor.itemIndex,
+                    startOffset = anchor.startOffset,
+                    endOffset = anchor.endOffset,
+                    quote = anchor.quote
+                )
+            )
+        }
+        return true
+    }
+
     private companion object {
         const val KEY_IMPORTED_ID = "imported_library_item_id"
         const val PAGINATION_DEBOUNCE_MS = 150L
         const val MAX_CACHED_CHAPTER_PAGES = 48
+        const val MAX_SEARCH_HITS = 100
     }
 }

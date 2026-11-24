@@ -75,6 +75,7 @@ import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderPage
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
 import org.scrollia.app.ui.screens.reader.main.viewmodel.TextSlices
 import org.scrollia.app.ui.screens.reader.main.viewmodel.VisiblePosition
+import org.scrollia.app.ui.screens.reader.main.viewmodel.withHighlights
 import org.scrollia.app.ui.theme.interFont
 import kotlin.math.max
 import kotlin.math.min
@@ -99,7 +100,8 @@ fun PagedChaptersContent(
     onRequestPages: (Int) -> Unit,
     onRestoreComplete: () -> Unit,
     onPositionChanged: (VisiblePosition) -> Unit,
-    onLoadImage: (String) -> Unit
+    onLoadImage: (String) -> Unit,
+    onHighlightRequested: (String) -> Unit = {}
 ) {
     val fontSizeSp = remember(state.fontSize) { ReaderLayout.fontSizeSp(state.fontSize) }
     val measure = rememberReaderMeasure(fontSizeSp, state.fontFamily.fontFamily)
@@ -169,7 +171,11 @@ fun PagedChaptersContent(
         }
     }
 
-    ReaderSelectionContainer(selectable = false) { toolbarHidden ->
+    ReaderSelectionContainer(
+        state = state,
+        selectable = false,
+        onHighlightRequested = onHighlightRequested
+    ) { toolbarHidden ->
         val selectionToolbarHidden by rememberUpdatedState(toolbarHidden)
         BoxWithConstraints(
             modifier = Modifier
@@ -387,7 +393,13 @@ private fun PageView(
                     }
 
                     is PageBlock.Lines -> body.getOrNull(block.itemIndex)?.let { item ->
-                        LinesBlock(item = item, block = block, styles = styles, state = state)
+                        LinesBlock(
+                            item = item,
+                            block = block,
+                            styles = styles,
+                            state = state,
+                            chapterIndex = page.chapterIndex
+                        )
                     }
 
                     is PageBlock.Fixed -> {
@@ -429,9 +441,17 @@ private fun LinesBlock(
     item: ReaderItem,
     block: PageBlock.Lines,
     styles: PagedStyles,
-    state: ReaderScreenState
+    state: ReaderScreenState,
+    chapterIndex: Int
 ) {
-    val fullText = remember(item) { PagedStyles.textOf(item) } ?: return
+    val itemHighlights = remember(state.highlights, chapterIndex, block.itemIndex) {
+        state.highlights.filter {
+            it.chapterIndex == chapterIndex && it.itemIndex == block.itemIndex
+        }
+    }
+    val fullText = remember(item, itemHighlights) {
+        PagedStyles.textOf(item)?.withHighlights(itemHighlights)
+    } ?: return
     val text = remember(fullText, block.startChar) {
         TextSlices.layoutText(fullText, block.startChar)
     }

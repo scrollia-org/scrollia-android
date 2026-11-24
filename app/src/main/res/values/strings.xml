@@ -143,6 +143,10 @@
     <string name="reader_settings_justify_desc">Even margins, with automatic hyphenation</string>
     <string name="reader_settings_keep_screen_on">Keep screen on</string>
     <string name="reader_settings_keep_screen_on_desc">The screen won\'t turn off while a book is open</string>
+    <string name="reader_settings_orientation">Orientation</string>
+    <string name="reader_orientation_system">Auto</string>
+    <string name="reader_orientation_portrait">Portrait</string>
+    <string name="reader_orientation_landscape">Landscape</string>
     <string name="reader_settings_sample">It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness.</string>
 
     <!-- Text selection -->
@@ -198,8 +202,24 @@
     <string name="developed_by">Developed By</string>
     <string name="dev_name" translatable="false">Scrollia</string>
     <string name="useful_links">Useful Links</string>
+    <string name="link_feedback">Send feedback</string>
+    <string name="link_feedback_desc">Ideas, typos, or anything to improve — opens your email app.</string>
+    <string name="feedback_subject_general">Scrollia feedback (v%1$s)</string>
+    <string name="feedback_subject_reader">Scrollia typo / feedback (v%1$s)</string>
+    <string name="feedback_body_prompt">Write your note below:</string>
+    <string name="reader_report_typo">Report a typo</string>
+    <string name="reader_more_options">More options</string>
+    <string name="reader_search_title">Search in book</string>
+    <string name="reader_search_placeholder">Word or phrase</string>
+    <string name="reader_search_empty">No matches in this book.</string>
+    <string name="reader_search_count">%1$d matches</string>
+    <string name="selection_report_typo">Report typo</string>
+    <string name="selection_highlight">Highlight</string>
+    <string name="highlight_select_one_paragraph">Select text within a single paragraph to highlight it.</string>
     <string name="link_website">Website</string>
     <string name="link_website_desc">Visit our website for more information.</string>
+    <string name="link_faq">Frequently asked questions</string>
+    <string name="link_faq_desc">Public domain, AI translations, languages, and more.</string>
     <string name="link_privacy_policy">Privacy Policy</string>
     <string name="link_privacy_policy_desc">Read our latest privacy policy.</string>
     <string name="link_source_code">Source code</string>

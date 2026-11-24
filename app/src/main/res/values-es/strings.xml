@@ -135,6 +135,10 @@
     <string name="reader_settings_justify_desc">Márgenes parejos, con separación silábica automática</string>
     <string name="reader_settings_keep_screen_on">Mantener pantalla encendida</string>
     <string name="reader_settings_keep_screen_on_desc">La pantalla no se apagará mientras haya un libro abierto</string>
+    <string name="reader_settings_orientation">Orientación</string>
+    <string name="reader_orientation_system">Auto</string>
+    <string name="reader_orientation_portrait">Vertical</string>
+    <string name="reader_orientation_landscape">Horizontal</string>
     <string name="reader_settings_sample">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo.</string>
     <!-- Text selection -->
     <string name="copy">Copiar</string>
@@ -184,8 +188,24 @@
     <string name="about_desc">Una aplicación Android gratuita y de código abierto para descargar libros electrónicos del Proyecto Gutenberg.</string>
     <string name="developed_by">Desarrollado por</string>
     <string name="useful_links">Enlaces útiles</string>
+    <string name="link_feedback">Enviar comentarios</string>
+    <string name="link_feedback_desc">Ideas, erratas o cualquier mejora — abre tu app de correo.</string>
+    <string name="feedback_subject_general">Comentarios de Scrollia (v%1$s)</string>
+    <string name="feedback_subject_reader">Errata / comentarios de Scrollia (v%1$s)</string>
+    <string name="feedback_body_prompt">Escribe tu mensaje debajo:</string>
+    <string name="reader_report_typo">Avisar de una errata</string>
+    <string name="reader_more_options">Más opciones</string>
+    <string name="reader_search_title">Buscar en el libro</string>
+    <string name="reader_search_placeholder">Palabra o frase</string>
+    <string name="reader_search_empty">Sin coincidencias en este libro.</string>
+    <string name="reader_search_count">%1$d coincidencias</string>
+    <string name="selection_report_typo">Avisar errata</string>
+    <string name="selection_highlight">Resaltar</string>
+    <string name="highlight_select_one_paragraph">Selecciona texto de un solo párrafo para resaltarlo.</string>
     <string name="link_website">Sitio web</string>
     <string name="link_website_desc">Visita nuestro sitio web para más información.</string>
+    <string name="link_faq">Preguntas frecuentes</string>
+    <string name="link_faq_desc">Dominio público, traducciones con IA, idiomas y más.</string>
     <string name="link_privacy_policy">Política de privacidad</string>
     <string name="link_privacy_policy_desc">Lee nuestra política de privacidad más reciente.</string>
     <string name="link_source_code">Código fuente</string>

@@ -69,6 +69,7 @@ import coil.compose.AsyncImage
 import org.scrollia.app.BuildConfig
 import org.scrollia.app.R
 import org.scrollia.app.helpers.Constants
+import org.scrollia.app.helpers.FeedbackMail
 import org.scrollia.app.helpers.Utils
 import org.scrollia.app.ui.common.CustomTopAppBar
 import org.scrollia.app.ui.theme.interFont
@@ -132,10 +133,22 @@ fun AboutScreen(navController: NavController) {
                         .padding(horizontal = 14.dp)
                 ) {
                     SettingItem(
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_feedback),
+                        mainText = stringResource(id = R.string.link_feedback),
+                        subText = stringResource(id = R.string.link_feedback_desc),
+                        onClick = { FeedbackMail.openGeneral(context) }
+                    )
+                    SettingItem(
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
                         mainText = stringResource(id = R.string.link_website),
                         subText = stringResource(id = R.string.link_website_desc),
                         onClick = { Utils.openWebLink(context, Constants.WEBSITE) }
+                    )
+                    SettingItem(
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_faq),
+                        mainText = stringResource(id = R.string.link_faq),
+                        subText = stringResource(id = R.string.link_faq_desc),
+                        onClick = { Utils.openWebLink(context, Constants.FAQ) }
                     )
                     SettingItem(
                         icon = Icons.Filled.Lock,
@@ -324,11 +337,7 @@ private fun DeveloperCard(context: Context) {
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.clickable {
-                        Utils.openEmail(
-                            context = context,
-                            email = Constants.DEV_EMAIL,
-                            subject = "Scrollia Feedback (v${BuildConfig.VERSION_NAME})"
-                        )
+                        FeedbackMail.openGeneral(context)
                     }
                 )
             }

@@ -58,13 +58,16 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import android.content.Context
 import org.scrollia.app.R
 import org.scrollia.app.epub.asAnnotatedString
 import org.scrollia.app.epub.models.ReaderItem
+import org.scrollia.app.helpers.FeedbackMail
 import org.scrollia.app.helpers.toToast
 import org.scrollia.app.ui.common.ScrolliaSelectionContainer
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderListEntry
 import org.scrollia.app.ui.screens.reader.main.viewmodel.ReaderScreenState
+import org.scrollia.app.ui.screens.reader.main.viewmodel.withHighlights
 import org.scrollia.app.ui.theme.frauncesFont
 import androidx.compose.runtime.getValue
 
@@ -75,7 +78,8 @@ fun ChaptersContent(
     entries: List<ReaderListEntry>,
     lazyListState: LazyListState,
     onToggleReaderMenu: () -> Unit,
-    onLoadImage: (String) -> Unit
+    onLoadImage: (String) -> Unit,
+    onHighlightRequested: (String) -> Unit = {}
 ) {
     val targetFontSize = remember(state.fontSize) { ReaderLayout.fontSizeSp(state.fontSize) }
     val maxTextWidth = rememberReaderMeasure(targetFontSize, state.fontFamily.fontFamily)
@@ -93,7 +97,10 @@ fun ChaptersContent(
         label = "lineHeight"
     )
 
-    ReaderSelectionContainer {
+    ReaderSelectionContainer(
+        state = state,
+        onHighlightRequested = onHighlightRequested
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -153,6 +160,8 @@ fun ChaptersContent(
                             ReaderItemContent(
                                 item = item,
                                 state = state,
+                                chapterIndex = entry.chapterIndex,
+                                itemIndex = entry.itemIndex,
                                 fontSize = fontSize,
                                 lineHeight = lineHeight,
                                 maxTextWidth = maxTextWidth,
@@ -168,15 +177,17 @@ fun ChaptersContent(
 }
 
 /**
- * Selection with copy/share/translate/meaning. Web search stays off until its QA
- * (DESIGN §19). Meaning hands the selection to apps that handle PROCESS_TEXT
- * (system translate/dictionary); no bundled dictionary and no silent web fallback.
- * [content] learns if the toolbar is hidden. With [selectable] false only the toolbar
- * is provided (see ScrolliaSelectionContainer).
+ * Selection with copy/share/translate/meaning and typo report. Web search stays
+ * off until its QA (DESIGN §19). Meaning hands the selection to apps that handle
+ * PROCESS_TEXT (system translate/dictionary); no bundled dictionary and no silent
+ * web fallback. [content] learns if the toolbar is hidden. With [selectable] false
+ * only the toolbar is provided (see ScrolliaSelectionContainer).
  */
 @Composable
 internal fun ReaderSelectionContainer(
+    state: ReaderScreenState,
     selectable: Boolean = true,
+    onHighlightRequested: (String) -> Unit = {},
     content: @Composable (toolbarHidden: Boolean) -> Unit
 ) {
     val context = LocalContext.current
@@ -220,6 +231,10 @@ internal fun ReaderSelectionContainer(
                 context.getString(R.string.no_app_to_handle_content).toToast(context)
             }
         },
+        onFeedbackRequested = { quote ->
+            openReaderFeedback(context, state, quote)
+        },
+        onHighlightRequested = onHighlightRequested,
         onDictionaryRequested = dictionary@{
             val text = it.trim()
             if (text.isEmpty()) return@dictionary
@@ -249,6 +264,24 @@ internal fun ReaderSelectionContainer(
         },
         selectable = selectable
     ) { toolbarHidden -> content(toolbarHidden) }
+}
+
+internal fun openReaderFeedback(
+    context: Context,
+    state: ReaderScreenState,
+    quote: String? = null
+) {
+    val book = state.epubBook
+    FeedbackMail.openFromReader(
+        context = context,
+        title = book?.title,
+        author = book?.author,
+        language = book?.language,
+        chapterTitle = state.currentChapter.title.takeIf { it.isNotBlank() },
+        chapterIndex = state.currentChapterIndex.takeIf { state.chapters.isNotEmpty() },
+        chapterCount = state.chapters.size.takeIf { it > 0 },
+        quote = quote
+    )
 }
 
 @Composable
@@ -282,15 +315,24 @@ private fun ChapterHeader(
 private fun ReaderItemContent(
     item: ReaderItem,
     state: ReaderScreenState,
+    chapterIndex: Int,
+    itemIndex: Int,
     fontSize: Float,
     lineHeight: Float,
     maxTextWidth: Dp,
     bodyStyle: TextStyle,
     onLoadImage: (String) -> Unit
 ) {
+    val itemHighlights = remember(state.highlights, chapterIndex, itemIndex) {
+        state.highlights.filter {
+            it.chapterIndex == chapterIndex && it.itemIndex == itemIndex
+        }
+    }
     when (item) {
         is ReaderItem.Text -> {
-            val annotatedString = remember(item.spans) { item.spans.asAnnotatedString() }
+            val annotatedString = remember(item.spans, itemHighlights) {
+                item.spans.asAnnotatedString().withHighlights(itemHighlights)
+            }
             Text(
                 text = annotatedString,
                 fontSize = fontSize.sp,
@@ -363,8 +405,9 @@ private fun ReaderItemContent(
                     .background(state.readerTheme.textColor.copy(alpha = 0.07f))
                     .padding(16.dp)
             ) {
-                val annotatedString = remember(item.spans) {
+                val annotatedString = remember(item.spans, itemHighlights) {
                     item.spans.asAnnotatedString(collapseWhitespace = false)
+                        .withHighlights(itemHighlights)
                 }
                 Text(
                     text = annotatedString,
